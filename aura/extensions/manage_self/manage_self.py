@@ -23,6 +23,9 @@ class ManageSelf:
         player = await db.select_var(sql, values)
         player_name = self.bot.get_user(int(player[0][2]))
         region_id = int(player[0][4])
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
+        values = (region_id,)
+        local_players = await db.select_var(sql, values)
         region_name = await game_functions.get_region(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
         current_ship = player[0][14]
@@ -33,10 +36,10 @@ class ManageSelf:
         if int(player[0][6]) == 20:
             destination = await game_functions.get_region(int(player[0][17]))
             embed.add_field(name="Welcome {}".format(player_name),
-                            value="**Current Region** - {}\n**Current Ship** - {}\n**Current Task** - {}\n"
-                                  "**Wallet Balance** - {}\n\n"
+                            value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
+                                  "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
                                   "*Ship is currently traveling to {}.......*".format(
-                                region_name, current_ship, current_task, wallet_balance, destination))
+                                region_name, len(local_players), current_ship, current_task, wallet_balance, destination))
             return await ctx.author.send(embed=embed)
         embed.add_field(name="Welcome {}".format(player_name),
                         value="**Current Region** - {}\n**Current Ship** - {}\n**Current Task** - {}\n"

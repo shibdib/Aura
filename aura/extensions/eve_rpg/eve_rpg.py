@@ -101,15 +101,15 @@ class EveRpg:
         for traveler in travelers:
             region_id = int(traveler[4])
             destination_id = int(traveler[17])
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND WHERE `region` = (?) '''
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND `region` = (?) '''
             values = (region_id,)
             outbound_campers = await db.select_var(sql, values)
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND WHERE `region` = (?) '''
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND `region` = (?) '''
             values = (destination_id,)
             inbound_campers = await db.select_var(sql, values)
-            if outbound_campers is not None:
+            if len(outbound_campers) is not 0:
                 return
-            if inbound_campers is not None:
+            if len(inbound_campers) is not 0:
                 return
             sql = ''' UPDATE eve_rpg_players
                     SET region = (?),
