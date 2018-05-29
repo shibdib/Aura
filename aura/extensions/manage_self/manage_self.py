@@ -137,16 +137,14 @@ class ManageSelf:
 
         msg = await self.bot.wait_for('message', check=check, timeout=60.0)
         content = msg.content
-        if content == '1' or content == '2' or content == '3' or content == '4' or content == '5' or content == '6' \
-                or content == '7' or content == '8' or content == '9' or content == '10'or content == '11'\
-                or content == '12':
+        if 0 < int(content) < 13:
             sql = ''' UPDATE eve_rpg_players
                     SET destination = (?),
                         task = 20
                     WHERE
                         player_id = (?); '''
             values = (int(content), ctx.author.id,)
-            destination = await game_functions.get_region(content)
+            destination = await game_functions.get_region(int(content))
             await db.execute_sql(sql, values)
             return await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
         elif content == '5':
