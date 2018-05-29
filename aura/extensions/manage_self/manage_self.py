@@ -146,12 +146,8 @@ class ManageSelf:
                     WHERE
                         player_id = (?); '''
             values = (int(content), ctx.author.id,)
+            destination = await game_functions.get_region(content)
             await db.execute_sql(sql, values)
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
-            values = (ctx.message.author.id,)
-            player = await db.select_var(sql, values)
-            new_id = int(player[0][4])
-            destination = await game_functions.get_region(new_id)
             return await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
         elif content == '5':
             return await ctx.author.send('**Not Yet Implemented**')
