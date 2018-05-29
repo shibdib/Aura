@@ -11,7 +11,7 @@ class EveRpg:
         self.logger = bot.logger
 
     @commands.command(name='setRpg')
-    @checks.check_is_admin
+    @checks.is_admin()
     async def _set_rpg(self, ctx):
         """Sets a channel as an RPG channel.
         Do **!setRpg** to have a channel relay all RPG events.

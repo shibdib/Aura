@@ -15,37 +15,6 @@ class EveRpg:
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.tick_loop())
 
-    @commands.command(name='setRpg')
-    async def _set_rpg(self, ctx):
-        """Sets a channel as an RPG channel.
-        Do **!setRpg** to have a channel relay all RPG events.
-        The RPG includes players from all servers this instance of the bot is on."""
-        sql = ''' REPLACE INTO eve_rpg_channels(server_id,channel_id,owner_id)
-                  VALUES(?,?,?) '''
-        author = ctx.message.author.id
-        channel = ctx.message.channel.id
-        server = ctx.message.guild.id
-        values = (server, channel, author)
-        await db.execute_sql(sql, values)
-        self.logger.info('eve_rpg - {} added {} to the rpg channel list.')
-        return await ctx.author.send('**Success** - Channel added.')
-
-    @commands.command(name='rpg')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    async def _rpg(self, ctx):
-        """Sign up for the RPG.
-        If your server doesn't have an RPG channel have an admin do **!setRpg** to receive the game events.
-        If you've already registered this will reset your account."""
-        sql = ''' REPLACE INTO eve_rpg_players(server_id,player_id)
-                  VALUES(?,?) '''
-        author = ctx.message.author.id
-        server = ctx.message.guild.id
-        values = (server, author)
-        await db.execute_sql(sql, values)
-        self.logger.info('eve_rpg - ' + str(ctx.message.author) + ' added to the game.')
-        return await ctx.author.send('**Success** - Welcome to the game.')
-
     @commands.command(name='rpgStats', aliases=["rpgstats"])
     @checks.spam_check()
     @checks.is_whitelist()
