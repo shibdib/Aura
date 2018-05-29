@@ -55,6 +55,7 @@ class EveRpg:
         while not self.bot.is_closed():
             try:
                 await self.process_travel()
+                await self.process_belt_ratting()
                 await self.process_roams()
                 await asyncio.sleep(12)
             except Exception:
@@ -109,6 +110,57 @@ class EveRpg:
             local_players = await db.select_var(sql, values)
             return await player.send('You have arrived in {}\n\nLocal Count - {}'.format(destination_name,
                                                                                          len(local_players)))
+
+    async def process_belt_ratting(self):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 '''
+        ratters = await db.select(sql)
+        if ratters is None or len(ratters) is 0:
+            return
+        for ratter in ratters:
+            region_id = int(ratter[4])
+            user = self.bot.get_user(ratter[2])
+            region_security = await game_functions.get_region_security(region_id)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 AND `region` = (?) '''
+            values = (region_id,)
+            system_ratters = await db.select_var(sql, values)
+            isk = await self.weighted_choice([(1000, 100), (1500, 30), (3500, 10)])
+            if region_security == 'Low':
+                isk = await self.weighted_choice([(2500, 100), (3500, 30), (5500, 10)])
+            elif region_security == 'Null':
+                isk = await self.weighted_choice([(7500, 100), (9500, 30), (13500, 10)])
+            #  PVE Rolls
+            ship_id = ratter[14]
+            ship = await game_functions.get_ship(ship_id)
+            ship_attack, ship_defense, ship_maneuver, ship_tracking = \
+                await game_functions.get_combat_attributes(ship_id)
+            death = await self.weighted_choice(
+                [(True, 11), (False, 75 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
+            flee = await self.weighted_choice(
+                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2))])
+            find_rats = await self.weighted_choice([(True, 100 / len(system_ratters)), (False, 30)])
+            if find_rats is False:
+                continue
+            if death is True and flee is False:
+                message = await self.weighted_choice(
+                    [('**{}** flying in a {} died to gate guns.'.format(user.display_name, ship), 10),
+                     ('**{}** flying in a {} forgot to turn on their reps and died to rats.'.format(user.display_name,
+                                                                                                    ship), 45),
+                     ('**{}** flying in a {} went afk in an belt and died.'.format(user.display_name, ship), 45)])
+                await self.destroy_ship(ratter)
+                await self.add_loss(ratter)
+                return await self.send_global(message)
+            elif flee is True:
+                return
+            else:
+                xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
+                await self.add_xp(ratter, xp_gained)
+                await self.add_isk(ratter, isk)
+                message = await self.weighted_choice(
+                    [('**{}** flying in a {} belt ratted and got {} ISK.'.format(user.display_name, ship, isk), 45),
+                     ('**{}** flying in a {} chained the belt rats and got {} ISK.'.format(user.display_name, ship, isk), 45),
+                     ('**{}** flying in a {} killed some belt rats and got {} ISK.'.format(user.display_name, ship, isk), 45)])
+                await self.send_global(message)
+
 
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
@@ -232,6 +284,14 @@ class EveRpg:
                     WHERE
                         player_id = (?); '''
             values = (player[0][9] + 1, 0, player[0][2],)
+        await db.execute_sql(sql, values)
+
+    async def add_isk(self, player, isk):
+        sql = ''' UPDATE eve_rpg_players
+                SET isk = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (int(player[0][5]) + isk, player[0][2],)
         await db.execute_sql(sql, values)
 
     async def add_kill(self, player):

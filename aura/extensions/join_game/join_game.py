@@ -44,6 +44,7 @@ class JoinGame:
         author = ctx.message.author.id
         if ctx.guild is None:
             return await ctx.author.send('WARNING: The join command cannot be done via a DM.')
+        await ctx.message.delete()
         server = ctx.message.guild.id
         values = (server, author)
         await db.execute_sql(sql, values)
@@ -58,7 +59,7 @@ class JoinGame:
         #  Race
         embed.add_field(name="Question One",
                         value='Choose your race.\n**1.** Caldari\n**2.** Amarr\n**3.** Minmatar\n'
-                              '**4.** Gallente\n**5.** Jove')
+                              '**4.** Gallente')
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -95,7 +96,7 @@ class JoinGame:
             ship_id = 5
             region = 'Essence'
             region_id = 4
-        elif content == '5':
+        elif content == '99':
             race = 'Jove'
             ship = 'Specter'
             ship_id = 5
