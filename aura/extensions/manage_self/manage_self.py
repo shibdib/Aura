@@ -22,11 +22,11 @@ class ManageSelf:
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
         player_name = self.bot.get_user(int(player[0][2]))
-        region_name = game_functions.get_region(int(player[0][4]))
+        region_name = await game_functions.get_region(int(player[0][4]))
         current_ship = player[0][15]
         wallet_balance = player[0][5]
-        current_task = game_functions.get_task(int(player[0][6]))
-        current_focus = game_functions.get_task(int(player[0][7]))
+        current_task = await game_functions.get_task(int(player[0][6]))
+        current_focus = await game_functions.get_focus(int(player[0][7]))
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
