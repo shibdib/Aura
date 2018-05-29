@@ -31,14 +31,14 @@ class ManageSelf:
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Welcome {}".format(player_name),
-                        value="Current Region - {}\nCurrent Ship - {}\nCurrent Task - {}\nCurrent Focus - {}"
-                              "\nWallet Balance - {}\n\n"
-                              "User interface initiated.... Select desired action below.\n\n"
+                        value="**Current Region** - {}\n**Current Ship** - {}\n**Current Task** - {}\n"
+                              "**Current Focus** - {}\n**Wallet Balance** - {}\n\n"
+                              "*User interface initiated.... Select desired action below......*\n\n"
                               "**1.** Change task\n"
                               "**2.** Travel to a new region.\n"
                               "**3.** Modify current ship.\n"
                               "**4.** Change into another ship.\n"
-                              "**5.** Visit the regional market."
+                              "**5.** Visit the regional market.\n"
                               "**6.** Change focus\n".format(
                             region_name, current_ship, current_task, current_focus, wallet_balance))
         await ctx.author.send(embed=embed)
@@ -46,30 +46,38 @@ class ManageSelf:
         def check(m):
             return m.author == ctx.author
 
-        msg = await self.bot.wait_for('message', check=check)
+        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
         content = msg.content
         if content == '1':
-            race = 'Caldari'
-            ship = 'Ibis'
-            region = 'The Forge'
-            region_id = 1
+            await self.change_task(ctx)
         elif content == '2':
-            race = 'Amarr'
-            ship = 'Impairor'
-            region = 'Domain'
-            region_id = 2
+            await self.travel(ctx)
         elif content == '3':
-            race = 'Minmatar'
-            ship = 'Reaper'
-            region = 'Heimatar'
-            region_id = 3
+            await self.modify_ship(ctx)
         elif content == '4':
-            race = 'Gallente'
-            ship = 'Velator'
-            region = 'Essence'
-            region_id = 4
+            await self.change_ship(ctx)
         elif content == '5':
-            race = 'Jove'
-            ship = 'Specter'
-            region = 'The Forge'
-            region_id = 1
+            await self.visit_market(ctx)
+        elif content == '6':
+            await self.change_focus(ctx)
+        else:
+            return await ctx.author.send('**ERROR** - Not a valid choice.')
+
+    async def change_task(self, ctx):
+        return await ctx.author.send('**Not Yet Implemented**')
+
+    async def travel(self, ctx):
+        return await ctx.author.send('**Not Yet Implemented**')
+
+    async def modify_ship(self, ctx):
+        return await ctx.author.send('**Not Yet Implemented**')
+
+    async def change_ship(self, ctx):
+        return await ctx.author.send('**Not Yet Implemented**')
+
+    async def visit_market(self, ctx):
+        return await ctx.author.send('**Not Yet Implemented**')
+
+    async def change_focus(self, ctx):
+        return await ctx.author.send('**Not Yet Implemented**')
+

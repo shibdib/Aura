@@ -18,6 +18,25 @@ class JoinGame:
         """Sign up for the RPG.
         If your server doesn't have an RPG channel have an admin do **!setRpg** to receive the game events.
         **If you've already registered this will reset your account.**"""
+        #  Check if user exists already and confirm restart
+        exists = await checks.check_has_account(ctx)
+        if exists is True:
+            embed = make_embed(icon=ctx.bot.user.avatar)
+            embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            embed.add_field(name="WARNING",
+                            value="You already have an active account are you sure you want to reset?\n\n"
+                                  "**1.** Yes Reset My Account\n"
+                                  "**2.** No!!")
+            await ctx.author.send(embed=embed)
+
+            def check(m):
+                return m.author == ctx.author
+
+            msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+            content = msg.content
+            if content != '1':
+                return
         sql = ''' REPLACE INTO eve_rpg_players(server_id,player_id)
                   VALUES(?,?) '''
         author = ctx.message.author.id
@@ -43,7 +62,7 @@ class JoinGame:
         def check(m):
             return m.author == ctx.author
 
-        msg = await self.bot.wait_for('message', check=check)
+        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
         content = msg.content
         race = 'Caldari'
         ship = 'Ibis'
@@ -98,7 +117,7 @@ class JoinGame:
         def check(m):
             return m.author == ctx.author
 
-        msg = await self.bot.wait_for('message', check=check)
+        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
         content = msg.content
         response = 'ERROR'
         if content == '1':
