@@ -21,6 +21,8 @@ class JoinGame:
         sql = ''' REPLACE INTO eve_rpg_players(server_id,player_id)
                   VALUES(?,?) '''
         author = ctx.message.author.id
+        if ctx.guild is None:
+            return await ctx.author.send('WARNING: The join command cannot be done via a DM.')
         server = ctx.message.guild.id
         values = (server, author)
         await db.execute_sql(sql, values)
