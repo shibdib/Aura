@@ -56,7 +56,7 @@ def main():
     ft_args.append('-l')
 
     while True:
-        code = subprocess.call(["Aura-bot", *ft_args], env=env)
+        code = subprocess.call(["aura-bot", *ft_args], env=env)
         if code == 0:
             print("Goodbye!")
             break

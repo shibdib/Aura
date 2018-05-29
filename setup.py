@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='Aura',
+    name='aura',
     version='1.0.0a0',
     description='Aura - An EVE Online Discord RPG Bot',
     url='https://github.com/shibdib/Aura',
@@ -43,8 +43,8 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'Aura=Aura.launcher:main',
-            'Aura-bot=Aura.__main__:main'
+            'aura=aura.launcher:main',
+            'aura-bot=aura.__main__:main'
         ],
     },
 )
