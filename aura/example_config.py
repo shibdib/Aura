@@ -9,6 +9,11 @@ bot_prefix = ['!']
 bot_master = 174764205927432192  # The discord ID of the owner
 bot_coowners = [114428861990699012]  # The discord ID's of co-owners
 
+# Auto Responses - Add more with the format 'trigger': 'Auto response'
+auto_responses = {
+    '1232323': '1234 '
+}
+
 # minimum required permissions for bot (Only really needed if you're inviting it to other servers, probably safe to
 # not touch this)
 bot_permissions = 224256
