@@ -40,7 +40,8 @@ tasks = {1: 'Docked',
          9: 'Belt Mining',
          10: 'Anomaly Mining',
          # GENERIC
-         20: 'Traveling'}
+         20: 'Traveling',
+         21: 'In Space'}
 
 
 async def get_region(region_id):
