@@ -1,5 +1,6 @@
 from discord.ext import commands
 from aura.lib import db
+from aura.lib import game_functions
 from aura.core import checks
 from aura.utils import make_embed
 import asyncio
@@ -100,16 +101,18 @@ class EveRpg:
             return
         for traveler in travelers:
             region_id = int(traveler[4])
+            region_security = await game_functions.get_region_security(region_id)
             destination_id = int(traveler[17])
+            destination_security = await game_functions.get_region_security(destination_id)
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND `region` = (?) '''
             values = (region_id,)
             outbound_campers = await db.select_var(sql, values)
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND `region` = (?) '''
             values = (destination_id,)
             inbound_campers = await db.select_var(sql, values)
-            if len(outbound_campers) is not 0:
+            if len(outbound_campers) is not 0 and region_security != 'High':
                 return
-            if len(inbound_campers) is not 0:
+            if len(inbound_campers) is not 0 and destination_security != 'High':
                 return
             sql = ''' UPDATE eve_rpg_players
                     SET region = (?),

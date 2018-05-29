@@ -26,6 +26,21 @@ region_connections = {1: [2, 3, 4, 5],
                       11: [7, 10, 12],
                       12: [8, 9, 11]}
 
+region_security = {1: 'High',
+                   2: 'High',
+                   3: 'High',
+                   4: 'High',
+                   # low
+                   5: 'Low',
+                   6: 'Low',
+                   7: 'Low',
+                   8: 'Low',
+                   # null
+                   9: 'Null',
+                   10: 'Null',
+                   11: 'Null',
+                   12: 'Null'}
+
 tasks = {1: 'Docked',
          # PVP
          2: 'Roaming',
@@ -50,6 +65,10 @@ async def get_region(region_id):
 
 async def get_region_connections(region_id):
     return region_connections[region_id]
+
+
+async def get_region_security(region_id):
+    return region_security[region_id]
 
 
 async def get_task(task_id):
