@@ -118,6 +118,7 @@ class EveRpg:
             return
         for ratter in ratters:
             region_id = int(ratter[4])
+            region_name = await game_functions.get_region(int(region_id))
             user = self.bot.get_user(ratter[2])
             region_security = await game_functions.get_region_security(region_id)
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 AND `region` = (?) '''
@@ -137,32 +138,29 @@ class EveRpg:
                 [(True, 11), (False, 75 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2))])
-            find_rats = await self.weighted_choice([(True, 100 / len(system_ratters)), (False, 30)])
+            find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
             if find_rats is False:
                 continue
             if death is True and flee is False:
-                message = await self.weighted_choice(
-                    [('**{}** flying in a {} died to gate guns.'.format(user.display_name, ship), 10),
-                     ('**{}** flying in a {} forgot to turn on their reps and died to rats.'.format(user.display_name,
-                                                                                                    ship), 45),
-                     ('**{}** flying in a {} went afk in an belt and died.'.format(user.display_name, ship), 45)])
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "**Loser**\n"
+                                      "**{}** flying a {} was killed by belt rats.".format(region_name, user.display_name,
+                                                                                           ship))
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
-                await player.send('{}'.format(message))
-                return await self.send_global(message)
+                await player.send(embed=embed)
+                return await self.send_global(embed)
             elif flee is True:
                 return
             else:
                 xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
                 await self.add_xp(ratter, xp_gained)
                 await self.add_isk(ratter, isk)
-                message = await self.weighted_choice(
-                    [('**{}** flying in a {} belt ratted and got {} ISK.'.format(user.display_name, ship, isk), 45),
-                     ('**{}** flying in a {} chained the belt rats and got {} ISK.'.format(user.display_name, ship, isk), 45),
-                     ('**{}** flying in a {} killed some belt rats and got {} ISK.'.format(user.display_name, ship, isk), 45)])
-                await self.send_global(message)
-
 
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
@@ -301,7 +299,7 @@ class EveRpg:
                 SET kills = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(player[11]) + 1, player[2],)
+        values = (int(player[10]) + 1, player[2],)
         await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
@@ -309,9 +307,8 @@ class EveRpg:
                 SET losses = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(player[12]) + 1, player[2],)
+        values = (int(player[11]) + 1, player[2],)
         await db.execute_sql(sql, values)
-
 
     async def destroy_ship(self, player):
         ship_id = 1
