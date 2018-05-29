@@ -68,31 +68,37 @@ class JoinGame:
         content = msg.content
         race = 'Caldari'
         ship = 'Ibis'
+        ship_id = 1
         region = 'The Forge'
         region_id = 1
         if content == '1':
             race = 'Caldari'
             ship = 'Ibis'
+            ship_id = 1
             region = 'The Forge'
             region_id = 1
         elif content == '2':
             race = 'Amarr'
             ship = 'Impairor'
+            ship_id = 2
             region = 'Domain'
             region_id = 2
         elif content == '3':
             race = 'Minmatar'
             ship = 'Reaper'
+            ship_id = 3
             region = 'Heimatar'
             region_id = 3
         elif content == '4':
             race = 'Gallente'
             ship = 'Velator'
+            ship_id = 5
             region = 'Essence'
             region_id = 4
         elif content == '5':
             race = 'Jove'
             ship = 'Specter'
+            ship_id = 5
             region = 'The Forge'
             region_id = 1
         sql = ''' UPDATE eve_rpg_players
@@ -101,7 +107,7 @@ class JoinGame:
                     region = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(content), ship, region_id, author,)
+        values = (int(content), ship_id, region_id, author,)
         await db.execute_sql(sql, values)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,

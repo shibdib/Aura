@@ -58,6 +58,35 @@ tasks = {1: 'Docked',
          20: 'Traveling',
          21: 'In Space'}
 
+ships = {  # Noob
+    1: {'name': 'Ibis', 'attack': 1, 'defense': 1, 'maneuver': 2, 'tracking': 1},
+    2: {'name': 'Impairor', 'attack': 1, 'defense': 1, 'maneuver': 2, 'tracking': 1},
+    3: {'name': 'Reaper', 'attack': 1, 'defense': 1, 'maneuver': 2, 'tracking': 1},
+    4: {'name': 'Velator', 'attack': 1, 'defense': 1, 'maneuver': 2, 'tracking': 1},
+    5: {'name': 'Specter', 'attack': 2, 'defense': 2, 'maneuver': 3, 'tracking': 2},
+    # Frigates
+    6: {'name': 'Rifter', 'attack': 2, 'defense': 1, 'maneuver': 7, 'tracking': 5},
+    7: {'name': 'Slicer', 'attack': 2, 'defense': 1, 'maneuver': 8, 'tracking': 5},
+    8: {'name': 'Kestrel', 'attack': 2, 'defense': 1, 'maneuver': 7, 'tracking': 15},
+    9: {'name': 'Incursus', 'attack': 3, 'defense': 1, 'maneuver': 7, 'tracking': 5},
+    # Ceptors
+    10: {'name': 'Claw', 'attack': 2, 'defense': 1, 'maneuver': 12, 'tracking': 8},
+    11: {'name': 'Crusader', 'attack': 2, 'defense': 1, 'maneuver': 12, 'tracking': 8},
+    12: {'name': 'Raptor', 'attack': 2, 'defense': 1, 'maneuver': 12, 'tracking': 8},
+    13: {'name': 'Taranis', 'attack': 2, 'defense': 1, 'maneuver': 12, 'tracking': 8},
+    # Destroyers
+    14: {'name': 'Thrasher', 'attack': 4, 'defense': 1, 'maneuver': 6, 'tracking': 8},
+    15: {'name': 'Catalyst', 'attack': 6, 'defense': 1, 'maneuver': 6, 'tracking': 8},
+    16: {'name': 'Coercer', 'attack': 4, 'defense': 1, 'maneuver': 6, 'tracking': 8},
+    17: {'name': 'Cormorant', 'attack': 4, 'defense': 1, 'maneuver': 6, 'tracking': 8},
+    # Tactical Destroyers
+    18: {'name': 'Confessor', 'attack': 5, 'defense': 3, 'maneuver': 6, 'tracking': 8},
+    19: {'name': 'Svipul', 'attack': 6, 'defense': 3, 'maneuver': 6, 'tracking': 8},
+    20: {'name': 'Jackdaw', 'attack': 4, 'defense': 4, 'maneuver': 6, 'tracking': 15},
+    21: {'name': 'Hecate', 'attack': 5, 'defense': 3, 'maneuver': 6, 'tracking': 8},
+    # Faction Frigs
+    50: {'name': 'Firetail', 'attack': 2, 'defense': 2, 'maneuver': 3, 'tracking': 2},
+    51: {'name': 'Dramiel', 'attack': 2, 'defense': 2, 'maneuver': 3, 'tracking': 2}}
 
 async def get_region(region_id):
     return regions[region_id]
@@ -73,3 +102,12 @@ async def get_region_security(region_id):
 
 async def get_task(task_id):
     return tasks[task_id]
+
+
+async def get_ship(ship_id):
+    return ships[ship_id]
+
+
+async def get_combat_attributes(ship_id):
+    ship = ships[ship_id]
+    return ship['attack'], ship['defense'], ship['maneuver'], ship['tracking']
