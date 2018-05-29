@@ -135,7 +135,7 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 11), (False, 75 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
+                [(True, 2), (False, 95 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
@@ -250,12 +250,15 @@ class EveRpg:
         game_channels = await db.select(sql)
         for channels in game_channels:
             channel = self.bot.get_channel(int(channels[2]))
+            self.logger.info('eve_rpg - {}'.format(embed))
             if channel is None:
                 self.logger.exception('eve_rpg - Bad Channel Attempted removing....')
                 await self.remove_bad_channel(channels[2])
             if embed is False:
+                self.logger.info('eve_rpg - 1')
                 await channel.send(message)
             else:
+                self.logger.info('eve_rpg - 2')
                 await channel.send(embed=message)
 
     async def remove_bad_user(self, player_id):
