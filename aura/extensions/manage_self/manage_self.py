@@ -18,7 +18,8 @@ class ManageSelf:
     @checks.has_account()
     async def _me(self, ctx):
         """Manage your character."""
-        await ctx.message.delete()
+        if ctx.guild is not None:
+            await ctx.message.delete()
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)

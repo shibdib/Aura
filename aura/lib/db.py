@@ -53,7 +53,7 @@ async def create_tables():
                                         losses INTEGER DEFAULT 0,
                                         modules TEXT DEFAULT NULL,
                                         module_hangar TEXT DEFAULT NULL,
-                                        ship TEXT DEFAULT NULL,
+                                        ship INTEGER DEFAULT 0,
                                         ship_hangar TEXT DEFAULT NULL,
                                         fleet INTEGER DEFAULT 0,
                                         destination INTEGER DEFAULT 0
