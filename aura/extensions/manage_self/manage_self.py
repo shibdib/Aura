@@ -42,15 +42,15 @@ class ManageSelf:
                                 region_name, len(local_players), current_ship, current_task, wallet_balance, destination))
             return await ctx.author.send(embed=embed)
         embed.add_field(name="Welcome {}".format(player_name),
-                        value="**Current Region** - {}\n**Current Ship** - {}\n**Current Task** - {}\n"
-                              "**Wallet Balance** - {}\n\n"
+                        value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
+                              "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
                               "*User interface initiated.... Select desired action below......*\n\n"
                               "**1.** Change task.\n"
                               "**2.** Travel to a new region.\n"
                               "**3.** Modify current ship.\n"
                               "**4.** Change into another ship.\n"
                               "**5.** Visit the regional market.\n".format(
-                            region_name, current_ship, current_task, wallet_balance))
+                            region_name, len(local_players), current_ship, current_task, wallet_balance))
         await ctx.author.send(embed=embed)
 
         def check(m):
