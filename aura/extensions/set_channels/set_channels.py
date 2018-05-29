@@ -3,7 +3,7 @@ from aura.lib import db
 from aura.core import checks
 
 
-class EveRpg:
+class SetChannels:
     def __init__(self, bot):
         self.bot = bot
         self.session = bot.session
