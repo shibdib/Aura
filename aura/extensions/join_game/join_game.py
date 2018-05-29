@@ -108,38 +108,10 @@ class JoinGame:
                         value='Good choice, your race determines the ship you start with (and receive upon death) '
                               'along with your starting region.\n**Starting Ship** - {}\n**Home Region** - {}'.format(
                                ship, region))
-        #  Profession
-        embed.add_field(name="Question Two",
-                        value='Choose your initial focus (You can change this later).\n**1.** PVP\n'
-                              '**2.** PVE\n**3.** Mining\n**4.** Industry')
         await ctx.author.send(embed=embed)
-
-        def check(m):
-            return m.author == ctx.author
-
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
-        content = msg.content
-        response = 'ERROR'
-        if content == '1':
-            response = 'You chose the life of a PVPer.'
-        elif content == '2':
-            response = 'You chose to be a PVE focused pilot.'
-        elif content == '3':
-            response = 'You chose mining.'
-        elif content == '4':
-            response = 'You chose to be an industrialist.'
-        sql = ''' UPDATE eve_rpg_players
-                SET role = (?)
-                WHERE
-                    player_id = (?); '''
-        values = (int(content), author,)
-        await db.execute_sql(sql, values)
         embed = make_embed(icon=ctx.bot.user.avatar_url)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
-        embed.add_field(name='Focus',
-                        value='Interesting, {} Your focus determines what your pilot does in the game, this can be '
-                              'changed at any time and more focuses become available as you advance.'.format(response))
         embed.add_field(name='Gameplay',
                         value='Initial setup is now complete. Your pilot is currently docked in your home region and '
                               'is awaiting your guidance. To interact with your character do *!me*.')
