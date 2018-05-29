@@ -122,7 +122,8 @@ class ManageSelf:
         region_connections = await game_functions.get_region_connections(region_id)
         for regions in region_connections:
             name = await game_functions.get_region(regions)
-            connected_regions.append('**{}.** {}'.format(regions, name))
+            sec = await  game_functions.get_region_security(regions)
+            connected_regions.append('**{}.** {} ({} Sec)'.format(regions, name, sec))
         region_list = '\n'.join(connected_regions)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
