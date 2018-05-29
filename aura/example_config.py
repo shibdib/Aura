@@ -19,5 +19,5 @@ auto_responses = {
 bot_permissions = 224256
 
 # Don't touch
-preload_extensions = ['eve_rpg', 'set_channels', 'join_game']
+preload_extensions = ['eve_rpg', 'set_channels', 'join_game', 'manage_self']
 

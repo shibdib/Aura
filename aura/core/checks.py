@@ -104,6 +104,21 @@ async def check_whitelist(ctx):
         return False
 
 
+async def check_has_account(ctx):
+    sql = ''' SELECT id FROM eve_rpg_players WHERE `player_id` = (?) '''
+    values = (ctx.message.author.id,)
+    result = await db.select_var(sql, values)
+    if result is None or len(result) is 0:
+        await ctx.author.send('WARNING: You need to create a player first.')
+        return False
+    else:
+        return True
+
+
+def has_account():
+    return commands.check(check_has_account)
+
+
 def is_owner():
     return commands.check(check_is_owner)
 

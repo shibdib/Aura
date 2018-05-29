@@ -2,23 +2,6 @@ import sqlite3
 from sqlite3 import Error
 
 
-async def create_connection(db_file):
-    """ create a database connection to the SQLite database
-        specified by db_file
-    :param db_file: database file
-    :return: Connection object or None
-    """
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except Error as e:
-        print(e)
-    finally:
-        conn.close()
-
-    return None
-
-
 async def create_table(conn, create_table_sql):
     """ create a table from the create_table_sql statement
     :param conn: Connection object
@@ -59,17 +42,21 @@ async def create_tables():
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                                         server_id INTEGER NOT NULL,
                                         player_id INTEGER NOT NULL UNIQUE,
-                                        kills INTEGER DEFAULT 0,
-                                        losses INTEGER DEFAULT 0,
+                                        race INTEGER DEFAULT 0,
+                                        region INTEGER DEFAULT 0,
+                                        isk INTEGER DEFAULT 0,
+                                        state INTEGER DEFAULT 0,
+                                        role INTEGER DEFAULT 0,
+                                        last_event TEXT DEFAULT NULL,
                                         level INTEGER DEFAULT 0,
                                         xp INTEGER DEFAULT 0,
+                                        kills INTEGER DEFAULT 0,
+                                        losses INTEGER DEFAULT 0,
+                                        modules TEXT DEFAULT NULL,
+                                        module_hangar TEXT DEFAULT NULL,
                                         ship TEXT DEFAULT NULL,
-                                        item TEXT DEFAULT NULL,
                                         ship_hangar TEXT DEFAULT NULL,
-                                        isk INTEGER DEFAULT 0,
-                                        race INTEGER DEFAULT 0,
-                                        last_event TEXT DEFAULT NULL,
-                                        state TEXT DEFAULT NULL
+                                        fleet INTEGER DEFAULT 0
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:
