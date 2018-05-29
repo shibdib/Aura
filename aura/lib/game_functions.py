@@ -16,7 +16,15 @@ regions = {1: 'The Forge',
 region_connections = {1: [2, 3, 4, 5],
                       2: [1, 3, 4, 6],
                       3: [1, 2, 4, 7],
-                      4: [1, 2, 3, 8]}
+                      4: [1, 2, 3, 8],
+                      5: [1, 9],
+                      6: [2, 10],
+                      7: [3, 11],
+                      8: [4, 12],
+                      9: [5, 10, 12],
+                      10: [6, 9, 11],
+                      11: [7, 10, 12],
+                      12: [8, 9, 11]}
 
 tasks = {1: 'Docked',
          # PVP
@@ -30,7 +38,9 @@ tasks = {1: 'Docked',
          8: 'Exploring',
          # MINING
          9: 'Belt Mining',
-         10: 'Anomaly Mining'}
+         10: 'Anomaly Mining',
+         # GENERIC
+         20: 'Traveling'}
 
 
 async def get_region(region_id):

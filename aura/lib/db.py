@@ -55,7 +55,8 @@ async def create_tables():
                                         module_hangar TEXT DEFAULT NULL,
                                         ship TEXT DEFAULT NULL,
                                         ship_hangar TEXT DEFAULT NULL,
-                                        fleet INTEGER DEFAULT 0
+                                        fleet INTEGER DEFAULT 0,
+                                        destination INTEGER DEFAULT 0
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:

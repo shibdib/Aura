@@ -30,6 +30,13 @@ class ManageSelf:
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
+        if int(player[0][6]) == 20:
+            embed.add_field(name="Welcome {}".format(player_name),
+                            value="**Current Region** - {}\n**Current Ship** - {}\n**Current Task** - {}\n"
+                                  "**Wallet Balance** - {}\n\n"
+                                  "*Ship is currently traveling.......*".format(
+                                region_name, current_ship, current_task, wallet_balance))
+            return await ctx.author.send(embed=embed)
         embed.add_field(name="Welcome {}".format(player_name),
                         value="**Current Region** - {}\n**Current Ship** - {}\n**Current Task** - {}\n"
                               "**Wallet Balance** - {}\n\n"
@@ -106,12 +113,11 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def travel(self, ctx, region_id, region_name):
-        connected_regions = await game_functions.get_region_connections(region_id)
-        option = 1
-        for regions in connected_regions:
-            region_name = await game_functions.get_region(int(regions))
-            connected_regions.append('**{}.** {}'.format(option, region_name))
-            option += 1
+        connected_regions = []
+        region_connections = await game_functions.get_region_connections(region_id)
+        for regions in region_connections:
+            name = await game_functions.get_region(regions)
+            connected_regions.append('**{}.** {}'.format(regions, name))
         region_list = '\n'.join(connected_regions)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -119,6 +125,32 @@ class ManageSelf:
         embed.add_field(name="Change Task",
                         value="**Current Region** - {}\n\n{}".format(region_name, region_list))
         await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author
+
+        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        content = msg.content
+        if content == '1' or content == '2' or content == '3' or content == '4' or content == '5' or content == '6' \
+                or content == '7' or content == '8' or content == '9' or content == '10'or content == '11'\
+                or content == '12':
+            sql = ''' UPDATE eve_rpg_players
+                    SET destination = (?),
+                        task = 20
+                    WHERE
+                        player_id = (?); '''
+            values = (int(content), ctx.author.id,)
+            await db.execute_sql(sql, values)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+            values = (ctx.message.author.id,)
+            player = await db.select_var(sql, values)
+            region_id = int(player[0][4])
+            region_name = await game_functions.get_region(region_id)
+            return await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(region_name))
+        elif content == '5':
+            return await ctx.author.send('**Not Yet Implemented**')
+        else:
+            return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def modify_ship(self, ctx):
         return await ctx.author.send('**Not Yet Implemented**')
