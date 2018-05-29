@@ -148,6 +148,8 @@ class EveRpg:
                      ('**{}** flying in a {} went afk in an belt and died.'.format(user.display_name, ship), 45)])
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
+                player = self.bot.get_user(ratter[2])
+                await player.send('{}'.format(message))
                 return await self.send_global(message)
             elif flee is True:
                 return
@@ -331,7 +333,7 @@ class EveRpg:
             region_id = 1
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?),
-                    item = NULL,
+                    modules = NULL,
                     region = (?),
                     task = 1
                 WHERE
