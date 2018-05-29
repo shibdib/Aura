@@ -57,7 +57,12 @@ async def create_tables():
                                         level INTEGER DEFAULT 0,
                                         xp INTEGER DEFAULT 0,
                                         ship TEXT DEFAULT NULL,
-                                        item TEXT DEFAULT NULL
+                                        item TEXT DEFAULT NULL,
+                                        ship_hangar TEXT DEFAULT NULL,
+                                        isk INTEGER DEFAULT 0,
+                                        race INTEGER DEFAULT 0,
+                                        last_event TEXT DEFAULT NULL,
+                                        state TEXT DEFAULT NULL
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:
