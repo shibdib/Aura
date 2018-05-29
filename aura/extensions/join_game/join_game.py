@@ -19,8 +19,10 @@ class JoinGame:
         If your server doesn't have an RPG channel have an admin do **!setRpg** to receive the game events.
         **If you've already registered this will reset your account.**"""
         #  Check if user exists already and confirm restart
-        exists = await checks.check_has_account(ctx)
-        if exists is True:
+        sql = ''' SELECT id FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        result = await db.select_var(sql, values)
+        if result is None or len(result) is 0:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
