@@ -271,19 +271,19 @@ class EveRpg:
         return self.logger.info('eve_rpg - Bad Channel removed successfully')
 
     async def add_xp(self, player, xp_gained):
-        if player[0][10] + xp_gained < 100:
+        if player[10] + xp_gained < 100:
             sql = ''' UPDATE eve_rpg_players
                     SET xp = (?)
                     WHERE
                         player_id = (?); '''
-            values = (player[0][10] + xp_gained, player[0][2],)
+            values = (player[10] + xp_gained, player[2],)
         else:
             sql = ''' UPDATE eve_rpg_players
                     SET level = (?),
                         xp = (?)
                     WHERE
                         player_id = (?); '''
-            values = (player[0][9] + 1, 0, player[0][2],)
+            values = (player[9] + 1, 0, player[2],)
         await db.execute_sql(sql, values)
 
     async def add_isk(self, player, isk):
@@ -291,7 +291,7 @@ class EveRpg:
                 SET isk = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(player[0][5]) + isk, player[0][2],)
+        values = (int(player[5]) + isk, player[2],)
         await db.execute_sql(sql, values)
 
     async def add_kill(self, player):
@@ -299,7 +299,7 @@ class EveRpg:
                 SET kills = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(player[0][11]) + 1, player[0][2],)
+        values = (int(player[11]) + 1, player[2],)
         await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
@@ -307,7 +307,7 @@ class EveRpg:
                 SET losses = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(player[0][12]) + 1, player[0][2],)
+        values = (int(player[12]) + 1, player[2],)
         await db.execute_sql(sql, values)
 
 
@@ -336,5 +336,5 @@ class EveRpg:
                     task = 1
                 WHERE
                     player_id = (?); '''
-        values = (ship_id, region_id, player[0][2],)
+        values = (ship_id, region_id, player[2],)
         await db.execute_sql(sql, values)

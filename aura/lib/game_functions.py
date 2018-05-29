@@ -105,7 +105,7 @@ async def get_task(task_id):
 
 
 async def get_ship(ship_id):
-    return ships[ship_id]
+    return ships[ship_id]['name']
 
 
 async def get_combat_attributes(ship_id):

@@ -31,7 +31,7 @@ class ManageSelf:
         region_name = await game_functions.get_region(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
         current_ship_raw = await game_functions.get_ship(int(player[0][14]))
-        current_ship = current_ship_raw['name']
+        current_ship = current_ship_raw
         wallet_balance = player[0][5]
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
