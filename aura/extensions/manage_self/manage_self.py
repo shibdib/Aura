@@ -206,7 +206,7 @@ class ManageSelf:
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
             embed.add_field(name="Ship Market",
-                            value="{}".format(ship_list))
+                            value="Wallet - {} ISK \n\n {}".format(player[0][5], ship_list))
             await ctx.author.send(embed=embed)
 
             def check(m):
