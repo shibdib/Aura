@@ -17,9 +17,9 @@ async def get_task(task_id):
 
 
 async def get_ship(ship_id):
-    if game_assets.ships[ship_id]:
+    try:
         return game_assets.ships[ship_id]
-    else:
+    except Exception:
         return None
 
 
