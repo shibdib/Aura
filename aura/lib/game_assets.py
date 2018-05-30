@@ -104,9 +104,9 @@ ships = {  # Noob
     21: {'id': 21, 'name': 'Hecate', 'class': 4, 'attack': 5, 'defense': 3, 'maneuver': 6, 'tracking': 8,
          'image': 'https://image.eveonline.com/Render/35683_128.png', 'isk': 57665805},
     # Faction Frigs
-    50: {'id': 50, 'name': 'Republic Fleet Firetail', 'class': 2, 'attack': 2, 'defense': 2, 'maneuver': 3, 'tracking': 2,
+    50: {'id': 50, 'name': 'Republic Fleet Firetail', 'class': 2, 'attack': 2, 'defense': 2, 'maneuver': 8, 'tracking': 5,
          'image': 'https://image.eveonline.com/Render/17812_128.png', 'isk': 18063029},
-    51: {'id': 51, 'name': 'Dramiel', 'class': 2, 'attack': 2, 'defense': 2, 'maneuver': 3, 'tracking': 2,
+    51: {'id': 51, 'name': 'Dramiel', 'class': 2, 'attack': 2, 'defense': 2, 'maneuver': 9, 'tracking': 5,
          'image': 'https://image.eveonline.com/Render/17932_128.png', 'isk': 46790226},
     # Mining frigate
     70: {'id': 70, 'name': 'Venture', 'class': 6, 'attack': 1, 'defense': 2, 'maneuver': 4, 'tracking': 1,
@@ -117,9 +117,9 @@ ships = {  # Noob
     81: {'id': 81, 'name': 'Covetor', 'class': 7, 'attack': 1, 'defense': 4, 'maneuver': 1, 'tracking': 1,
          'image': 'https://image.eveonline.com/Render/17476_128.png', 'isk': 26888937},
     # Exhumer
-    90: {'id': 90, 'name': 'Skiff', 'class': 8, 'attack': 1, 'defense': 16, 'maneuver': 4, 'tracking': 1,
+    90: {'id': 90, 'name': 'Skiff', 'class': 8, 'attack': 1, 'defense': 16, 'maneuver': 2, 'tracking': 1,
          'image': 'https://image.eveonline.com/Render/22546_128.png', 'isk': 297386539},
-    91: {'id': 90, 'name': 'Hulk', 'class': 8, 'attack': 1, 'defense': 7, 'maneuver': 4, 'tracking': 1,
+    91: {'id': 90, 'name': 'Hulk', 'class': 8, 'attack': 1, 'defense': 7, 'maneuver': 2, 'tracking': 1,
          'image': 'https://image.eveonline.com/Render/22544_128.png', 'isk': 382481286}
 }
 
