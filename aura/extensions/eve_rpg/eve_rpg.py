@@ -92,11 +92,11 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            isk = await self.weighted_choice([(1000, 100), (1500, 30), (3500, 10)])
+            isk = random.randint(1000, 3500)
             if region_security == 'Low':
-                isk = await self.weighted_choice([(2500, 100), (3500, 30), (5500, 10)])
+                isk = random.randint(2500, 6500)
             elif region_security == 'Null':
-                isk = await self.weighted_choice([(7500, 100), (9500, 30), (13500, 10)])
+                isk = random.randint(4500, 13500)
             #  PVE Rolls
             ship_id = ratter[14]
             ship = await game_functions.get_ship_name(ship_id)
@@ -148,11 +148,11 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            isk = await self.weighted_choice([(5000, 100), (7500, 30), (9500, 10)])
+            isk = random.randint(4500, 9500)
             if region_security == 'Low':
-                isk = await self.weighted_choice([(8500, 100), (11500, 30), (14500, 10)])
+                isk = random.randint(7500, 14500)
             elif region_security == 'Null':
-                isk = await self.weighted_choice([(10500, 100), (14500, 30), (25500, 10)])
+                isk = random.randint(11500, 33500)
             #  PVE Rolls
             ship_id = ratter[14]
             ship = await game_functions.get_ship_name(ship_id)
@@ -203,14 +203,14 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 AND `region` = (?) '''
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
-            isk = await self.weighted_choice([(150, 100), (375, 30), (500, 10)])
+            isk = random.randint(100, 550)
             possible_npc = False
             if region_security == 'Low':
                 possible_npc = 2
-                isk = await self.weighted_choice([(550, 100), (730, 30), (975, 10)])
+                isk = random.randint(400, 1000)
             elif region_security == 'Null':
                 possible_npc = 4
-                isk = await self.weighted_choice([(900, 100), (1200, 30), (1555, 10)])
+                isk = random.randint(750, 2250)
             find_ore = await self.weighted_choice([(True, 150 / len(belt_miners)), (False, 40)])
             if find_ore is False:
                 continue
