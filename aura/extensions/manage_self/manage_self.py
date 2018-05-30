@@ -131,7 +131,7 @@ class ManageSelf:
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
-        embed.add_field(name="Change Task",
+        embed.add_field(name="Travel",
                         value="**Current Region** - {}\n\n{}".format(region_name, region_list))
         await ctx.author.send(embed=embed)
 
