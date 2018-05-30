@@ -401,7 +401,7 @@ class EveRpg:
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(loser[14])
+                ship_image = await game_functions.get_ship_image(winner[14])
                 embed.set_thumbnail(url="{}".format(ship_image))
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
