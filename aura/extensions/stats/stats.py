@@ -1,7 +1,7 @@
 from discord.ext import commands
-from aura.lib import db
-from aura.lib import game_functions
+
 from aura.core import checks
+from aura.lib import db
 from aura.utils import make_embed
 
 
@@ -43,7 +43,8 @@ class Stats:
         top_isk_array = []
         for isk in top_isk:
             top_isk_user = self.bot.get_user(int(isk[2]))
-            top_isk_array.append('{} - Level {}'.format(top_isk_user.display_name, isk[5]))
+            clean_isk = '{0:,.2f}'.format(float(isk[5]))
+            top_isk_array.append('{} - {} ISK'.format(top_isk_user.display_name, clean_isk))
         isk_list = '\n'.join(top_isk_array)
         embed = make_embed(guild=ctx.guild)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,

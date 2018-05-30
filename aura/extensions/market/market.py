@@ -1,8 +1,9 @@
 from discord.ext import commands
-from aura.lib import db
-from aura.lib import game_functions
-from aura.lib import game_assets
+
 from aura.core import checks
+from aura.lib import db
+from aura.lib import game_assets
+from aura.lib import game_functions
 from aura.utils import make_embed
 
 
@@ -38,6 +39,7 @@ class Market:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
+        wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
         if content == '1':
             frigates = ['__**Frigates**__']
             destroyers = ['__**Destroyers**__']
@@ -69,7 +71,7 @@ class Market:
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
             embed.add_field(name="Ship Market",
-                            value="Wallet - {} ISK \n\n {}".format(player[0][5], ship_list))
+                            value="Wallet - {} ISK \n\n {}".format(wallet_balance, ship_list))
             await ctx.author.send(embed=embed)
 
             def check(m):
