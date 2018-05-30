@@ -34,7 +34,7 @@ class Market:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author and m.channel == ctx.user.dm_channel
+            return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
@@ -73,7 +73,7 @@ class Market:
             await ctx.author.send(embed=embed)
 
             def check(m):
-                return m.author == ctx.author and m.channel == ctx.user.dm_channel
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
@@ -92,7 +92,7 @@ class Market:
                 await ctx.author.send(embed=embed)
 
                 def check(m):
-                    return m.author == ctx.author and m.channel == ctx.user.dm_channel
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
