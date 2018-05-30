@@ -12,11 +12,11 @@ class Local:
         self.config = bot.config
         self.logger = bot.logger
 
-    @commands.command(name='local', case_insensitive=True)
+    @commands.group(name='local', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
-    async def local_list(self, ctx):
+    async def _local(self, ctx):
         """Change your current task."""
         if ctx.guild is not None:
             await ctx.message.delete()
@@ -41,3 +41,23 @@ class Local:
         embed.add_field(name="Local List",
                         value="{}".format(local_list))
         await ctx.author.send(embed=embed)
+
+    @_local.group(name='chat', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
+    async def _chat(self, ctx, *, message: str):
+        """Talk in local."""
+        if ctx.guild is not None:
+            await ctx.message.delete()
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        player = await db.select_var(sql, values)
+        sender = self.bot.get_user(int(player[0][2])).display_name
+        region_id = int(player[0][4])
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) AND `player_id` != (?) '''
+        values = (region_id, ctx.message.author.id,)
+        local_players = await db.select_var(sql, values)
+        for user in local_players:
+            user = self.bot.get_user(int(user[2]))
+            user.send('**Local**: {}: {}'.format(sender, message))
