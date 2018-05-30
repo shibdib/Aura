@@ -226,8 +226,8 @@ class EveRpg:
         for roamer in roamers:
             region_id = int(roamer[4])
             region_security = await game_functions.get_region_security(region_id)
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` != 1 AND `region` = (?) '''
-            values = (region_id,)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` != 1 AND `region` = (?) AND `player_id` != (?) '''
+            values = (region_id, roamer[2])
             potential_targets = await db.select_var(sql, values)
             if len(potential_targets) is 0 or region_security == 'High':
                 continue
@@ -256,16 +256,16 @@ class EveRpg:
         tracking_two = 1
         if defender_tracking < attacker_maneuver:
             tracking_two = 0.8
-        player_one_weight = (((attacker[0][8] + 1) * 0.5) + (attacker_attack - (defender_defense / 2))) * tracking_one
-        player_two_weight = (((defender[0][8] + 1) * 0.5) + (defender_attack - (attacker_defense / 2))) * tracking_two
+        player_one_weight = (((attacker[8] + 1) * 0.5) + (attacker_attack - (defender_defense / 2))) * tracking_one
+        player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack - (attacker_defense / 2))) * tracking_two
         winner = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
         loser = attacker
         if winner is attacker:
             loser = defender
-        winner_name = self.bot.get_user(int(winner[0][2])).display_name
-        region_id = int(winner[0][4])
+        winner_name = self.bot.get_user(int(winner[2])).display_name
+        region_id = int(winner[4])
         region_name = await game_functions.get_region(int(region_id))
-        loser_name = self.bot.get_user(int(loser[0][2])).display_name
+        loser_name = self.bot.get_user(int(loser[2])).display_name
         winner_ship = await game_functions.get_ship_name(int(winner[14]))
         winner_task = await game_functions.get_task(int(winner[6]))
         loser_ship = await game_functions.get_ship_name(int(loser[14]))

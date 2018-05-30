@@ -63,8 +63,7 @@ class Market:
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(ship['image'])
-                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.set_thumbnail(url="{}".format(ship['image']))
                 embed.add_field(name="Confirm Purchase",
                                 value="Are you sure you want to buy a **{}** for {} ISK\n\n"
                                       "**1.** Yes.\n"
