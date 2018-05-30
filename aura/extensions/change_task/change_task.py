@@ -23,26 +23,41 @@ class ChangeTask:
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
+        region_id = int(player[4])
+        region_security = await game_functions.get_region_security(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
-        embed.add_field(name="Change Task",
-                        value="**Current Task** - {}\n\n"
-                              "**Dock**\n"
-                              "**1.** Dock in current region.\n"
-                              "**PVP Tasks**\n"
-                              "**2.** Go on a solo PVP roam.\n"
-                              "**3.** Camp a gate in your current region.\n"
-                              "**4.** Try to gank someone.\n"
-                              "**5.** Join a fleet.\n"
-                              "**PVE Tasks**\n"
-                              "**6.** Kill belt rats.\n"
-                              "**7.** Run anomalies in the system.\n"
-                              "**8.** Do some exploration and run sites in the system.\n"
-                              "**Mining Tasks**\n"
-                              "**9.** Mine an asteroid belt.\n"
-                              "**10.** Mine a mining anomaly.\n".format(current_task))
+        if region_security != 'High':
+            embed.add_field(name="Change Task",
+                            value="**Current Task** - {}\n\n"
+                                  "**Dock**\n"
+                                  "**1.** Dock in current region.\n"
+                                  "**PVP Tasks**\n"
+                                  "**2.** Go on a solo PVP roam.\n"
+                                  "**3.** Camp a gate in your current region.\n"
+                                  "**4.** Try to gank someone.\n"
+                                  "**5.** Join a fleet.\n"
+                                  "**PVE Tasks**\n"
+                                  "**6.** Kill belt rats.\n"
+                                  "**7.** Run anomalies in the system.\n"
+                                  "**8.** Do some exploration and run sites in the system.\n"
+                                  "**Mining Tasks**\n"
+                                  "**9.** Mine an asteroid belt.\n"
+                                  "**10.** Mine a mining anomaly.\n".format(current_task))
+        else:
+            embed.add_field(name="Change Task",
+                            value="**Current Task** - {}\n\n"
+                                  "**Dock**\n"
+                                  "**1.** Dock in current region.\n"
+                                  "**PVP Tasks**\n"
+                                  "**4.** Try to gank someone.\n"
+                                  "**PVE Tasks**\n"
+                                  "**6.** Kill belt rats.\n"
+                                  "**8.** Do some exploration and run sites in the system.\n"
+                                  "**Mining Tasks**\n"
+                                  "**9.** Mine an asteroid belt.\n".format(current_task))
         await ctx.author.send(embed=embed)
 
         def check(m):
