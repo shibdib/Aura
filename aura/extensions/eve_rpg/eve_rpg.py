@@ -264,8 +264,15 @@ class EveRpg:
                                                            (attacker_defense / 2))) * tracking_two) - pve_disadvantage
         winner = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
         loser = attacker
+        winner_catch = defender_attack / 2 + defender_tracking
+        loser_escape = attacker_defense / 2 + attacker_maneuver
         if winner is attacker:
             loser = defender
+            winner_catch = attacker_attack / 2 + attacker_tracking
+            loser_escape = defender_defense / 2 + defender_maneuver
+        escape = False
+        if loser_escape > winner_catch:
+            escape = await self.weighted_choice([(True, loser_escape), (False, winner_catch)])
         winner_name = self.bot.get_user(int(winner[2])).display_name
         region_id = int(winner[4])
         region_name = await game_functions.get_region(int(region_id))
@@ -274,28 +281,37 @@ class EveRpg:
         winner_task = await game_functions.get_task(int(winner[6]))
         loser_ship = await game_functions.get_ship_name(int(loser[14]))
         loser_task = await game_functions.get_task(int(loser[6]))
-        xp_gained = await self.weighted_choice([(5, 45), (15, 15), (27, 5)])
-        embed = make_embed(icon=self.bot.user.avatar)
-        embed.set_footer(icon_url=self.bot.user.avatar_url,
-                         text="Aura - EVE Text RPG")
-        ship_image = await game_functions.get_ship_image(loser[14])
-        embed.set_thumbnail(url="{}".format(ship_image))
-        embed.add_field(name="Killmail",
-                        value="**Region** - {}\n\n"
-                              "**Loser**\n"
-                              "**{}** flying a {} was killed while they were {}.\n\n"
-                              "**Killer**\n"
-                              "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship, loser_task,
-                                                                        winner_name, winner_ship, winner_task))
-        winner_user = self.bot.get_user(winner[2])
-        loser_user = self.bot.get_user(loser[2])
-        await winner_user.send(embed=embed)
-        await loser_user.send(embed=embed)
-        await self.send_global(embed, True)
-        await self.destroy_ship(loser)
-        await self.add_loss(loser)
-        await self.add_kill(winner)
-        await self.add_xp(winner, xp_gained)
+        if escape is False:
+            xp_gained = await self.weighted_choice([(5, 45), (15, 15), (27, 5)])
+            embed = make_embed(icon=self.bot.user.avatar)
+            embed.set_footer(icon_url=self.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            ship_image = await game_functions.get_ship_image(loser[14])
+            embed.set_thumbnail(url="{}".format(ship_image))
+            embed.add_field(name="Killmail",
+                            value="**Region** - {}\n\n"
+                                  "**Loser**\n"
+                                  "**{}** flying a {} was killed while they were {}.\n\n"
+                                  "**Killer**\n"
+                                  "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship, loser_task,
+                                                                            winner_name, winner_ship, winner_task))
+            winner_user = self.bot.get_user(winner[2])
+            loser_user = self.bot.get_user(loser[2])
+            await winner_user.send(embed=embed)
+            await loser_user.send(embed=embed)
+            await self.send_global(embed, True)
+            await self.destroy_ship(loser)
+            await self.add_loss(loser)
+            await self.add_kill(winner)
+            await self.add_xp(winner, xp_gained)
+        else:
+            winner_user = self.bot.get_user(winner[2])
+            loser_user = self.bot.get_user(loser[2])
+            await winner_user.send('**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
+                                   'managed to warp off and dock.'.format(loser_ship, loser_name, winner_ship))
+            await loser_user.send('**PVP** - Combat between you and a {} flown by {}, you nearly lost your {} but '
+                                  'managed to break tackle and dock.'.format(winner_ship, winner_name, loser_ship))
+
 
     async def weighted_choice(self, items):
         """items is a list of tuples in the form (item, weight)"""
