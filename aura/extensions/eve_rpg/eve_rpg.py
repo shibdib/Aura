@@ -180,9 +180,9 @@ class EveRpg:
             system_ratters = await db.select_var(sql, values)
             isk = await self.weighted_choice([(1000, 100), (1500, 30), (3500, 10)])
             if region_security == 'Low':
-                isk = await self.weighted_choice([(2500, 100), (3500, 30), (5500, 10)])
+                isk = await self.weighted_choice([(3500, 100), (5500, 30), (7500, 10)])
             elif region_security == 'Null':
-                isk = await self.weighted_choice([(7500, 100), (9500, 30), (13500, 10)])
+                isk = await self.weighted_choice([(7500, 100), (11500, 30), (15500, 10)])
             #  PVE Rolls
             ship_id = ratter[14]
             ship = await game_functions.get_ship_name(ship_id)
