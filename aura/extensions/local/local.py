@@ -1,7 +1,7 @@
 from discord.ext import commands
-from aura.lib import db
-from aura.lib import game_functions
+
 from aura.core import checks
+from aura.lib import db
 from aura.utils import make_embed
 
 
@@ -30,6 +30,8 @@ class Local:
             local_players = await db.select_var(sql, values)
             local_array = []
             for user in local_players:
+                if user is None:
+                    continue
                 user_name = self.bot.get_user(int(user[2])).display_name
                 docked = ''
                 if user[6] == 1:
