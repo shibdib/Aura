@@ -113,14 +113,14 @@ ships = {  # Noob
          'image': 'https://image.eveonline.com/Render/32880_128.png', 'isk': 593884},
     # Mining barge
     80: {'id': 80, 'name': 'Procurer', 'class': 7, 'attack': 1, 'defense': 10, 'maneuver': 1, 'tracking': 1,
-         'image': 'https://image.eveonline.com/Render/32880_128.png', 'isk': 593884},
+         'image': 'https://image.eveonline.com/Render/17480_128.png', 'isk': 18656208},
     81: {'id': 81, 'name': 'Covetor', 'class': 7, 'attack': 1, 'defense': 4, 'maneuver': 1, 'tracking': 1,
-         'image': 'https://image.eveonline.com/Render/32880_128.png', 'isk': 593884},
+         'image': 'https://image.eveonline.com/Render/17476_128.png', 'isk': 26888937},
     # Exhumer
     90: {'id': 90, 'name': 'Skiff', 'class': 8, 'attack': 1, 'defense': 16, 'maneuver': 4, 'tracking': 1,
-         'image': 'https://image.eveonline.com/Render/32880_128.png', 'isk': 593884},
+         'image': 'https://image.eveonline.com/Render/22546_128.png', 'isk': 297386539},
     91: {'id': 90, 'name': 'Hulk', 'class': 8, 'attack': 1, 'defense': 7, 'maneuver': 4, 'tracking': 1,
-         'image': 'https://image.eveonline.com/Render/32880_128.png', 'isk': 593884}
+         'image': 'https://image.eveonline.com/Render/22544_128.png', 'isk': 382481286}
 }
 
 ship_classes = {
