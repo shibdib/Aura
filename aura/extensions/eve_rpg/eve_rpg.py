@@ -151,7 +151,8 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed by belt rats.".format(region_name, user.display_name,
+                                      "**{}** flying a {} was killed by belt rats.".format(region_name,
+                                                                                           user.display_name,
                                                                                            ship))
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
@@ -159,7 +160,8 @@ class EveRpg:
                 await player.send(embed=embed)
                 return await self.send_global(embed, True)
             elif flee is True:
-                return
+                ratter_user = self.bot.get_user(ratter[2])
+                await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
             else:
                 xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
                 await self.add_xp(ratter, xp_gained)
@@ -178,18 +180,18 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            isk = await self.weighted_choice([(1000, 100), (1500, 30), (3500, 10)])
+            isk = await self.weighted_choice([(5000, 100), (7500, 30), (9500, 10)])
             if region_security == 'Low':
-                isk = await self.weighted_choice([(3500, 100), (5500, 30), (7500, 10)])
+                isk = await self.weighted_choice([(8500, 100), (11500, 30), (14500, 10)])
             elif region_security == 'Null':
-                isk = await self.weighted_choice([(7500, 100), (11500, 30), (15500, 10)])
+                isk = await self.weighted_choice([(10500, 100), (14500, 30), (25500, 10)])
             #  PVE Rolls
             ship_id = ratter[14]
             ship = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 2), (False, 95 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
+                [(True, 12), (False, 90 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
@@ -204,15 +206,17 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed by belt rats.".format(region_name, user.display_name,
-                                                                                           ship))
+                                      "**{}** flying a {} was killed while running an anomaly.".format(region_name,
+                                                                                                       user.display_name,
+                                                                                                       ship))
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
                 await player.send(embed=embed)
                 return await self.send_global(embed, True)
             elif flee is True:
-                return
+                ratter_user = self.bot.get_user(ratter[2])
+                await ratter_user.send('**NOTICE** - You nearly died to anomaly rats but managed to warp off.')
             else:
                 xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
                 await self.add_xp(ratter, xp_gained)
@@ -293,7 +297,8 @@ class EveRpg:
                                   "**Loser**\n"
                                   "**{}** flying a {} was killed while they were {}.\n\n"
                                   "**Killer**\n"
-                                  "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship, loser_task,
+                                  "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship,
+                                                                            loser_task,
                                                                             winner_name, winner_ship, winner_task))
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
