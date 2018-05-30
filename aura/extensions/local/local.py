@@ -54,9 +54,9 @@ class Local:
         player = await db.select_var(sql, values)
         sender = self.bot.get_user(int(player[0][2])).display_name
         region_id = int(player[0][4])
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) AND `player_id` != (?) '''
-        values = (region_id, ctx.message.author.id,)
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
+        values = (region_id,)
         local_players = await db.select_var(sql, values)
         for user in local_players:
             user = self.bot.get_user(int(user[2]))
-            await user.send('**Local**: {}: {}'.format(sender, message))
+            await user.send('**Local** {}: {}'.format(sender, message))
