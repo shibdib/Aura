@@ -222,6 +222,36 @@ class EveRpg:
                 await self.add_xp(ratter, xp_gained)
                 await self.add_isk(ratter, isk)
 
+    async def process_belt_mining(self):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 '''
+        miners = await db.select(sql)
+        if miners is None or len(miners) is 0:
+            return
+        for miner in miners:
+            region_id = int(miner[4])
+            region_security = await game_functions.get_region_security(region_id)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 AND `region` = (?) '''
+            values = (region_id,)
+            belt_miners = await db.select_var(sql, values)
+            isk = await self.weighted_choice([(150, 100), (375, 30), (500, 10)])
+            if region_security == 'Low':
+                isk = await self.weighted_choice([(550, 100), (730, 30), (975, 10)])
+            elif region_security == 'Null':
+                isk = await self.weighted_choice([(900, 100), (1200, 30), (1555, 10)])
+            find_ore = await self.weighted_choice([(True, 150 / len(belt_miners)), (False, 40)])
+            if find_ore is False:
+                continue
+            else:
+                #  Ship multi
+                ship_id = miner[14]
+                ship = await game_functions.get_ship(ship_id)
+                multiplier = 1
+                if ship['class'] == 6:
+                    multiplier = 1.75
+                xp_gained = await self.weighted_choice([(1, 45), (2, 15)])
+                await self.add_xp(miner, xp_gained)
+                await self.add_isk(miner, isk * multiplier)
+
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
         roamers = await db.select(sql)

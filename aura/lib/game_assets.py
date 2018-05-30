@@ -103,6 +103,9 @@ ships = {  # Noob
          'image': 'https://image.eveonline.com/Render/34828_128.png', 'isk': 47903251},
     21: {'id': 21, 'name': 'Hecate', 'class': 4, 'attack': 5, 'defense': 3, 'maneuver': 6, 'tracking': 8,
          'image': 'https://image.eveonline.com/Render/35683_128.png', 'isk': 57665805},
+    # Mining frigate
+    40: {'id': 40, 'name': 'Venture', 'class': 6, 'attack': 1, 'defense': 2, 'maneuver': 4, 'tracking': 1,
+         'image': 'https://image.eveonline.com/Render/32880_128.png', 'isk': 593884},
     # Faction Frigs
     50: {'id': 50, 'name': 'Republic Fleet Firetail', 'class': 2, 'attack': 2, 'defense': 2, 'maneuver': 3, 'tracking': 2,
          'image': 'https://image.eveonline.com/Render/17812_128.png', 'isk': 18063029},
