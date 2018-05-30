@@ -241,7 +241,7 @@ class EveRpg:
                 possible_npc = 2
                 isk = await self.weighted_choice([(550, 100), (730, 30), (975, 10)])
             elif region_security == 'Null':
-                possible_npc = 5
+                possible_npc = 4
                 isk = await self.weighted_choice([(900, 100), (1200, 30), (1555, 10)])
             find_ore = await self.weighted_choice([(True, 150 / len(belt_miners)), (False, 40)])
             if find_ore is False:
@@ -256,7 +256,7 @@ class EveRpg:
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(
-                        [(True, possible_npc), (False, 95 + ((ship['defense'] * 2.5) + (ship['maneuver'] * 1.2)))])
+                        [(True, possible_npc), (False, 125 + ((ship['defense'] * 2.5) + (ship['maneuver'] * 1.2)))])
                 if death is True:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -268,7 +268,7 @@ class EveRpg:
                                           "**Loser**\n"
                                           "**{}** flying a {} was killed while belt ratting.".format(region_name,
                                                                                                      user.display_name,
-                                                                                                     ship))
+                                                                                                     ship['name']))
                     await self.destroy_ship(miner)
                     await self.add_loss(miner)
                     await user.send(embed=embed)
