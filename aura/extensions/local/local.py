@@ -29,7 +29,7 @@ class Local:
         local_players = await db.select_var(sql, values)
         local_array = []
         for user in local_players:
-            user_name = self.bot.get_user(int(user[0][2])).display_name
+            user_name = self.bot.get_user(int(user[2])).display_name
             docked = ''
             if user[6] == 1:
                 docked = '**Docked**'
