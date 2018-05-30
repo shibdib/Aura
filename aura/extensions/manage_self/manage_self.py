@@ -31,7 +31,7 @@ class ManageSelf:
         local_players = await db.select_var(sql, values)
         region_name = await game_functions.get_region(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
-        current_ship_raw = await game_functions.get_ship(int(player[0][14]))
+        current_ship_raw = await game_functions.get_ship_name(int(player[0][14]))
         current_ship = current_ship_raw
         wallet_balance = player[0][5]
         embed = make_embed(icon=ctx.bot.user.avatar)
@@ -179,7 +179,7 @@ class ManageSelf:
         if content == '1':
             ships_sale = []
             ships = game_assets.ships
-            for ship in ships:
+            for key, ship in ships.items():
                 ships_sale.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
             ship_list = '\n'.join(ships_sale)
             embed = make_embed(icon=ctx.bot.user.avatar)
@@ -188,10 +188,45 @@ class ManageSelf:
             embed.add_field(name="Ship Market",
                             value="{}".format(ship_list))
             await ctx.author.send(embed=embed)
+
+            def check(m):
+                return m.author == ctx.author
+
+            msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+            content = msg.content
+            ship = await game_functions.get_ship(int(content))
+            if ship is not None:
+                if int(ship['isk']) > int(player[0][5]):
+                    return await ctx.author.send('**Not Enough Isk**')
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(ship['image'])
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Confirm Purchase",
+                                value="Are you sure you want to buy a **{}** for {} ISK\n\n"
+                                      "**1.** Yes.\n"
+                                      "**2.** No.\n".format(ship['name'], ship['isk']))
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author
+
+                msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+                content = msg.content
+                if content != '1':
+                    return await ctx.author.send('**Purchase Canceled**')
+                sql = ''' UPDATE eve_rpg_players
+                        SET ship = (?)
+                        WHERE
+                            player_id = (?); '''
+                values = (int(ship['id']), ctx.author.id,)
+                await db.execute_sql(sql, values)
+                return await ctx.author.send('**{} Purchase Complete**'.format(ship['name']))
+
         elif content == '2':
             return await ctx.author.send('**Not Yet Implemented**')
         elif content == '3':
             return await ctx.author.send('**Not Yet Implemented**')
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
-

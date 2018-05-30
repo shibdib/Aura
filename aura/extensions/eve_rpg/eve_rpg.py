@@ -132,7 +132,7 @@ class EveRpg:
                 isk = await self.weighted_choice([(7500, 100), (9500, 30), (13500, 10)])
             #  PVE Rolls
             ship_id = ratter[14]
-            ship = await game_functions.get_ship(ship_id)
+            ship = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
@@ -185,7 +185,7 @@ class EveRpg:
                 isk = await self.weighted_choice([(7500, 100), (9500, 30), (13500, 10)])
             #  PVE Rolls
             ship_id = ratter[14]
-            ship = await game_functions.get_ship(ship_id)
+            ship = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
@@ -266,9 +266,9 @@ class EveRpg:
         region_id = int(winner[0][4])
         region_name = await game_functions.get_region(int(region_id))
         loser_name = self.bot.get_user(int(loser[0][2])).display_name
-        winner_ship = await game_functions.get_ship(int(winner[14]))
+        winner_ship = await game_functions.get_ship_name(int(winner[14]))
         winner_task = await game_functions.get_task(int(winner[6]))
-        loser_ship = await game_functions.get_ship(int(loser[14]))
+        loser_ship = await game_functions.get_ship_name(int(loser[14]))
         loser_task = await game_functions.get_task(int(loser[6]))
         xp_gained = await self.weighted_choice([(5, 45), (15, 15), (27, 5)])
         embed = make_embed(icon=self.bot.user.avatar)

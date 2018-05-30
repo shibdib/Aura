@@ -17,6 +17,13 @@ async def get_task(task_id):
 
 
 async def get_ship(ship_id):
+    if game_assets.ships[ship_id]:
+        return game_assets.ships[ship_id]
+    else:
+        return None
+
+
+async def get_ship_name(ship_id):
     return game_assets.ships[ship_id]['name']
 
 
