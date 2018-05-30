@@ -253,6 +253,14 @@ class EveRpg:
                 multiplier = 1
                 if ship['class'] == 6:
                     multiplier = 1.75
+                if ship['id'] == 80:
+                    multiplier = 2.4
+                if ship['id'] == 81:
+                    multiplier = 3
+                if ship['id'] == 90:
+                    multiplier = 2.9
+                if ship['id'] == 91:
+                    multiplier = 4
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(

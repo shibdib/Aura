@@ -181,6 +181,8 @@ class ManageSelf:
             tactical_destroyers = ['__**Tactical Destroyers**__']
             interceptors = ['__**Interceptors**__']
             mining_frigate = ['__**Mining Frigates**__']
+            mining_barges = ['__**Mining Bargess**__']
+            exhumers = ['__**Exhumers**__']
             ships = game_assets.ships
             for key, ship in ships.items():
                 if ship['class'] == 2:
@@ -193,7 +195,12 @@ class ManageSelf:
                     interceptors.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
                 elif ship['class'] == 6:
                     mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
-            merged = frigates + destroyers + interceptors + tactical_destroyers + mining_frigate
+                elif ship['class'] == 7:
+                    mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                elif ship['class'] == 8:
+                    mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+            merged = frigates + destroyers + interceptors + tactical_destroyers + mining_frigate + mining_barges + \
+                     exhumers
             ship_list = '\n'.join(merged)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
