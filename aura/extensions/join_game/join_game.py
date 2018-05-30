@@ -125,3 +125,23 @@ class JoinGame:
                         value='Initial setup is now complete. Your pilot is currently docked in your home region and '
                               'is awaiting your guidance. To interact with your character do *!me*.')
         await ctx.author.send(embed=embed)
+        await self.send_global('**New Player** {} has joined the game.'.format(ctx.author.display_name))
+
+    async def send_global(self, message, embed=False):
+        sql = "SELECT * FROM eve_rpg_channels"
+        game_channels = await db.select(sql)
+        for channels in game_channels:
+            channel = self.bot.get_channel(int(channels[2]))
+            if channel is None:
+                self.logger.exception('eve_rpg - Bad Channel Attempted removing....')
+                await self.remove_bad_channel(channels[2])
+            if embed is False:
+                await channel.send(message)
+            else:
+                await channel.send(embed=message)
+
+    async def remove_bad_channel(self, channel_id):
+        sql = ''' DELETE FROM eve_rpg_channels WHERE `channel_id` = (?) '''
+        values = (channel_id,)
+        await db.execute_sql(sql, values)
+        return self.logger.info('eve_rpg - Bad Channel removed successfully')
