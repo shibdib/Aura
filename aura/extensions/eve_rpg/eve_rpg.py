@@ -136,9 +136,9 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 2), (False, 95 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
+                [(True, 2), (False, 95 + ((ship_defense * 2.5) + (ship_maneuver * 1.2)))])
             flee = await self.weighted_choice(
-                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2))])
+                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
             if find_rats is False:
                 continue
@@ -191,9 +191,9 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 12), (False, 90 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
+                [(True, 12), (False, 90 + ((ship_defense * 2.5) + (ship_maneuver * 1.2)))])
             flee = await self.weighted_choice(
-                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2))])
+                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
             if find_rats is False:
                 continue
