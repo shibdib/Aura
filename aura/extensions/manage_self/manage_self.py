@@ -120,7 +120,7 @@ class ManageSelf:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '5' or content == '8' or content == '9' or content == '10':
+        if content == '5' or content == '8' or content == '10':
             return await ctx.author.send('**Not Yet Implemented**')
         elif 0 < int(content) < 11:
             sql = ''' UPDATE eve_rpg_players
