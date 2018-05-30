@@ -311,7 +311,12 @@ class EveRpg:
                                    'managed to warp off and dock.'.format(loser_ship, loser_name, winner_ship))
             await loser_user.send('**PVP** - Combat between you and a {} flown by {}, you nearly lost your {} but '
                                   'managed to break tackle and dock.'.format(winner_ship, winner_name, loser_ship))
-
+            sql = ''' UPDATE eve_rpg_players
+                    SET task = 1
+                    WHERE
+                        player_id = (?); '''
+            values = (loser[2],)
+            await db.execute_sql(sql, values)
 
     async def weighted_choice(self, items):
         """items is a list of tuples in the form (item, weight)"""
