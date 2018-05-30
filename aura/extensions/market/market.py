@@ -1,6 +1,7 @@
 from discord.ext import commands
 from aura.lib import db
 from aura.lib import game_functions
+from aura.lib import game_assets
 from aura.core import checks
 from aura.utils import make_embed
 
@@ -16,8 +17,13 @@ class Market:
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
-    async def visit_market(self, ctx, player):
+    async def visit_market(self, ctx):
         """Visit the regional marketplace."""
+        if ctx.guild is not None:
+            await ctx.message.delete()
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        player = await db.select_var(sql, values)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")

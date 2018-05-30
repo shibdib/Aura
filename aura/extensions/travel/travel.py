@@ -16,8 +16,15 @@ class Travel:
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
-    async def travel(self, ctx, region_id, region_name):
+    async def travel(self, ctx):
         """Travel to a new region."""
+        if ctx.guild is not None:
+            await ctx.message.delete()
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        player = await db.select_var(sql, values)
+        region_id = int(player[0][4])
+        region_name = await game_functions.get_region(region_id)
         connected_regions = []
         region_connections = await game_functions.get_region_connections(region_id)
         for regions in region_connections:
