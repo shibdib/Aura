@@ -369,6 +369,27 @@ class EveRpg:
             await self.add_loss(loser)
             await self.add_kill(winner)
             await self.add_xp(winner, xp_gained)
+            if winner_dies is True:
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(loser[14])
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "**Loser**\n"
+                                      "**{}** flying a {} was killed while they were {}.\n\n"
+                                      "**Final Blow**\n"
+                                      "Concord\n\n"
+                                      "**Other Attackers**\n"
+                                      "**{}** flying a {}".format(region_name, winner_name, winner_ship, winner_task,
+                                                                  loser_name, loser_ship))
+                await winner_user.send(embed=embed)
+                await loser_user.send(embed=embed)
+                await self.send_global(embed, True)
+                await self.add_loss(winner)
+                await self.add_kill(loser)
+                await self.destroy_ship(winner)
         else:
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
