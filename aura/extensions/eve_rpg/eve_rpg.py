@@ -1,4 +1,3 @@
-from aura.lib import db
 import asyncio
 import random
 
@@ -440,7 +439,7 @@ class EveRpg:
             ship_id = 3
             region_id = 3
         elif player[3] == 4:
-            ship_id = 5
+            ship_id = 4
             region_id = 4
         elif player[3] == 99:
             ship_id = 5

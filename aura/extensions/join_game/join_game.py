@@ -93,7 +93,7 @@ class JoinGame:
         elif content == '4':
             race = 'Gallente'
             ship = 'Velator'
-            ship_id = 5
+            ship_id = 4
             region = 'Essence'
             region_id = 4
         elif content == '99':
