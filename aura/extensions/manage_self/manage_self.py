@@ -1,3 +1,5 @@
+import ast
+
 from discord.ext import commands
 
 from aura.core import checks
@@ -194,7 +196,8 @@ class ManageSelf:
                             value='No Ships Found In This Region')
             return await ctx.author.send(embed=embed)
         else:
-            if player[0][15][player[0][4]] is None:
+            ship_hangar = ast.literal_eval(player[0][15])
+            if ship_hangar[player[0][4]] is None:
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -203,7 +206,7 @@ class ManageSelf:
                 return await ctx.author.send(embed=embed)
             stored_ships_array = []
             owned_ship_ids = []
-            for ship in player[0][15][player[0][4]]:
+            for ship in ship_hangar[player[0][4]]:
                 owned_ship_ids.append(ship)
                 ship_name = await game_functions.get_ship_name(int(ship))
                 stored_ships_array.append('{}. {}'.format(ship, ship_name))
@@ -215,39 +218,39 @@ class ManageSelf:
                             value=stored_ships)
             await ctx.author.send(embed=embed)
 
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.author.dm_channel
-
-        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-        content = msg.content
-        if content in owned_ship_ids:
-            selected_ship = await game_functions.get_ship(int(content))
-            embed = make_embed(icon=self.bot.user.avatar)
-            embed.set_footer(icon_url=self.bot.user.avatar_url,
-                             text="Aura - EVE Text RPG")
-            embed.set_thumbnail(url="{}".format(selected_ship['image']))
-            embed.add_field(name="Confirm Switch",
-                            value="Are you sure you want to switch from a **{}** into a **{}**\n\n"
-                                  "**1.** Yes.\n"
-                                  "**2.** No.\n".format(current_ship, selected_ship['name']))
-            await ctx.author.send(embed=embed)
-
             def check(m):
                 return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
-            if content != '1':
-                return await ctx.author.send('**Switch Canceled**')
-            new_hangar = player[0][15][player[0][4]].remove(selected_ship['id'])
-            sql = ''' UPDATE eve_rpg_players
-                    SET ship = (?),
-                        ship_hangar = (?)
-                    WHERE
-                        player_id = (?); '''
-            values = (int(selected_ship['id']), new_hangar, ctx.author.id,)
-            await db.execute_sql(sql, values)
-            return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
+            if content in owned_ship_ids:
+                selected_ship = await game_functions.get_ship(int(content))
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.set_thumbnail(url="{}".format(selected_ship['image']))
+                embed.add_field(name="Confirm Switch",
+                                value="Are you sure you want to switch from a **{}** into a **{}**\n\n"
+                                      "**1.** Yes.\n"
+                                      "**2.** No.\n".format(current_ship, selected_ship['name']))
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                content = msg.content
+                if content != '1':
+                    return await ctx.author.send('**Switch Canceled**')
+                new_hangar = ship_hangar[player[0][4]].remove(selected_ship['id'])
+                sql = ''' UPDATE eve_rpg_players
+                        SET ship = (?),
+                            ship_hangar = (?)
+                        WHERE
+                            player_id = (?); '''
+                values = (int(selected_ship['id']), new_hangar, ctx.author.id,)
+                await db.execute_sql(sql, values)
+                return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
 
     async def visit_market(self, ctx, player):
         embed = make_embed(icon=ctx.bot.user.avatar)
