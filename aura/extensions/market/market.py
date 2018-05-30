@@ -84,6 +84,7 @@ class Market:
             content = msg.content
             ship = await game_functions.get_ship(int(content))
             if ship is not None:
+                purchase_ship = content
                 if int(ship['isk']) > int(player[0][5]):
                     return await ctx.author.send('**Not Enough Isk**')
                 embed = make_embed(icon=self.bot.user.avatar)

@@ -239,12 +239,13 @@ class ManageSelf:
             content = msg.content
             if content != '1':
                 return await ctx.author.send('**Switch Canceled**')
+            new_hangar = player[0][15][player[0][4]].remove(selected_ship['id'])
             sql = ''' UPDATE eve_rpg_players
                     SET ship = (?),
                         ship_hangar = (?)
                     WHERE
                         player_id = (?); '''
-            values = (int(selected_ship['id']), ctx.author.id,)
+            values = (int(selected_ship['id']), new_hangar, ctx.author.id,)
             await db.execute_sql(sql, values)
             return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
 
