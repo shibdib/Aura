@@ -216,10 +216,12 @@ class ManageSelf:
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')
                 sql = ''' UPDATE eve_rpg_players
-                        SET ship = (?)
+                        SET ship = (?),
+                            isk = (?)
                         WHERE
                             player_id = (?); '''
-                values = (int(ship['id']), ctx.author.id,)
+                remaining_isk = int(player[0][5]) - int(ship['isk'])
+                values = (int(ship['id']), remaining_isk, ctx.author.id,)
                 await db.execute_sql(sql, values)
                 return await ctx.author.send('**{} Purchase Complete**'.format(ship['name']))
             return await ctx.author.send('**ERROR** - Not a valid choice.')

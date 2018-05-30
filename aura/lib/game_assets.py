@@ -44,7 +44,7 @@ region_security = {1: 'High',
 tasks = {1: 'Docked',
          # PVP
          2: 'Roaming',
-         3: 'Gate Camp',
+         3: 'Gate Camping',
          4: 'Ganking',
          5: 'Fleet Roam',
          # PVE

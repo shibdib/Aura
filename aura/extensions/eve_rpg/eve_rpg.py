@@ -256,8 +256,12 @@ class EveRpg:
         tracking_two = 1
         if defender_tracking < attacker_maneuver:
             tracking_two = 0.8
+        pve_disadvantage = 0
+        if 5 < int(defender[6]) < 11:
+            pve_disadvantage = 2
         player_one_weight = (((attacker[8] + 1) * 0.5) + (attacker_attack - (defender_defense / 2))) * tracking_one
-        player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack - (attacker_defense / 2))) * tracking_two
+        player_two_weight = ((((defender[8] + 1) * 0.5) + (defender_attack -
+                                                           (attacker_defense / 2))) * tracking_two) - pve_disadvantage
         winner = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
         loser = attacker
         if winner is attacker:
