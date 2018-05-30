@@ -212,8 +212,7 @@ class EveRpg:
                                                                                                        ship))
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
-                player = self.bot.get_user(ratter[2])
-                await player.send(embed=embed)
+                await user.send(embed=embed)
                 return await self.send_global(embed, True)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
@@ -231,13 +230,18 @@ class EveRpg:
         for miner in miners:
             region_id = int(miner[4])
             region_security = await game_functions.get_region_security(region_id)
+            region_name = await game_functions.get_region(int(region_id))
+            user = self.bot.get_user(miner[2])
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 AND `region` = (?) '''
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
             isk = await self.weighted_choice([(150, 100), (375, 30), (500, 10)])
+            possible_npc = False
             if region_security == 'Low':
+                possible_npc = 2
                 isk = await self.weighted_choice([(550, 100), (730, 30), (975, 10)])
             elif region_security == 'Null':
+                possible_npc = 5
                 isk = await self.weighted_choice([(900, 100), (1200, 30), (1555, 10)])
             find_ore = await self.weighted_choice([(True, 150 / len(belt_miners)), (False, 40)])
             if find_ore is False:
@@ -249,6 +253,26 @@ class EveRpg:
                 multiplier = 1
                 if ship['class'] == 6:
                     multiplier = 1.75
+                death = False
+                if possible_npc is not False:
+                    death = await self.weighted_choice(
+                        [(True, possible_npc), (False, 95 + ((ship['defense'] * 2.5) + (ship['maneuver'] * 1.2)))])
+                if death is True:
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    ship_image = await game_functions.get_ship_image(ship_id)
+                    embed.set_thumbnail(url="{}".format(ship_image))
+                    embed.add_field(name="Killmail",
+                                    value="**Region** - {}\n\n"
+                                          "**Loser**\n"
+                                          "**{}** flying a {} was killed while belt ratting.".format(region_name,
+                                                                                                     user.display_name,
+                                                                                                     ship))
+                    await self.destroy_ship(miner)
+                    await self.add_loss(miner)
+                    await user.send(embed=embed)
+                    return await self.send_global(embed, True)
                 xp_gained = await self.weighted_choice([(1, 45), (2, 15)])
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
