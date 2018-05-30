@@ -278,7 +278,28 @@ class EveRpg:
                         await self.solo_combat(roamer, target)
                         break
 
-    async def solo_combat(self, attacker, defender):
+    async def process_ganks(self):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 4 '''
+        roamers = await db.select(sql)
+        if roamers is None or len(roamers) is 0:
+            return
+        for roamer in roamers:
+            region_id = int(roamer[4])
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` != 1 AND `region` = (?) AND `player_id` != (?) '''
+            values = (region_id, roamer[2])
+            potential_targets = await db.select_var(sql, values)
+            for target in potential_targets:
+                target_aggression = 5
+                if 1 < int(target[6]) < 5:
+                    target_aggression = 45
+                conflict = await self.weighted_choice([(True, target_aggression), (False, 65), (None, 45)])
+                if conflict is None:
+                    break
+                elif conflict is True:
+                    await self.solo_combat(roamer, target, True)
+                    break
+
+    async def solo_combat(self, attacker, defender, concord=False):
         attacker_ship_id = attacker[14]
         defender_ship_id = defender[14]
         attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
@@ -301,7 +322,14 @@ class EveRpg:
         loser = attacker
         winner_catch = defender_attack / 2 + defender_tracking
         loser_escape = attacker_defense / 2 + attacker_maneuver
+        winner_dies = False
+        loser_dies = False
+        if concord is True:
+            loser_dies = True
         if winner is attacker:
+            loser_dies = False
+            if concord is True:
+                winner_dies = True
             loser = defender
             winner_catch = attacker_attack / 2 + attacker_tracking
             loser_escape = defender_defense / 2 + defender_maneuver
@@ -343,10 +371,56 @@ class EveRpg:
         else:
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
-            await winner_user.send('**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                                   'managed to warp off and dock.'.format(loser_ship, loser_name, winner_ship))
-            await loser_user.send('**PVP** - Combat between you and a {} flown by {}, you nearly lost your {} but '
-                                  'managed to break tackle and dock.'.format(winner_ship, winner_name, loser_ship))
+            if winner_dies is False:
+                await winner_user.send(
+                    '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
+                    'managed to warp off and dock.'.format(loser_ship, loser_name, winner_ship))
+            else:
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(loser[14])
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "**Loser**\n"
+                                      "**{}** flying a {} was killed while they were {}.\n\n"
+                                      "**Final Blow**\n"
+                                      "Concord\n\n"
+                                      "**Other Attackers**\n"
+                                      "**{}** flying a {}".format(region_name, winner_name, winner_ship, winner_task,
+                                                                  loser_name, loser_ship))
+                await winner_user.send(embed=embed)
+                await loser_user.send(embed=embed)
+                await self.send_global(embed, True)
+                await self.add_loss(winner)
+                await self.add_kill(loser)
+                await self.destroy_ship(winner)
+
+            if loser_dies is False:
+                await loser_user.send('**PVP** - Combat between you and a {} flown by {}, you nearly lost your {} but '
+                                      'managed to break tackle and dock.'.format(winner_ship, winner_name, loser_ship))
+            else:
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(loser[14])
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "**Loser**\n"
+                                      "**{}** flying a {} was killed while they were {}.\n\n"
+                                      "**Final Blow**\n"
+                                      "Concord\n\n"
+                                      "**Other Attackers**\n"
+                                      "**{}** flying a {}".format(region_name, loser_name, loser_ship, loser_task,
+                                                                  winner_name, winner_ship))
+                await winner_user.send(embed=embed)
+                await loser_user.send(embed=embed)
+                await self.send_global(embed, True)
+                await self.add_loss(loser)
+                await self.add_kill(winner)
+                await self.destroy_ship(loser)
             sql = ''' UPDATE eve_rpg_players
                     SET task = 1
                     WHERE
