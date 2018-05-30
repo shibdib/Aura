@@ -41,8 +41,8 @@ class ChangeTask:
                               "**7.** Run anomalies in the system.\n"
                               "**8.** Do some exploration and run sites in the system.\n"
                               "**Mining Tasks**\n"
-                              "**9.** Go try and kill belt rats.\n"
-                              "**10.** Go try and kill belt rats.\n".format(current_task))
+                              "**9.** Mine an asteroid belt.\n"
+                              "**10.** Mine a mining anomaly.\n".format(current_task))
         await ctx.author.send(embed=embed)
 
         def check(m):

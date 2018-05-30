@@ -39,11 +39,22 @@ class Market:
         msg = await self.bot.wait_for('message', check=check, timeout=60.0)
         content = msg.content
         if content == '1':
-            ships_sale = []
+            frigates = ['__**Frigates**__']
+            destroyers = ['__**Destroyers**__']
+            tactical_destroyers = ['__**Tactical Destroyers**__']
+            interceptors = ['__**Interceptors**__']
             ships = game_assets.ships
             for key, ship in ships.items():
-                ships_sale.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
-            ship_list = '\n'.join(ships_sale)
+                if ship['class'] == 2:
+                    frigates.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                elif ship['class'] == 3:
+                    destroyers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                elif ship['class'] == 4:
+                    tactical_destroyers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                elif ship['class'] == 5:
+                    interceptors.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+            merged = frigates + destroyers + interceptors + tactical_destroyers
+            ship_list = '\n'.join(merged)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
