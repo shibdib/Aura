@@ -101,6 +101,7 @@ class ManageSelf:
                                   "**Mining Tasks**\n"
                                   "**9.** Mine an asteroid belt.\n"
                                   "**10.** Mine a mining anomaly.\n".format(current_task))
+            accepted = [1, 2, 3, 5, 6, 7, 8, 9, 10]
         else:
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}\n\n"
@@ -113,6 +114,7 @@ class ManageSelf:
                                   "**8.** Do some exploration and run sites in the system.\n"
                                   "**Mining Tasks**\n"
                                   "**9.** Mine an asteroid belt.\n".format(current_task))
+            accepted = [1, 4, 6, 8, 9]
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -122,7 +124,7 @@ class ManageSelf:
         content = msg.content
         if content == '5' or content == '8' or content == '10':
             return await ctx.author.send('**Not Yet Implemented**')
-        elif 0 < int(content) < 11:
+        elif int(content) in accepted:
             sql = ''' UPDATE eve_rpg_players
                     SET task = (?)
                     WHERE
@@ -157,7 +159,7 @@ class ManageSelf:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if 0 < int(content) < 13:
+        if int(content) in region_connections:
             sql = ''' UPDATE eve_rpg_players
                     SET destination = (?),
                         task = 20

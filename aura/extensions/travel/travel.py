@@ -1,7 +1,8 @@
 from discord.ext import commands
+
+from aura.core import checks
 from aura.lib import db
 from aura.lib import game_functions
-from aura.core import checks
 from aura.utils import make_embed
 
 
@@ -44,7 +45,7 @@ class Travel:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if 0 < int(content) < 13:
+        if int(content) in region_connections:
             sql = ''' UPDATE eve_rpg_players
                     SET destination = (?),
                         task = 20
