@@ -1,10 +1,10 @@
-from discord.ext import commands
 from aura.lib import db
-from aura.lib import game_functions
-from aura.core import checks
-from aura.utils import make_embed
 import asyncio
 import random
+
+from aura.lib import db
+from aura.lib import game_functions
+from aura.utils import make_embed
 
 
 class EveRpg:
@@ -240,9 +240,9 @@ class EveRpg:
                     embed.add_field(name="Killmail",
                                     value="**Region** - {}\n\n"
                                           "**Loser**\n"
-                                          "**{}** flying a {} was killed while belt ratting.".format(region_name,
-                                                                                                     user.display_name,
-                                                                                                     ship['name']))
+                                          "**{}** flying a {} was killed while belt mining.".format(region_name,
+                                                                                                    user.display_name,
+                                                                                                    ship['name']))
                     await self.destroy_ship(miner)
                     await self.add_loss(miner)
                     await user.send(embed=embed)
