@@ -75,12 +75,7 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @commands.command(name='task')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def change_task(self, ctx, current_task):
-        """Change your current task."""
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
@@ -125,12 +120,7 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @commands.command(name='travel')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def travel(self, ctx, region_id, region_name):
-        """Travel to a different region."""
         connected_regions = []
         region_connections = await game_functions.get_region_connections(region_id)
         for regions in region_connections:
@@ -171,12 +161,7 @@ class ManageSelf:
     async def change_ship(self, ctx):
         return await ctx.author.send('**Not Yet Implemented**')
 
-    @commands.command(name='market')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def visit_market(self, ctx, player):
-        """Visit the market."""
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
