@@ -122,7 +122,7 @@ class JoinGame:
                          text="Aura - EVE Text RPG")
         embed.add_field(name='Gameplay',
                         value='Initial setup is now complete. Your pilot is currently docked in your home region and '
-                              'is awaiting your guidance. To interact with your character do *!me*.')
+                              'is awaiting your guidance. To interact with your character do *!!me*.')
         await ctx.author.send(embed=embed)
         await self.send_global('**New Player** {} has joined the game.'.format(ctx.author.display_name))
         self.logger.info('eve_rpg - ' + str(ctx.message.author) + ' added to the game.')

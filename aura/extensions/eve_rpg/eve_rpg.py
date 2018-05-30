@@ -16,40 +16,6 @@ class EveRpg:
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.tick_loop())
 
-    @commands.command(name='rpgTop', aliases=["rpgtop"])
-    @checks.spam_check()
-    @checks.is_whitelist()
-    async def _rpg_top(self, ctx):
-        """Get the top RPG players"""
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
-        values = (ctx.message.author.id,)
-        result = await db.select_var(sql, values)
-        sql = ''' SELECT * FROM eve_rpg_players ORDER BY `level` DESC LIMIT 10 '''
-        top_levels = await db.select(sql)
-        top_levels_array = []
-        for levels in top_levels:
-            top_levels_user = self.bot.get_user(int(levels[2]))
-            top_levels_array.append('{} - Level {}'.format(top_levels_user.display_name, levels[9]))
-        levels_list = '\n'.join(top_levels_array)
-        sql = ''' SELECT * FROM eve_rpg_players ORDER BY `kills` DESC LIMIT 10 '''
-        top_killers = await db.select(sql)
-        top_killers_array = []
-        for killers in top_killers:
-            top_killer_user = self.bot.get_user(int(killers[2]))
-            top_killers_array.append('{} - {} Kills'.format(top_killer_user.display_name, killers[11]))
-        killers_list = '\n'.join(top_killers_array)
-        if result is None:
-            return await ctx.author.send('**Error** - No player found. You must be part of the game to view this')
-        else:
-            embed = make_embed(guild=ctx.guild)
-            embed.set_footer(icon_url=ctx.bot.user.avatar_url,
-                             text="Provided Via Firetail Bot")
-            embed.add_field(name="Level Leaderboard",
-                            value=levels_list, inline=False)
-            embed.add_field(name="Kills Leaderboard",
-                            value=killers_list, inline=False)
-            await ctx.channel.send(embed=embed)
-
     async def tick_loop(self):
         await self.bot.wait_until_ready()
         while not self.bot.is_closed():
