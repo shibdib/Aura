@@ -56,6 +56,7 @@ class EveRpg:
             try:
                 await self.process_travel()
                 await self.process_belt_ratting()
+                await self.process_belt_mining()
                 await self.process_anomaly_ratting()
                 await self.process_roams()
                 await asyncio.sleep(12)
