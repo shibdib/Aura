@@ -44,7 +44,7 @@ class Market:
             tactical_destroyers = ['__**Tactical Destroyers**__']
             interceptors = ['__**Interceptors**__']
             mining_frigate = ['__**Mining Frigates**__']
-            mining_barges = ['__**Mining Bargess**__']
+            mining_barges = ['__**Mining Barges**__']
             exhumers = ['__**Exhumers**__']
             ships = game_assets.ships
             for key, ship in ships.items():
@@ -59,9 +59,9 @@ class Market:
                 elif ship['class'] == 6:
                     mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
                 elif ship['class'] == 7:
-                    mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    mining_barges.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
                 elif ship['class'] == 8:
-                    mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    exhumers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
             merged = frigates + destroyers + interceptors + tactical_destroyers + mining_frigate + mining_barges + \
                      exhumers
             ship_list = '\n'.join(merged)
