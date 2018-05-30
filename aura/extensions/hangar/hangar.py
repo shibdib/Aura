@@ -83,7 +83,8 @@ class Hangar:
                 content = msg.content
                 if content != '1':
                     return await ctx.author.send('**Switch Canceled**')
-                new_hangar = ship_hangar[player[0][4]].remove(selected_ship['id']).append(int(player[0][14]))
+                new_hangar = ship_hangar[player[0][4]].remove(selected_ship['id'])
+                new_hangar.append(int(player[0][14]))
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
                             ship_hangar = (?)
