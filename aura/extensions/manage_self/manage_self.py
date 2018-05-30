@@ -205,20 +205,21 @@ class ManageSelf:
             exhumers = ['__**Exhumers**__']
             ships = game_assets.ships
             for key, ship in ships.items():
+                cost = '{0:,.2f}'.format(float(ship['isk']))
                 if ship['class'] == 2:
-                    frigates.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    frigates.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
                 elif ship['class'] == 3:
-                    destroyers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    destroyers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
                 elif ship['class'] == 4:
-                    tactical_destroyers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    tactical_destroyers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
                 elif ship['class'] == 5:
-                    interceptors.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    interceptors.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
                 elif ship['class'] == 6:
-                    mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    mining_frigate.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
                 elif ship['class'] == 7:
-                    mining_barges.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    mining_barges.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
                 elif ship['class'] == 8:
-                    exhumers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+                    exhumers.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
             merged = frigates + destroyers + interceptors + tactical_destroyers + mining_frigate + mining_barges + \
                      exhumers
             ship_list = '\n'.join(merged)
