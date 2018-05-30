@@ -38,7 +38,7 @@ class Hangar:
             return await ctx.author.send(embed=embed)
         else:
             ship_hangar = ast.literal_eval(player[0][15])
-            if ship_hangar[player[0][4]] is None:
+            if player[0][4] not in ship_hangar:
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
