@@ -24,12 +24,12 @@ class Stats:
             top_killer_user = self.bot.get_user(int(killers[2]))
             top_killers_array.append('{} - {} Kills'.format(top_killer_user.display_name, killers[10]))
         killers_list = '\n'.join(top_killers_array)
-        sql = ''' SELECT * FROM eve_rpg_players ORDER BY `kills` DESC LIMIT 10 '''
+        sql = ''' SELECT * FROM eve_rpg_players ORDER BY `losses` DESC LIMIT 10 '''
         top_losers = await db.select(sql)
         top_losers_array = []
         for losers in top_losers:
             top_losers_user = self.bot.get_user(int(losers[2]))
-            top_losers_array.append('{} - {} Kills'.format(top_losers_user.display_name, losers[11]))
+            top_losers_array.append('{} - {} Losses'.format(top_losers_user.display_name, losers[11]))
         losers_list = '\n'.join(top_losers_array)
         sql = ''' SELECT * FROM eve_rpg_players ORDER BY `isk` DESC LIMIT 10 '''
         top_isk = await db.select(sql)
