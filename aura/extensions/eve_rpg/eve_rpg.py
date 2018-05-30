@@ -129,7 +129,7 @@ class EveRpg:
                 return await self.send_global(embed, True)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
-                await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
+                # await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
             else:
                 xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
                 await self.add_xp(ratter, xp_gained)
@@ -184,7 +184,7 @@ class EveRpg:
                 return await self.send_global(embed, True)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
-                await ratter_user.send('**NOTICE** - You nearly died to anomaly rats but managed to warp off.')
+                # await ratter_user.send('**NOTICE** - You nearly died to anomaly rats but managed to warp off.')
             else:
                 xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
                 await self.add_xp(ratter, xp_gained)
