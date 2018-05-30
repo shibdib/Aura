@@ -57,7 +57,7 @@ class Stats:
         embed.add_field(name="Richest Players",
                         value=isk_list, inline=False)
         embed.add_field(name="Player Counts",
-                        value='{} Actively PVPing\n{} Actively PVEing\n{} Actively Mining\n{} Docked/In-Space/'
+                        value='{} - Actively PVPing\n{} - Actively PVEing\n{} - Actively Mining\n{} - Docked/In-Space/'
                               'Traveling'.format(
                             len(pvp_active), len(pve_active), len(mining_active), len(other_active)
                         ), inline=False)
