@@ -122,7 +122,7 @@ ships = {  # Noob
     90: {'id': 90, 'name': 'Skiff', 'class': 8, 'attack': 1, 'defense': 16, 'maneuver': 2, 'tracking': 1,
          'image': 'https://image.eveonline.com/Render/22546_128.png', 'isk': 297386539},
     91: {'id': 90, 'name': 'Hulk', 'class': 8, 'attack': 1, 'defense': 7, 'maneuver': 2, 'tracking': 1,
-         'image': 'https://image.eveonline.com/Render/22544_128.png', 'isk': 382481286}
+         'image': 'https://image.eveonline.com/Render/22544_128.png', 'isk': 382481286},
 }
 
 ship_classes = {

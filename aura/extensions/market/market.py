@@ -1,3 +1,5 @@
+import ast
+
 from discord.ext import commands
 
 from aura.core import checks
@@ -101,15 +103,24 @@ class Market:
                 content = msg.content
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')
+                if player[0][15] is None:
+                    current_hangar = "{{}: [{}]}".format(player[0][4], ship['id'])
+                elif player[0][15][player[0][4]] is None:
+                    current_hangar = ast.literal_eval(player[0][15])
+                    current_hangar[player[0][4]] = "[{}]".format(ship['id'])
+                else:
+                    current_hangar = ast.literal_eval(player[0][15])
+                    current_hangar[player[0][4]].append(ship['id'])
                 sql = ''' UPDATE eve_rpg_players
-                        SET ship = (?),
+                        SET ship_hangar = (?),
                             isk = (?)
                         WHERE
                             player_id = (?); '''
                 remaining_isk = int(player[0][5]) - int(ship['isk'])
-                values = (int(ship['id']), remaining_isk, ctx.author.id,)
+                values = (current_hangar, remaining_isk, ctx.author.id,)
                 await db.execute_sql(sql, values)
-                return await ctx.author.send('**{} Purchase Complete**'.format(ship['name']))
+                return await ctx.author.send('**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
+                                             'Region**'.format(ship['name']))
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
         elif content == '2':
