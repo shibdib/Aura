@@ -207,7 +207,7 @@ class ManageSelf:
             stored_ships_array = []
             owned_ship_ids = []
             for ship in ship_hangar[player[0][4]]:
-                owned_ship_ids.append(ship)
+                owned_ship_ids.append(int(ship))
                 ship_name = await game_functions.get_ship_name(int(ship))
                 stored_ships_array.append('{}. {}'.format(ship, ship_name))
             stored_ships = '\n'.join(stored_ships_array)
@@ -223,7 +223,7 @@ class ManageSelf:
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
-            if content in owned_ship_ids:
+            if int(content) in owned_ship_ids:
                 selected_ship = await game_functions.get_ship(int(content))
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -242,7 +242,7 @@ class ManageSelf:
                 content = msg.content
                 if content != '1':
                     return await ctx.author.send('**Switch Canceled**')
-                new_hangar = ship_hangar[player[0][4]].remove(selected_ship['id'])
+                new_hangar = ship_hangar[player[0][4]].remove(selected_ship['id']).append(int(player[0][14]))
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
                             ship_hangar = (?)
@@ -251,6 +251,8 @@ class ManageSelf:
                 values = (int(selected_ship['id']), new_hangar, ctx.author.id,)
                 await db.execute_sql(sql, values)
                 return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
+            else:
+                return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def visit_market(self, ctx, player):
         embed = make_embed(icon=ctx.bot.user.avatar)
@@ -329,15 +331,24 @@ class ManageSelf:
                 content = msg.content
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')
+                if player[0][15] is None:
+                    current_hangar = {player[0][4]: [ship['id']]}
+                elif player[0][15][player[0][4]] is None:
+                    current_hangar = ast.literal_eval(player[0][15])
+                    current_hangar[player[0][4]] = "[{}]".format(ship['id'])
+                else:
+                    current_hangar = ast.literal_eval(player[0][15])
+                    current_hangar[player[0][4]].append(ship['id'])
                 sql = ''' UPDATE eve_rpg_players
-                        SET ship = (?),
+                        SET ship_hangar = (?),
                             isk = (?)
                         WHERE
                             player_id = (?); '''
                 remaining_isk = int(player[0][5]) - int(ship['isk'])
-                values = (int(ship['id']), remaining_isk, ctx.author.id,)
+                values = (str(current_hangar), remaining_isk, ctx.author.id,)
                 await db.execute_sql(sql, values)
-                return await ctx.author.send('**{} Purchase Complete**'.format(ship['name']))
+                return await ctx.author.send('**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
+                                             'Region**'.format(ship['name']))
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
         elif content == '2':
