@@ -1,6 +1,7 @@
 from discord.ext import commands
-from aura.lib import db
+
 from aura.core import checks
+from aura.lib import db
 from aura.utils import make_embed
 
 
@@ -18,11 +19,13 @@ class JoinGame:
         """Sign up for the RPG.
         If your server doesn't have an RPG channel have an admin do **!setRpg** to receive the game events.
         **If you've already registered this will reset your account.**"""
+        if ctx.guild is None:
+            return await ctx.author.send('WARNING: The join command cannot be done via a DM.')
         #  Check if user exists already and confirm restart
         sql = ''' SELECT id FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         result = await db.select_var(sql, values)
-        if result is None or len(result) is 0:
+        if len(result) > 0:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -42,8 +45,6 @@ class JoinGame:
         sql = ''' REPLACE INTO eve_rpg_players(server_id,player_id)
                   VALUES(?,?) '''
         author = ctx.message.author.id
-        if ctx.guild is None:
-            return await ctx.author.send('WARNING: The join command cannot be done via a DM.')
         await ctx.message.delete()
         server = ctx.message.guild.id
         values = (server, author)
