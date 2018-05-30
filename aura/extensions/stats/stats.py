@@ -39,6 +39,14 @@ class Stats:
             clean_isk = '{0:,.2f}'.format(float(isk[5]))
             top_isk_array.append('{} - {} ISK'.format(top_isk_user.display_name, clean_isk))
         isk_list = '\n'.join(top_isk_array)
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 OR `task` = 3 OR`task` = 4 OR`task` = 5 '''
+        pvp_active = await db.select(sql)
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 OR `task` = 7 OR`task` = 8 '''
+        pve_active = await db.select(sql)
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 OR `task` = 10 '''
+        mining_active = await db.select(sql)
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 1 OR `task` = 20 OR `task` = 21 '''
+        other_active = await db.select(sql)
         embed = make_embed(guild=ctx.guild)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Provided Via Firetail Bot")
@@ -48,4 +56,9 @@ class Stats:
                         value=losers_list, inline=False)
         embed.add_field(name="Richest Players",
                         value=isk_list, inline=False)
+        embed.add_field(name="Player Counts",
+                        value='{} Actively PVPing\n{} Actively PVEing\n{} Actively Mining\n{} Docked/In-Space/'
+                              'Traveling'.format(
+                            len(pvp_active), len(pve_active), len(mining_active), len(other_active)
+                        ), inline=False)
         await ctx.channel.send(embed=embed)
