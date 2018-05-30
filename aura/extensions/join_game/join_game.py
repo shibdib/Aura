@@ -48,7 +48,6 @@ class JoinGame:
         server = ctx.message.guild.id
         values = (server, author)
         await db.execute_sql(sql, values)
-        self.logger.info('eve_rpg - ' + str(ctx.message.author) + ' added to the game.')
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
@@ -126,6 +125,7 @@ class JoinGame:
                               'is awaiting your guidance. To interact with your character do *!me*.')
         await ctx.author.send(embed=embed)
         await self.send_global('**New Player** {} has joined the game.'.format(ctx.author.display_name))
+        self.logger.info('eve_rpg - ' + str(ctx.message.author) + ' added to the game.')
 
     async def send_global(self, message, embed=False):
         sql = "SELECT * FROM eve_rpg_channels"
