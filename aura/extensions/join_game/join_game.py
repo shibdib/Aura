@@ -33,9 +33,9 @@ class JoinGame:
             await ctx.author.send(embed=embed)
 
             def check(m):
-                return m.author == ctx.author
+                return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-            msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
             if content != '1':
                 return
@@ -63,9 +63,9 @@ class JoinGame:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author
+            return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         race = 'Caldari'
         ship = 'Ibis'

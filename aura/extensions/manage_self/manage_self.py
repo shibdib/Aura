@@ -58,9 +58,9 @@ class ManageSelf:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author
+            return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         if content == '1':
             await self.change_task(ctx, current_task)
@@ -98,9 +98,9 @@ class ManageSelf:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author
+            return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         if content == '5' or content == '4' or content == '8' or content == '9' or content == '10':
             return await ctx.author.send('**Not Yet Implemented**')
@@ -135,9 +135,9 @@ class ManageSelf:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author
+            return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         if 0 < int(content) < 13:
             sql = ''' UPDATE eve_rpg_players
@@ -171,9 +171,9 @@ class ManageSelf:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author
+            return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         if content == '1':
             frigates = ['__**Frigates**__']
@@ -210,9 +210,9 @@ class ManageSelf:
             await ctx.author.send(embed=embed)
 
             def check(m):
-                return m.author == ctx.author
+                return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-            msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
             ship = await game_functions.get_ship(int(content))
             if ship is not None:
@@ -229,9 +229,9 @@ class ManageSelf:
                 await ctx.author.send(embed=embed)
 
                 def check(m):
-                    return m.author == ctx.author
+                    return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-                msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')

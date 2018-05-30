@@ -34,9 +34,9 @@ class Market:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author
+            return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         if content == '1':
             frigates = ['__**Frigates**__']
@@ -73,9 +73,9 @@ class Market:
             await ctx.author.send(embed=embed)
 
             def check(m):
-                return m.author == ctx.author
+                return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-            msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
             ship = await game_functions.get_ship(int(content))
             if ship is not None:
@@ -92,9 +92,9 @@ class Market:
                 await ctx.author.send(embed=embed)
 
                 def check(m):
-                    return m.author == ctx.author
+                    return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-                msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')

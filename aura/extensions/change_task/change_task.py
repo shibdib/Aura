@@ -46,9 +46,9 @@ class ChangeTask:
         await ctx.author.send(embed=embed)
 
         def check(m):
-            return m.author == ctx.author
+            return m.author == ctx.author and m.channel == ctx.user.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         if content == '5' or content == '4' or content == '8' or content == '10':
             return await ctx.author.send('**Not Yet Implemented**')
