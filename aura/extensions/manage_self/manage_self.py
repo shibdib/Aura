@@ -76,7 +76,7 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def change_task(self, ctx, player):
-        region_id = int(player[4])
+        region_id = int(player[0][4])
         region_security = await game_functions.get_region_security(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
         embed = make_embed(icon=ctx.bot.user.avatar)

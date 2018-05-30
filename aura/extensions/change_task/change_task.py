@@ -23,7 +23,7 @@ class ChangeTask:
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
-        region_id = int(player[4])
+        region_id = int(player[0][4])
         region_security = await game_functions.get_region_security(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
         embed = make_embed(icon=ctx.bot.user.avatar)
