@@ -24,6 +24,7 @@ class EveRpg:
                 await self.process_belt_mining()
                 await self.process_anomaly_ratting()
                 await self.process_roams()
+                await self.process_ganks()
                 await asyncio.sleep(12)
             except Exception:
                 self.logger.exception('ERROR:')
