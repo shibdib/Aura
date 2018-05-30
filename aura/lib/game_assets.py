@@ -67,6 +67,8 @@ ships = {  # Noob
         'image': 'https://image.eveonline.com/Render/588_128.png', 'isk': 1000},
     4: {'id': 4, 'name': 'Velator', 'class': 1, 'attack': 1, 'defense': 1, 'maneuver': 2, 'tracking': 1,
         'image': 'https://image.eveonline.com/Render/606_128.png', 'isk': 1000},
+    5: {'id': 5, 'name': 'Specter', 'class': 1, 'attack': 2, 'defense': 2, 'maneuver': 2, 'tracking': 1,
+        'image': 'https://image.eveonline.com/Render/606_128.png', 'isk': 1000},
     # Frigates
     6: {'id': 6, 'name': 'Rifter', 'class': 2, 'attack': 2, 'defense': 1, 'maneuver': 7, 'tracking': 5,
         'image': 'https://image.eveonline.com/Render/587_128.png', 'isk': 593616},
