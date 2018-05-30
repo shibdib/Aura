@@ -13,7 +13,7 @@ class ManageSelf:
         self.config = bot.config
         self.logger = bot.logger
 
-    @commands.command(name='me')
+    @commands.command(name='me', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
