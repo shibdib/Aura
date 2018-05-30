@@ -17,13 +17,6 @@ class Stats:
     @checks.is_whitelist()
     async def _rpg_top(self, ctx):
         """Get the top RPG players"""
-        sql = ''' SELECT * FROM eve_rpg_players ORDER BY `level` DESC LIMIT 10 '''
-        top_levels = await db.select(sql)
-        top_levels_array = []
-        for levels in top_levels:
-            top_levels_user = self.bot.get_user(int(levels[2]))
-            top_levels_array.append('{} - Level {}'.format(top_levels_user.display_name, levels[8]))
-        levels_list = '\n'.join(top_levels_array)
         sql = ''' SELECT * FROM eve_rpg_players ORDER BY `kills` DESC LIMIT 10 '''
         top_killers = await db.select(sql)
         top_killers_array = []
@@ -49,8 +42,6 @@ class Stats:
         embed = make_embed(guild=ctx.guild)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Provided Via Firetail Bot")
-        embed.add_field(name="Level Leaderboard",
-                        value=levels_list, inline=False)
         embed.add_field(name="Kills Leaderboard",
                         value=killers_list, inline=False)
         embed.add_field(name="Loss Leaderboard",
