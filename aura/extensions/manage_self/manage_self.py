@@ -1,6 +1,7 @@
 from discord.ext import commands
 from aura.lib import db
 from aura.lib import game_functions
+from aura.lib import game_assets
 from aura.core import checks
 from aura.utils import make_embed
 
@@ -70,7 +71,7 @@ class ManageSelf:
         elif content == '4':
             await self.change_ship(ctx)
         elif content == '5':
-            await self.visit_market(ctx)
+            await self.visit_market(ctx, player)
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
@@ -88,7 +89,7 @@ class ManageSelf:
                               "**4.** Try to gank someone.\n"
                               "**5.** Join a fleet.\n"
                               "**PVE Tasks**\n"
-                              "**6.** Go try and kill belt rats.\n"
+                              "**6.** Kill belt rats.\n"
                               "**7.** Run anomalies in the system.\n"
                               "**8.** Do some exploration and run sites in the system.\n"
                               "**Mining Tasks**\n"
@@ -160,6 +161,37 @@ class ManageSelf:
     async def change_ship(self, ctx):
         return await ctx.author.send('**Not Yet Implemented**')
 
-    async def visit_market(self, ctx):
-        return await ctx.author.send('**Not Yet Implemented**')
+    async def visit_market(self, ctx, player):
+        embed = make_embed(icon=ctx.bot.user.avatar)
+        embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Select Market",
+                        value="**1.** Ships.\n"
+                              "**2.** Modules.\n"
+                              "**3.** Components.\n")
+        await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author
+
+        msg = await self.bot.wait_for('message', check=check, timeout=60.0)
+        content = msg.content
+        if content == '1':
+            ships_sale = []
+            ships = game_assets.ships
+            for ship in ships:
+                ships_sale.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], ship['isk']))
+            ship_list = '\n'.join(ships_sale)
+            embed = make_embed(icon=ctx.bot.user.avatar)
+            embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            embed.add_field(name="Ship Market",
+                            value="{}".format(ship_list))
+            await ctx.author.send(embed=embed)
+        elif content == '2':
+            return await ctx.author.send('**Not Yet Implemented**')
+        elif content == '3':
+            return await ctx.author.send('**Not Yet Implemented**')
+        else:
+            return await ctx.author.send('**ERROR** - Not a valid choice.')
 

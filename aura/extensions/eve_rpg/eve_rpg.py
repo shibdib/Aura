@@ -56,6 +56,7 @@ class EveRpg:
             try:
                 await self.process_travel()
                 await self.process_belt_ratting()
+                await self.process_anomaly_ratting()
                 await self.process_roams()
                 await asyncio.sleep(12)
             except Exception:
@@ -145,6 +146,8 @@ class EveRpg:
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(ship_id)
+                embed.set_thumbnail(url="{}".format(ship_image))
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
@@ -154,7 +157,60 @@ class EveRpg:
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
                 await player.send(embed=embed)
-                return await self.send_global(embed)
+                return await self.send_global(embed, True)
+            elif flee is True:
+                return
+            else:
+                xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
+                await self.add_xp(ratter, xp_gained)
+                await self.add_isk(ratter, isk)
+
+    async def process_anomaly_ratting(self):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 '''
+        ratters = await db.select(sql)
+        if ratters is None or len(ratters) is 0:
+            return
+        for ratter in ratters:
+            region_id = int(ratter[4])
+            region_name = await game_functions.get_region(int(region_id))
+            user = self.bot.get_user(ratter[2])
+            region_security = await game_functions.get_region_security(region_id)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 AND `region` = (?) '''
+            values = (region_id,)
+            system_ratters = await db.select_var(sql, values)
+            isk = await self.weighted_choice([(1000, 100), (1500, 30), (3500, 10)])
+            if region_security == 'Low':
+                isk = await self.weighted_choice([(2500, 100), (3500, 30), (5500, 10)])
+            elif region_security == 'Null':
+                isk = await self.weighted_choice([(7500, 100), (9500, 30), (13500, 10)])
+            #  PVE Rolls
+            ship_id = ratter[14]
+            ship = await game_functions.get_ship(ship_id)
+            ship_attack, ship_defense, ship_maneuver, ship_tracking = \
+                await game_functions.get_combat_attributes(ship_id)
+            death = await self.weighted_choice(
+                [(True, 2), (False, 95 + ((ship_defense * 1.5) + (ship_maneuver * 1.2)))])
+            flee = await self.weighted_choice(
+                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2))])
+            find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
+            if find_rats is False:
+                continue
+            if death is True and flee is False:
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(ship_id)
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "**Loser**\n"
+                                      "**{}** flying a {} was killed by belt rats.".format(region_name, user.display_name,
+                                                                                           ship))
+                await self.destroy_ship(ratter)
+                await self.add_loss(ratter)
+                player = self.bot.get_user(ratter[2])
+                await player.send(embed=embed)
+                return await self.send_global(embed, True)
             elif flee is True:
                 return
             else:
@@ -218,6 +274,8 @@ class EveRpg:
         embed = make_embed(icon=self.bot.user.avatar)
         embed.set_footer(icon_url=self.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
+        ship_image = await game_functions.get_ship_image(loser[14])
+        embed.set_thumbnail(url="{}".format(ship_image))
         embed.add_field(name="Killmail",
                         value="**Region** - {}\n\n"
                               "**Loser**\n"
@@ -250,15 +308,12 @@ class EveRpg:
         game_channels = await db.select(sql)
         for channels in game_channels:
             channel = self.bot.get_channel(int(channels[2]))
-            self.logger.info('eve_rpg - {}'.format(embed))
             if channel is None:
                 self.logger.exception('eve_rpg - Bad Channel Attempted removing....')
                 await self.remove_bad_channel(channels[2])
             if embed is False:
-                self.logger.info('eve_rpg - 1')
                 await channel.send(message)
             else:
-                self.logger.info('eve_rpg - 2')
                 await channel.send(embed=message)
 
     async def remove_bad_user(self, player_id):
