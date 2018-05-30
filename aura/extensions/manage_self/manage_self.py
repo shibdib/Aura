@@ -226,7 +226,7 @@ class ManageSelf:
             embed.set_footer(icon_url=self.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
             embed.set_thumbnail(url="{}".format(selected_ship['image']))
-            embed.add_field(name="Confirm Purchase",
+            embed.add_field(name="Confirm Switch",
                             value="Are you sure you want to switch from a **{}** into a **{}**\n\n"
                                   "**1.** Yes.\n"
                                   "**2.** No.\n".format(current_ship, selected_ship['name']))

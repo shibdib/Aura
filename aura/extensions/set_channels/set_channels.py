@@ -1,6 +1,7 @@
 from discord.ext import commands
-from aura.lib import db
+
 from aura.core import checks
+from aura.lib import db
 
 
 class SetChannels:
@@ -11,7 +12,7 @@ class SetChannels:
         self.logger = bot.logger
 
     @commands.command(name='setRpg')
-    @checks.is_admin()
+    @checks.is_mod()
     async def _set_rpg(self, ctx):
         """Sets a channel as an RPG channel.
         Do **!setRpg** to have a channel relay all RPG events.

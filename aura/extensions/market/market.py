@@ -104,7 +104,7 @@ class Market:
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')
                 if player[0][15] is None:
-                    current_hangar = "{{}: [{}]}".format(player[0][4], ship['id'])
+                    current_hangar = {player[0][4]: [ship['id']]}
                 elif player[0][15][player[0][4]] is None:
                     current_hangar = ast.literal_eval(player[0][15])
                     current_hangar[player[0][4]] = "[{}]".format(ship['id'])
@@ -117,7 +117,7 @@ class Market:
                         WHERE
                             player_id = (?); '''
                 remaining_isk = int(player[0][5]) - int(ship['isk'])
-                values = (current_hangar, remaining_isk, ctx.author.id,)
+                values = (str(current_hangar), remaining_isk, ctx.author.id,)
                 await db.execute_sql(sql, values)
                 return await ctx.author.send('**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
                                              'Region**'.format(ship['name']))
