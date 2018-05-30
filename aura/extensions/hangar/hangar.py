@@ -93,7 +93,7 @@ class Hangar:
                             ship_hangar = (?)
                         WHERE
                             player_id = (?); '''
-                values = (int(selected_ship['id']), new_hangar, ctx.author.id,)
+                values = (int(selected_ship['id']), str(new_hangar), ctx.author.id,)
                 await db.execute_sql(sql, values)
                 return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
             else:
