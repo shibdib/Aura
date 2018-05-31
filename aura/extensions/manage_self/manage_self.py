@@ -417,7 +417,7 @@ class ManageSelf:
                     current_hangar = {player[0][4]: [module['id']]}
                 elif player[0][13][player[0][4]] is None:
                     current_hangar = ast.literal_eval(player[0][13])
-                    current_hangar[player[0][4]] = "[{}]".format(module['id'])
+                    current_hangar[player[0][4]] = [module['id']]
                 else:
                     current_hangar = ast.literal_eval(player[0][13])
                     current_hangar[player[0][4]].append(module['id'])
