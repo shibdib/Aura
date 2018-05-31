@@ -49,7 +49,7 @@ class EveRpg:
             if len(outbound_campers) is not 0 and region_security != 'High':
                 defender_ship_id = traveler[14]
                 defender_attack, defender_defense, defender_maneuver, defender_tracking = \
-                    await game_functions.get_combat_attributes(defender_ship_id)
+                    await game_functions.get_combat_attributes(traveler, defender_ship_id)
                 for camper in outbound_campers:
                     conflict = await self.weighted_choice([(True, 35 - defender_maneuver), (False, 65), (None, 45)])
                     if conflict is True:
@@ -58,7 +58,7 @@ class EveRpg:
             if len(inbound_campers) is not 0 and destination_security != 'High':
                 defender_ship_id = traveler[14]
                 defender_attack, defender_defense, defender_maneuver, defender_tracking = \
-                    await game_functions.get_combat_attributes(defender_ship_id)
+                    await game_functions.get_combat_attributes(traveler, defender_ship_id)
                 for camper in inbound_campers:
                     conflict = await self.weighted_choice([(True, 60 - defender_maneuver), (False, 65), (None, 45)])
                     if conflict is True:
@@ -114,7 +114,7 @@ class EveRpg:
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
-                await game_functions.get_combat_attributes(ship_id)
+                await game_functions.get_combat_attributes(ratter, ship_id)
             death = await self.weighted_choice(
                 [(True, 2), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
                                                 (ship_attack * 8)))])
@@ -183,7 +183,7 @@ class EveRpg:
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
-                await game_functions.get_combat_attributes(ship_id)
+                await game_functions.get_combat_attributes(ratter, ship_id)
             death = await self.weighted_choice(
                 [(True, 12), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
                                                  (ship_attack * 8)))])
@@ -350,9 +350,9 @@ class EveRpg:
         attacker_ship_id = attacker[14]
         defender_ship_id = defender[14]
         attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
-            await game_functions.get_combat_attributes(attacker_ship_id)
+            await game_functions.get_combat_attributes(attacker, attacker_ship_id)
         defender_attack, defender_defense, defender_maneuver, defender_tracking = \
-            await game_functions.get_combat_attributes(defender_ship_id)
+            await game_functions.get_combat_attributes(defender, defender_ship_id)
         tracking_one = 1
         if attacker_tracking < defender_maneuver:
             tracking_one = 0.8
