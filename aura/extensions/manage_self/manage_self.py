@@ -340,7 +340,7 @@ class ManageSelf:
                 if current_hangar is None:
                     current_hangar = {player[0][4]: [ship['id']]}
                 elif player[0][4] not in current_hangar:
-                    current_hangar[player[0][4]] = "[{}]".format(ship['id'])
+                    current_hangar[player[0][4]] = [ship['id']]
                 else:
                     current_hangar[player[0][4]].append(ship['id'])
                 sql = ''' UPDATE eve_rpg_players

@@ -47,7 +47,9 @@ class Hangar:
                 return await ctx.author.send(embed=embed)
             stored_ships_array = []
             owned_ship_ids = []
+            self.logger.info('eve_rpg - {}'.format(ship_hangar))
             for ship in ship_hangar[player[0][4]]:
+                self.logger.info('eve_rpg - {}'.format(ship))
                 owned_ship_ids.append(int(ship))
                 ship_name = await game_functions.get_ship_name(int(ship))
                 stored_ships_array.append('{}. {}'.format(ship, ship_name))
