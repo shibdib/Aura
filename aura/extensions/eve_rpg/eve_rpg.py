@@ -259,21 +259,27 @@ class EveRpg:
                 ship_id = miner[14]
                 ship = await game_functions.get_ship(ship_id)
                 multiplier = 1
+                defense_multi = 1
                 if ship['class'] == 6:
                     multiplier = 1.75
+                    defense_multi = 1.5
                 if ship['id'] == 80:
                     multiplier = 2.4
+                    defense_multi = 4
                 if ship['id'] == 81:
                     multiplier = 3
+                    defense_multi = 2
                 if ship['id'] == 90:
                     multiplier = 2.9
+                    defense_multi = 6
                 if ship['id'] == 91:
                     multiplier = 4
+                    defense_multi = 2.5
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(
                         [(True, possible_npc), (False, survival + ((ship['defense'] * 11) + (ship['maneuver'] * 6) +
-                                                                   (ship['attack'] * 8)) * multiplier)])
+                                                                   (ship['attack'] * 8)) * defense_multi)])
                 if death is True:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
