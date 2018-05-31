@@ -108,9 +108,9 @@ class EveRpg:
             if ship['class'] == 1:
                 survival = 175
                 if region_security == 'Low':
-                    survival = 100
+                    survival = 50
                 elif region_security == 'Null':
-                    survival = 25
+                    survival = -10
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
@@ -177,9 +177,9 @@ class EveRpg:
             if ship['class'] == 1:
                 survival = 175
                 if region_security == 'Low':
-                    survival = 55
+                    survival = 25
                 elif region_security == 'Null':
-                    survival = 0
+                    survival = -25
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
@@ -248,7 +248,7 @@ class EveRpg:
             if ship['class'] == 1:
                 survival = 175
                 if region_security == 'Low':
-                    survival = 55
+                    survival = 25
                 elif region_security == 'Null':
                     survival = 0
             find_ore = await self.weighted_choice([(True, ore / len(belt_miners)), (False, 40)])
