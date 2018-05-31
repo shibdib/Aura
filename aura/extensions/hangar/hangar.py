@@ -26,6 +26,8 @@ class Hangar:
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
+        if player[0][6] is not 1:
+            return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
         current_ship = await game_functions.get_ship_name(int(player[0][14]))

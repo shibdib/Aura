@@ -37,8 +37,8 @@ class Assets:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
-            ship_hangar = ast.literal_eval(player[0][15])
-            if ship_hangar is not None:
+            if player[0][15] is not None:
+                ship_hangar = ast.literal_eval(player[0][15])
                 stored_ships_array = []
                 for key, ships in ship_hangar.items():
                     for ship in ships:
@@ -48,14 +48,10 @@ class Assets:
                 stored_ships = '\n'.join(stored_ships_array)
                 embed.add_field(name="Ships",
                                 value='{}'.format(stored_ships))
-            self.logger.info(player[0][13])
-            module_hangar = ast.literal_eval(player[0][13])
-            if module_hangar is not None:
+            if player[0][13] is not None:
+                module_hangar = ast.literal_eval(player[0][13])
                 stored_modules_array = []
                 for key, items in module_hangar.items():
-                    self.logger.info(module_hangar)
-                    self.logger.info(key)
-                    self.logger.info(items)
                     for item in items:
                         region_name = await game_functions.get_region(key)
                         module_name = await game_functions.get_module_name(int(item))

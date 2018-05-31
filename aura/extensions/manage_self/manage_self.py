@@ -188,6 +188,8 @@ class ManageSelf:
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
+        if player[0][6] is not 1:
+            return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
         current_ship = await game_functions.get_ship_name(int(player[0][14]))
@@ -438,7 +440,7 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def asset_list(self, ctx):
-        """View your assest."""
+        """View your assets."""
         if ctx.guild is not None:
             await ctx.message.delete()
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
@@ -455,8 +457,8 @@ class ManageSelf:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
-            ship_hangar = ast.literal_eval(player[0][15])
-            if ship_hangar is not None:
+            if player[0][15] is not None:
+                ship_hangar = ast.literal_eval(player[0][15])
                 stored_ships_array = []
                 for key, ships in ship_hangar.items():
                     for ship in ships:
@@ -466,8 +468,8 @@ class ManageSelf:
                 stored_ships = '\n'.join(stored_ships_array)
                 embed.add_field(name="Ships",
                                 value='{}'.format(stored_ships))
-            module_hangar = ast.literal_eval(player[0][13])
-            if module_hangar is not None:
+            if player[0][13] is not None:
+                module_hangar = ast.literal_eval(player[0][13])
                 stored_modules_array = []
                 for key, items in module_hangar.items():
                     for item in items:
