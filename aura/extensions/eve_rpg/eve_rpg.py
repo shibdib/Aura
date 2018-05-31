@@ -144,7 +144,7 @@ class EveRpg:
                 ratter_user = self.bot.get_user(ratter[2])
                 # await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
             else:
-                xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
+                xp_gained = await self.weighted_choice([(1, 35), (3, 15), (0, 15)])
                 await self.add_xp(ratter, xp_gained)
                 await self.add_isk(ratter, isk)
 
@@ -212,7 +212,7 @@ class EveRpg:
                 ratter_user = self.bot.get_user(ratter[2])
                 # await ratter_user.send('**NOTICE** - You nearly died to anomaly rats but managed to warp off.')
             else:
-                xp_gained = await self.weighted_choice([(3, 45), (5, 15), (7, 5)])
+                xp_gained = await self.weighted_choice([(2, 35), (3, 15), (0, 15)])
                 await self.add_xp(ratter, xp_gained)
                 await self.add_isk(ratter, isk)
 
@@ -290,7 +290,7 @@ class EveRpg:
                     await self.add_loss(miner)
                     await user.send(embed=embed)
                     return await self.send_global(embed, True)
-                xp_gained = await self.weighted_choice([(1, 45), (2, 15)])
+                xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
 
@@ -385,8 +385,8 @@ class EveRpg:
         winner_task = await game_functions.get_task(int(winner[6]))
         loser_ship = await game_functions.get_ship_name(int(loser[14]))
         loser_task = await game_functions.get_task(int(loser[6]))
+        xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
         if escape is False:
-            xp_gained = await self.weighted_choice([(5, 45), (15, 15), (27, 5)])
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -430,6 +430,7 @@ class EveRpg:
                 await self.add_loss(winner)
                 await self.add_kill(loser)
                 await self.destroy_ship(winner)
+                await self.add_xp(loser, xp_gained)
         else:
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
@@ -458,6 +459,7 @@ class EveRpg:
                 await self.add_loss(winner)
                 await self.add_kill(loser)
                 await self.destroy_ship(winner)
+                await self.add_xp(winner, xp_gained)
 
             if loser_dies is False:
                 await loser_user.send('**PVP** - Combat between you and a {} flown by {}, you nearly lost your {} but '
@@ -526,19 +528,19 @@ class EveRpg:
         return self.logger.info('eve_rpg - Bad Channel removed successfully')
 
     async def add_xp(self, player, xp_gained):
-        if player[10] + xp_gained < 100:
+        if player[9] + xp_gained < 100 * player[8]:
             sql = ''' UPDATE eve_rpg_players
                     SET xp = (?)
                     WHERE
                         player_id = (?); '''
-            values = (player[10] + xp_gained, player[2],)
+            values = (player[9] + xp_gained, player[2],)
         else:
             sql = ''' UPDATE eve_rpg_players
                     SET level = (?),
                         xp = (?)
                     WHERE
                         player_id = (?); '''
-            values = (player[9] + 1, 0, player[2],)
+            values = (player[8] + 1, 0, player[2],)
         await db.execute_sql(sql, values)
 
     async def add_isk(self, player, isk):
