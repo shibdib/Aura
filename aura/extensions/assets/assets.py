@@ -48,11 +48,14 @@ class Assets:
                 stored_ships = '\n'.join(stored_ships_array)
                 embed.add_field(name="Ships",
                                 value='{}'.format(stored_ships))
-                return await ctx.author.send(embed=embed)
+            self.logger.info(player[0][13])
             module_hangar = ast.literal_eval(player[0][13])
             if module_hangar is not None:
                 stored_modules_array = []
                 for key, items in module_hangar.items():
+                    self.logger.info(module_hangar)
+                    self.logger.info(key)
+                    self.logger.info(items)
                     for item in items:
                         region_name = await game_functions.get_region(key)
                         module_name = await game_functions.get_module_name(int(item))
@@ -60,5 +63,4 @@ class Assets:
                 stored_modules = '\n'.join(stored_modules_array)
                 embed.add_field(name="Modules",
                                 value='{}'.format(stored_modules))
-                return await ctx.author.send(embed=embed)
             await ctx.author.send(embed=embed)
