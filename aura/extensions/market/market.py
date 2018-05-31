@@ -84,6 +84,7 @@ class Market:
             content = msg.content
             ship = await game_functions.get_ship(int(content))
             if ship is not None:
+                cost = '{0:,.2f}'.format(float(ship['isk']))
                 if int(ship['isk']) > int(player[0][5]):
                     return await ctx.author.send('**Not Enough Isk**')
                 embed = make_embed(icon=self.bot.user.avatar)
@@ -93,7 +94,7 @@ class Market:
                 embed.add_field(name="Confirm Purchase",
                                 value="Are you sure you want to buy a **{}** for {} ISK\n\n"
                                       "**1.** Yes.\n"
-                                      "**2.** No.\n".format(ship['name'], ship['isk']))
+                                      "**2.** No.\n".format(ship['name'], cost))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
@@ -124,7 +125,79 @@ class Market:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
         elif content == '2':
-            return await ctx.author.send('**Not Yet Implemented**')
+            attack = ['__**Attack**__']
+            defense = ['__**Defense**__']
+            maneuver = ['__**Maneuver**__']
+            tracking = ['__**Tracking**__']
+            mining = ['__**Mining**__']
+            modules = game_assets.modules
+            for key, module in modules.items():
+                cost = '{0:,.2f}'.format(float(module['isk']))
+                if module['class'] == 1:
+                    attack.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                elif module['class'] == 2:
+                    defense.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                elif module['class'] == 3:
+                    maneuver.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                elif module['class'] == 4:
+                    tracking.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                elif module['class'] == 5:
+                    mining.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+            merged = attack + defense + maneuver + tracking + mining
+            module_list = '\n'.join(merged)
+            embed = make_embed(icon=ctx.bot.user.avatar)
+            embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            embed.add_field(name="Module Market",
+                            value="Wallet - {} ISK \n\n {}".format(wallet_balance, module_list))
+            await ctx.author.send(embed=embed)
+
+            def check(m):
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+            content = msg.content
+            ship = await game_functions.get_ship(int(content))
+            if ship is not None:
+                cost = '{0:,.2f}'.format(float(ship['isk']))
+                if int(ship['isk']) > int(player[0][5]):
+                    return await ctx.author.send('**Not Enough Isk**')
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.set_thumbnail(url="{}".format(ship['image']))
+                embed.add_field(name="Confirm Purchase",
+                                value="Are you sure you want to buy a **{}** for {} ISK\n\n"
+                                      "**1.** Yes.\n"
+                                      "**2.** No.\n".format(ship['name'], cost))
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                content = msg.content
+                if content != '1':
+                    return await ctx.author.send('**Purchase Canceled**')
+                if player[0][15] is None:
+                    current_hangar = {player[0][4]: [ship['id']]}
+                elif player[0][15][player[0][4]] is None:
+                    current_hangar = ast.literal_eval(player[0][15])
+                    current_hangar[player[0][4]] = "[{}]".format(ship['id'])
+                else:
+                    current_hangar = ast.literal_eval(player[0][15])
+                    current_hangar[player[0][4]].append(ship['id'])
+                sql = ''' UPDATE eve_rpg_players
+                        SET ship_hangar = (?),
+                            isk = (?)
+                        WHERE
+                            player_id = (?); '''
+                remaining_isk = int(player[0][5]) - int(ship['isk'])
+                values = (str(current_hangar), remaining_isk, ctx.author.id,)
+                await db.execute_sql(sql, values)
+                return await ctx.author.send('**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
+                                             'Region**'.format(ship['name']))
+            return await ctx.author.send('**ERROR** - Not a valid choice.')
         elif content == '3':
             return await ctx.author.send('**Not Yet Implemented**')
         else:

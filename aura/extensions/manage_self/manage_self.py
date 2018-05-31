@@ -316,6 +316,7 @@ class ManageSelf:
             content = msg.content
             ship = await game_functions.get_ship(int(content))
             if ship is not None:
+                cost = '{0:,.2f}'.format(float(ship['isk']))
                 if int(ship['isk']) > int(player[0][5]):
                     return await ctx.author.send('**Not Enough Isk**')
                 embed = make_embed(icon=self.bot.user.avatar)
@@ -325,7 +326,7 @@ class ManageSelf:
                 embed.add_field(name="Confirm Purchase",
                                 value="Are you sure you want to buy a **{}** for {} ISK\n\n"
                                       "**1.** Yes.\n"
-                                      "**2.** No.\n".format(ship['name'], ship['isk']))
+                                      "**2.** No.\n".format(ship['name'], cost))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
