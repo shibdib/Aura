@@ -15,7 +15,7 @@ class ShipFitting:
         self.config = bot.config
         self.logger = bot.logger
 
-    @commands.command(name='hangar', case_insensitive=True)
+    @commands.command(name='fitting', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
