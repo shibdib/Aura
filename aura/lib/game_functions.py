@@ -34,6 +34,13 @@ async def get_ship_name(ship_id):
     return game_assets.ships[ship_id]['name']
 
 
+async def get_module_name(module_id):
+    try:
+        return game_assets.modules[module_id]['name']
+    except Exception:
+        return None
+
+
 async def get_ship_image(ship_id):
     return game_assets.ships[ship_id]['image']
 
