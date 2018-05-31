@@ -92,22 +92,35 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
+            ship_id = ratter[14]
+            ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
+            survival = 300
+            npc = 125
             if region_security == 'Low':
                 isk = random.randint(5500, 9500)
+                survival = 225
+                npc = 225
             elif region_security == 'Null':
                 isk = random.randint(8500, 19500)
+                survival = 175
+                npc = 350
+            if ship['class'] == 1:
+                survival = 175
+                if region_security == 'Low':
+                    survival = 100
+                elif region_security == 'Null':
+                    survival = 25
             #  PVE Rolls
-            ship_id = ratter[14]
-            ship = await game_functions.get_ship_name(ship_id)
+            ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 2), (False, 175 + ((ship_defense * 11) + (ship_maneuver * 6) +
-                                           (ship_attack * 8)))])
+                [(True, 2), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
+                                                (ship_attack * 8)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
+            find_rats = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 40)])
             if find_rats is False:
                 continue
             if death is True and flee is False:
@@ -121,7 +134,7 @@ class EveRpg:
                                       "**Loser**\n"
                                       "**{}** flying a {} was killed by belt rats.".format(region_name,
                                                                                            user.display_name,
-                                                                                           ship))
+                                                                                           ship_name))
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
@@ -148,22 +161,35 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            isk = random.randint(4500, 9500)
-            if region_security == 'Low':
-                isk = random.randint(7500, 14500)
-            elif region_security == 'Null':
-                isk = random.randint(11500, 33500)
-            #  PVE Rolls
             ship_id = ratter[14]
-            ship = await game_functions.get_ship_name(ship_id)
+            ship = await game_functions.get_ship(ship_id)
+            isk = random.randint(1000, 3500)
+            survival = 300
+            npc = 125
+            if region_security == 'Low':
+                isk = random.randint(7500, 25500)
+                survival = 200
+                npc = 225
+            elif region_security == 'Null':
+                isk = random.randint(17500, 45500)
+                survival = 155
+                npc = 350
+            if ship['class'] == 1:
+                survival = 175
+                if region_security == 'Low':
+                    survival = 55
+                elif region_security == 'Null':
+                    survival = 0
+            #  PVE Rolls
+            ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 12), (False, 175 + ((ship_defense * 11) + (ship_maneuver * 6) +
-                                            (ship_attack * 8)))])
+                [(True, 12), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
+                                                 (ship_attack * 8)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
+            find_rats = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 40)])
             if find_rats is False:
                 continue
             if death is True and flee is False:
@@ -177,7 +203,7 @@ class EveRpg:
                                       "**Loser**\n"
                                       "**{}** flying a {} was killed while running an anomaly.".format(region_name,
                                                                                                        user.display_name,
-                                                                                                       ship))
+                                                                                                       ship_name))
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 await user.send(embed=embed)
@@ -204,14 +230,28 @@ class EveRpg:
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
             isk = random.randint(100, 550)
+            ship_id = miner[14]
+            ship = await game_functions.get_ship(ship_id)
             possible_npc = False
+            survival = 300
+            ore = 100
             if region_security == 'Low':
+                survival = 250
+                ore = 150
                 possible_npc = 2
                 isk = random.randint(800, 1700)
             elif region_security == 'Null':
+                survival = 175
+                ore = 300
                 possible_npc = 4
                 isk = random.randint(950, 3250)
-            find_ore = await self.weighted_choice([(True, 150 / len(belt_miners)), (False, 40)])
+            if ship['class'] == 1:
+                survival = 175
+                if region_security == 'Low':
+                    survival = 55
+                elif region_security == 'Null':
+                    survival = 0
+            find_ore = await self.weighted_choice([(True, ore / len(belt_miners)), (False, 40)])
             if find_ore is False:
                 continue
             else:
@@ -232,8 +272,8 @@ class EveRpg:
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(
-                        [(True, possible_npc), (False, 175 + ((ship['defense'] * 11) + (ship['maneuver'] * 6) +
-                                                              (ship['attack'] * 8)))])
+                        [(True, possible_npc), (False, survival + ((ship['defense'] * 11) + (ship['maneuver'] * 6) +
+                                                                   (ship['attack'] * 8)))])
                 if death is True:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
