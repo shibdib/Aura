@@ -103,8 +103,8 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 2), (False, 95 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
-                                          (ship_attack * 1.5)))])
+                [(True, 2), (False, 115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
+                                           (ship_attack * 1.5)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
@@ -159,8 +159,8 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 12), (False, 90 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
-                                           (ship_attack * 1.5)))])
+                [(True, 12), (False, 115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
+                                            (ship_attack * 1.5)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
@@ -232,7 +232,7 @@ class EveRpg:
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(
-                        [(True, possible_npc), (False, 125 + ((ship['defense'] * 2.5) + (ship['maneuver'] * 1.2) +
+                        [(True, possible_npc), (False, 155 + ((ship['defense'] * 2.5) + (ship['maneuver'] * 1.2) +
                                                               (ship['attack'] * 1.5)))])
                 if death is True:
                     embed = make_embed(icon=self.bot.user.avatar)
