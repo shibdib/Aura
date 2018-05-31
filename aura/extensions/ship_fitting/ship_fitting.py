@@ -112,7 +112,7 @@ class ShipFitting:
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             response = msg.content
-            remove_module_order.remove(content)
+            remove_module_order.remove(int(remove_module_order[content]))
             if response != '1':
                 return await ctx.author.send('**Removal Canceled**')
             if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
@@ -124,6 +124,8 @@ class ShipFitting:
             else:
                 new_hangar = {}
                 new_hangar[player[0][4]].append(remove_module_order[content])
+            if len(new_hangar) == 0:
+                new_hangar = None
             sql = ''' UPDATE eve_rpg_players
                     SET modules = (?),
                         module_hangar = (?)
@@ -158,6 +160,8 @@ class ShipFitting:
                 return await ctx.author.send('**Equipping Module Canceled**')
             module_hangar = ast.literal_eval(player[0][13])
             new_hangar = module_hangar[player[0][4]].remove(equip_module_order[content])
+            if len(new_hangar) == 0:
+                new_hangar = None
             sql = ''' UPDATE eve_rpg_players
                     SET modules = (?),
                         module_hangar = (?)
