@@ -417,12 +417,12 @@ class ManageSelf:
                     return await ctx.author.send('**Purchase Canceled**')
                 if player[0][13] is None:
                     current_hangar = {player[0][4]: [module['id']]}
-                elif player[0][4] not in player[0][13]:
-                    current_hangar = ast.literal_eval(player[0][13])
-                    current_hangar[player[0][4]] = [module['id']]
                 else:
                     current_hangar = ast.literal_eval(player[0][13])
-                    current_hangar[player[0][4]].append(module['id'])
+                    if player[0][4] not in current_hangar:
+                        current_hangar[player[0][4]] = [module['id']]
+                    else:
+                        current_hangar[player[0][4]].append(module['id'])
                 sql = ''' UPDATE eve_rpg_players
                         SET module_hangar = (?),
                             isk = (?)
