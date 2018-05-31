@@ -126,6 +126,9 @@ class EveRpg:
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
                 await player.send(embed=embed)
+                await self.send_global('DEBUG: FALSE DEATH - {} TRUE FLEE - {}'.format(
+                    115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
+                           (ship_attack * 1.5)), 13 + (ship_defense + (ship_maneuver * 2))))
                 return await self.send_global(embed, True)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
@@ -181,6 +184,9 @@ class EveRpg:
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 await user.send(embed=embed)
+                await self.send_global('DEBUG: FALSE DEATH - {} TRUE FLEE - {}'.format(
+                    115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
+                           (ship_attack * 1.5)), 13 + (ship_defense + (ship_maneuver * 2))))
                 return await self.send_global(embed, True)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
