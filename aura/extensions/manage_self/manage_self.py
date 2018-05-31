@@ -334,15 +334,14 @@ class ManageSelf:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
+                current_hangar = ast.literal_eval(player[0][15])
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')
-                if player[0][15] is None:
+                if current_hangar is None:
                     current_hangar = {player[0][4]: [ship['id']]}
-                elif player[0][15][player[0][4]] is None:
-                    current_hangar = ast.literal_eval(player[0][15])
+                elif player[0][4] not in current_hangar:
                     current_hangar[player[0][4]] = "[{}]".format(ship['id'])
                 else:
-                    current_hangar = ast.literal_eval(player[0][15])
                     current_hangar[player[0][4]].append(ship['id'])
                 sql = ''' UPDATE eve_rpg_players
                         SET ship_hangar = (?),
