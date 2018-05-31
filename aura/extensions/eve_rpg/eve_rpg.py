@@ -103,11 +103,11 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 2), (False, 115 + ((ship_defense * 3.5) + (ship_maneuver * 2) +
-                                           (ship_attack * 2.5)))])
+                [(True, 2), (False, 115 + ((ship_defense * 11) + (ship_maneuver * 6) +
+                                           (ship_attack * 8)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
+            find_rats = await self.weighted_choice([(True, 175 / len(system_ratters)), (False, 40)])
             if find_rats is False:
                 continue
             if death is True and flee is False:
@@ -159,11 +159,11 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 12), (False, 115 + ((ship_defense * 3.5) + (ship_maneuver * 2) +
-                                            (ship_attack * 2.5)))])
+                [(True, 12), (False, 115 + ((ship_defense * 11) + (ship_maneuver * 6) +
+                                            (ship_attack * 8)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
+            find_rats = await self.weighted_choice([(True, 175 / len(system_ratters)), (False, 40)])
             if find_rats is False:
                 continue
             if death is True and flee is False:
@@ -232,8 +232,8 @@ class EveRpg:
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(
-                        [(True, possible_npc), (False, 155 + ((ship['defense'] * 3.5) + (ship['maneuver'] * 2) +
-                                                              (ship['attack'] * 2.5)))])
+                        [(True, possible_npc), (False, 155 + ((ship['defense'] * 11) + (ship['maneuver'] * 6) +
+                                                              (ship['attack'] * 8)))])
                 if death is True:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
