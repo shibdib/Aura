@@ -103,8 +103,8 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 2), (False, 115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
-                                           (ship_attack * 1.5)))])
+                [(True, 2), (False, 115 + ((ship_defense * 3.5) + (ship_maneuver * 2) +
+                                           (ship_attack * 2.5)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
@@ -126,9 +126,6 @@ class EveRpg:
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
                 await player.send(embed=embed)
-                await self.send_global('DEBUG: FALSE DEATH - {} TRUE FLEE - {}'.format(
-                    115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
-                           (ship_attack * 1.5)), 13 + (ship_defense + (ship_maneuver * 2))))
                 return await self.send_global(embed, True)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
@@ -162,8 +159,8 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ship_id)
             death = await self.weighted_choice(
-                [(True, 12), (False, 115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
-                                            (ship_attack * 1.5)))])
+                [(True, 12), (False, 115 + ((ship_defense * 3.5) + (ship_maneuver * 2) +
+                                            (ship_attack * 2.5)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             find_rats = await self.weighted_choice([(True, 150 / len(system_ratters)), (False, 40)])
@@ -184,9 +181,6 @@ class EveRpg:
                 await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 await user.send(embed=embed)
-                await self.send_global('DEBUG: FALSE DEATH - {} TRUE FLEE - {}'.format(
-                    115 + ((ship_defense * 2.5) + (ship_maneuver * 1.2) +
-                           (ship_attack * 1.5)), 13 + (ship_defense + (ship_maneuver * 2))))
                 return await self.send_global(embed, True)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
@@ -238,8 +232,8 @@ class EveRpg:
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(
-                        [(True, possible_npc), (False, 155 + ((ship['defense'] * 2.5) + (ship['maneuver'] * 1.2) +
-                                                              (ship['attack'] * 1.5)))])
+                        [(True, possible_npc), (False, 155 + ((ship['defense'] * 3.5) + (ship['maneuver'] * 2) +
+                                                              (ship['attack'] * 2.5)))])
                 if death is True:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
