@@ -94,9 +94,9 @@ class EveRpg:
             system_ratters = await db.select_var(sql, values)
             isk = random.randint(1000, 3500)
             if region_security == 'Low':
-                isk = random.randint(2500, 6500)
+                isk = random.randint(5500, 9500)
             elif region_security == 'Null':
-                isk = random.randint(4500, 13500)
+                isk = random.randint(8500, 19500)
             #  PVE Rolls
             ship_id = ratter[14]
             ship = await game_functions.get_ship_name(ship_id)
@@ -207,10 +207,10 @@ class EveRpg:
             possible_npc = False
             if region_security == 'Low':
                 possible_npc = 2
-                isk = random.randint(400, 1000)
+                isk = random.randint(800, 1700)
             elif region_security == 'Null':
                 possible_npc = 4
-                isk = random.randint(750, 2250)
+                isk = random.randint(950, 3250)
             find_ore = await self.weighted_choice([(True, 150 / len(belt_miners)), (False, 40)])
             if find_ore is False:
                 continue
