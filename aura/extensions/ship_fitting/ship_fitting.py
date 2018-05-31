@@ -31,10 +31,10 @@ class ShipFitting:
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
         ship = await game_functions.get_ship(int(player[0][14]))
-        equipped_modules = ast.literal_eval(player[0][12])
         module_count = 0
         clean_equipped_modules = ''
-        if equipped_modules is not None:
+        if player[0][12] is not None:
+            equipped_modules = ast.literal_eval(player[0][12])
             module_count = len(equipped_modules)
             equipped_modules_array = []
             for item in equipped_modules:
@@ -51,29 +51,32 @@ class ShipFitting:
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(int(player[0][14]))
         value = '{} - {}/{} Module Slots\nCurrent Attack: {}\nCurrent Defense: {}\nCurrent Maneuver: {}\n' \
-                ' Current Tracking: {}'.format(ship['name'], module_count, ship['slots'], ship_attack, ship_defense,
-                                               ship_maneuver, ship_tracking)
-        if equipped_modules is not None:
+                'Current Tracking: {}'.format(ship['name'], module_count, ship['slots'], ship_attack, ship_defense,
+                                              ship_maneuver, ship_tracking)
+        if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__{}'.format(value, clean_equipped_modules)
         embed = make_embed(icon=ctx.bot.user.avatar)
+        ship_image = await game_functions.get_ship_image(int(player[0][14]))
+        embed.set_thumbnail(url="{}".format(ship_image))
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Ship Fitting".format(region_name),
                         value=value)
-        module_hangar = ast.literal_eval(player[0][13])
-        if module_hangar is not None and module_hangar[player[0][4]] is not None:
-            stored_modules_array = []
-            for item in module_hangar[player[0][4]]:
-                module = await game_functions.get_module(int(item))
-                module_attack = module['attack']
-                module_defense = module['defense']
-                module_maneuver = module['maneuver']
-                module_tracking = module['tracking']
-                stats = '({}/{}/{}/{})'.format(module_attack, module_defense, module_maneuver, module_tracking)
-                if module['special'] is not None:
-                    stats = '{} {}'.format(stats, module['special'])
-                stored_modules_array.append('{} - {}'.format(module['name'], stats))
-            stored_modules = '\n'.join(stored_modules_array)
-            embed.add_field(name="Module Hangar",
+        if player[0][13] is not None:
+            module_hangar = ast.literal_eval(player[0][13])
+            if player[0][4] in module_hangar:
+                stored_modules_array = []
+                for item in module_hangar[player[0][4]]:
+                    module = await game_functions.get_module(int(item))
+                    module_attack = module['attack']
+                    module_defense = module['defense']
+                    module_maneuver = module['maneuver']
+                    module_tracking = module['tracking']
+                    stats = '({}/{}/{}/{})'.format(module_attack, module_defense, module_maneuver, module_tracking)
+                    if module['special'] is not None:
+                        stats = '{} {}'.format(stats, module['special'])
+                    stored_modules_array.append('{} - {}'.format(module['name'], stats))
+                stored_modules = '\n'.join(stored_modules_array)
+                embed.add_field(name="Module Hangar",
                             value='{}'.format(stored_modules))
         await ctx.author.send(embed=embed)

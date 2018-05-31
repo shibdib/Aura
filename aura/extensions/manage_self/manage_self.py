@@ -417,7 +417,7 @@ class ManageSelf:
                     return await ctx.author.send('**Purchase Canceled**')
                 if player[0][13] is None:
                     current_hangar = {player[0][4]: [module['id']]}
-                elif player[0][13][player[0][4]] is None:
+                elif player[0][4] not in player[0][13]:
                     current_hangar = ast.literal_eval(player[0][13])
                     current_hangar[player[0][4]] = [module['id']]
                 else:
