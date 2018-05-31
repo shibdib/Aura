@@ -273,7 +273,7 @@ class EveRpg:
                 if possible_npc is not False:
                     death = await self.weighted_choice(
                         [(True, possible_npc), (False, survival + ((ship['defense'] * 11) + (ship['maneuver'] * 6) +
-                                                                   (ship['attack'] * 8)))])
+                                                                   (ship['attack'] * 8)) * multiplier)])
                 if death is True:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
