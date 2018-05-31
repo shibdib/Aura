@@ -187,7 +187,7 @@ class Market:
                     current_hangar = ast.literal_eval(player[0][13])
                     current_hangar[player[0][4]].append(module['id'])
                 sql = ''' UPDATE eve_rpg_players
-                        SET ship_hangar = (?),
+                        SET module_hangar = (?),
                             isk = (?)
                         WHERE
                             player_id = (?); '''
