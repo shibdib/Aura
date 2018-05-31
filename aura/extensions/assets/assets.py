@@ -20,7 +20,7 @@ class Assets:
     @checks.is_whitelist()
     @checks.has_account()
     async def assets(self, ctx):
-        """View your assest."""
+        """View your assets."""
         if ctx.guild is not None:
             await ctx.message.delete()
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
@@ -40,10 +40,11 @@ class Assets:
             ship_hangar = ast.literal_eval(player[0][15])
             if ship_hangar is not None:
                 stored_ships_array = []
-                for key, ship in ship_hangar:
-                    region_name = await game_functions.get_region(key)
-                    ship_name = await game_functions.get_ship_name(int(ship))
-                    stored_ships_array.append('{} - {}'.format(ship_name, region_name))
+                for key, ships in ship_hangar.items():
+                    for ship in ships:
+                        region_name = await game_functions.get_region(key)
+                        ship_name = await game_functions.get_ship_name(int(ship))
+                        stored_ships_array.append('{} - {}'.format(ship_name, region_name))
                 stored_ships = '\n'.join(stored_ships_array)
                 embed.add_field(name="Ships",
                                 value='{}'.format(stored_ships))
@@ -51,10 +52,11 @@ class Assets:
             module_hangar = ast.literal_eval(player[0][13])
             if module_hangar is not None:
                 stored_modules_array = []
-                for key, item in module_hangar:
-                    region_name = await game_functions.get_region(key)
-                    module_name = await game_functions.get_module_name(int(item))
-                    stored_modules_array.append('{} - {}'.format(module_name, region_name))
+                for key, items in module_hangar.items():
+                    for item in items:
+                        region_name = await game_functions.get_region(key)
+                        module_name = await game_functions.get_module_name(int(item))
+                        stored_modules_array.append('{} - {}'.format(module_name, region_name))
                 stored_modules = '\n'.join(stored_modules_array)
                 embed.add_field(name="Modules",
                                 value='{}'.format(stored_modules))
