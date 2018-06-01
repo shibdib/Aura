@@ -674,7 +674,7 @@ class ManageSelf:
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Change Clone Location",
                         value="Are you sure you want to change your clone location from **{}** to **{}**\n*Relocating"
-                              "your clone costs 10,000 ISK\n\n"
+                              " your clone costs 10,000 ISK*\n\n"
                               "**1.** Yes.\n"
                               "**2.** No.\n".format(home_region_name, current_region_name))
         await ctx.author.send(embed=embed)
