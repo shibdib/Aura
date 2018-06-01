@@ -276,8 +276,8 @@ class EveRpg:
                 if ship['id'] == 91:
                     multiplier = 4
                     defense_multi = 2.5
-                if miner[0][12] is not None:
-                    modules = ast.literal_eval(miner[0][12])
+                if miner[12] is not None:
+                    modules = ast.literal_eval(miner[12])
                     for module in modules:
                         if module == 17:
                             isk = (isk * .1) + isk
