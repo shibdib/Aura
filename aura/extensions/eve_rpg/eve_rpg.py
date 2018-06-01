@@ -606,7 +606,7 @@ class EveRpg:
                 SET ship = (?),
                     modules = NULL,
                     region = (?),
-                    task = 21
+                    task = 1
                 WHERE
                     player_id = (?); '''
         values = (ship, player[18], player[2],)
