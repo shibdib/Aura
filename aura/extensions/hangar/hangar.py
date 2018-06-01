@@ -90,12 +90,27 @@ class Hangar:
                     new_hangar = {player[0][4]: [int(player[0][14])]}
                 else:
                     new_hangar[player[0][4]].append(int(player[0][14]))
+                if player[0][12] is not None:
+                    if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
+                        module_hangar = ast.literal_eval(player[0][13])
+                        for module in ast.literal_eval(player[0][12]):
+                            module_hangar[player[0][4]].append(module)
+                    elif player[0][13] is not None:
+                        module_hangar = ast.literal_eval(player[0][13])
+                        module_hangar[player[0][4]] = ast.literal_eval(player[0][12])
+                    else:
+                        modules = ast.literal_eval(player[0][12])
+                        module_hangar = {player[0][4]: modules}
+                    values = (int(selected_ship['id']), str(new_hangar), str(module_hangar), ctx.author.id,)
+                else:
+                    values = (int(selected_ship['id']), str(new_hangar), None, ctx.author.id,)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
-                            ship_hangar = (?)
+                            ship_hangar = (?),
+                            modules = NULL,
+                            module_hangar = (?)
                         WHERE
                             player_id = (?); '''
-                values = (int(selected_ship['id']), str(new_hangar), ctx.author.id,)
                 await db.execute_sql(sql, values)
                 return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
             else:

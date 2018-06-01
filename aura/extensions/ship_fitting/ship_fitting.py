@@ -47,8 +47,8 @@ class ShipFitting:
                 module_defense = module['defense']
                 module_maneuver = module['maneuver']
                 module_tracking = module['tracking']
-                stats = '({}/{}/{}/{})'.format(module_attack, module_defense,
-                                               module_maneuver, module_tracking)
+                stats = '({}%/{}%/{}%/{}%)'.format(module_attack * 100, module_defense * 100,
+                                                   module_maneuver * 100, module_tracking * 100)
                 if module['special'] is not None:
                     stats = '{} {}'.format(stats, module['special'])
                 equipped_modules_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
@@ -82,8 +82,8 @@ class ShipFitting:
                     module_defense = module['defense']
                     module_maneuver = module['maneuver']
                     module_tracking = module['tracking']
-                    stats = '({}/{}/{}/{})'.format(module_attack, module_defense,
-                                                   module_maneuver, module_tracking)
+                    stats = '({}%/{}%/{}%/{}%)'.format(module_attack * 100, module_defense * 100,
+                                                       module_maneuver * 100, module_tracking * 100)
                     if module['special'] is not None:
                         stats = '{} {}'.format(stats, module['special'])
                     stored_modules_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
@@ -120,23 +120,30 @@ class ShipFitting:
                 return await ctx.author.send('**Removal Canceled**')
             if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                 module_hangar = ast.literal_eval(player[0][13])
-                new_hangar = module_hangar[player[0][4]].append(remove_module_order[content])
+                module_hangar[player[0][4]].append(remove_module_order[content])
             elif player[0][13] is not None:
-                new_hangar = ast.literal_eval(player[0][13])
-                new_hangar[player[0][4]] = [remove_module_order[content]]
+                module_hangar = ast.literal_eval(player[0][13])
+                module_hangar[player[0][4]] = [remove_module_order[content]]
             else:
-                new_hangar = {}
-                new_hangar[player[0][4]].append(remove_module_order[content])
+                module_hangar = {player[0][4]: [remove_module_order[content]]}
             sql = ''' UPDATE eve_rpg_players
                     SET modules = (?),
                         module_hangar = (?)
                     WHERE
                         player_id = (?); '''
             remove_module_order.pop(content, None)
-            values = (str(remove_module_order), str(new_hangar), ctx.author.id,)
+            if remove_module_order is not None and len(remove_module_order) > 0:
+                now_equipped = []
+                for key, module in remove_module_order.items():
+                    now_equipped.append(module)
+                values = (str(now_equipped), str(module_hangar), ctx.author.id,)
+            else:
+                values = (None, str(module_hangar), ctx.author.id,)
             await db.execute_sql(sql, values)
             return await ctx.author.send('**{} Has Been Removed**'.format(selected_module['name']))
         elif int(msg.content) in equip_commands:
+            if module_count >= ship['slots']:
+                return await ctx.author.send('**All module slots are occupied for this ship**')
             selected_module = await game_functions.get_module(int(equip_module_order[content]))
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -161,14 +168,21 @@ class ShipFitting:
             if response != '1':
                 return await ctx.author.send('**Equipping Module Canceled**')
             module_hangar = ast.literal_eval(player[0][13])
-            new_hangar = module_hangar[player[0][4]].remove(equip_module_order[content])
+            module_hangar[player[0][4]].remove(equip_module_order[content])
             sql = ''' UPDATE eve_rpg_players
                     SET modules = (?),
                         module_hangar = (?)
                     WHERE
                         player_id = (?); '''
-            values = (str(equipped_modules), str(new_hangar), ctx.author.id,)
+            if module_hangar[player[0][4]] is None or len(module_hangar[player[0][4]]) < 1:
+                module_hangar.pop(player[0][4], None)
+                if len(module_hangar) == 0:
+                    values = (str(equipped_modules), None, ctx.author.id,)
+                else:
+                    values = (str(equipped_modules), module_hangar, ctx.author.id,)
+            else:
+                values = (str(equipped_modules), str(module_hangar), ctx.author.id,)
             await db.execute_sql(sql, values)
-            return await ctx.author.send('**{} Has Been Eqipped**'.format(selected_module['name']))
+            return await ctx.author.send('**{} Has Been Equipped**'.format(selected_module['name']))
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')

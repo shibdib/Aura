@@ -62,4 +62,4 @@ async def get_combat_attributes(player, ship_id):
             defense = (defense * module['defense']) + defense
             maneuver = (maneuver * module['maneuver']) + maneuver
             tracking = (tracking * module['tracking']) + tracking
-    return attack, defense, maneuver, tracking
+    return int(round(attack)), int(round(defense)), int(round(maneuver)), int(round(tracking))
