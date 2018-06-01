@@ -34,7 +34,7 @@ class ManageSelf:
         local_players = await db.select_var(sql, values)
         region_name = await game_functions.get_region(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
-        player_ship_obj = ast.literal_eval(player[14])
+        player_ship_obj = ast.literal_eval(player[0][14])
         current_ship_raw = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
         current_ship = current_ship_raw
         wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
@@ -194,7 +194,7 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
-        player_ship_obj = ast.literal_eval(player[14])
+        player_ship_obj = ast.literal_eval(player[0][14])
         ship = await game_functions.get_ship(int(player_ship_obj['ship_type']))
         module_count = 0
         clean_equipped_modules = ''
@@ -353,6 +353,7 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def change_ship(self, ctx):
+        """Visit your regional ship hangar."""
         if ctx.guild is not None:
             await ctx.message.delete()
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
@@ -362,7 +363,7 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
-        player_ship_obj = ast.literal_eval(player[14])
+        player_ship_obj = ast.literal_eval(player[0][14])
         current_ship = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
         if player[0][15] is None:
             embed = make_embed(icon=ctx.bot.user.avatar)
@@ -380,12 +381,15 @@ class ManageSelf:
                 embed.add_field(name="{} Ship Hangar".format(region_name),
                                 value='No Ships Found In This Region')
                 return await ctx.author.send(embed=embed)
+            current_hangar = ship_hangar[player[0][4]]
             stored_ships_array = []
             owned_ship_ids = []
+            ship_number = 1
             for ship in ship_hangar[player[0][4]]:
-                owned_ship_ids.append(int(ship))
-                ship_name = await game_functions.get_ship_name(int(ship))
-                stored_ships_array.append('{}. {}'.format(ship, ship_name))
+                owned_ship_ids.append(ship_number)
+                ship['selection'] = ship_number
+                ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
+                stored_ships_array.append('{}. {}'.format(ship_number, ship_name))
             stored_ships = '\n'.join(stored_ships_array)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -400,7 +404,11 @@ class ManageSelf:
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
             if int(content) in owned_ship_ids:
-                selected_ship = await game_functions.get_ship(int(content))
+                for ship in ship_hangar[player[0][4]]:
+                    if ship['selection'] == int(content):
+                        ship_id = ship['id']
+                        selected_ship = await game_functions.get_ship(int(ship['ship_type']))
+                        insert_this = ship
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -416,13 +424,20 @@ class ManageSelf:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
+                current_ship = ast.literal_eval(player[0][14])
                 if content != '1':
                     return await ctx.author.send('**Switch Canceled**')
-                new_hangar = ship_hangar[player[0][4]].remove(selected_ship['id'])
+                for ship in ship_hangar[player[0][4]]:
+                    if ship['id'] == ship_id:
+                        remove = ship
+                        break
+                ship_hangar[player[0][4]].remove(remove)
+                new_hangar = ship_hangar
+                insert_this.pop('selection', None)
                 if new_hangar is None:
-                    new_hangar = {player[0][4]: [int(player_ship_obj['ship_type'])]}
+                    new_hangar = {player[0][4]: [current_ship]}
                 else:
-                    new_hangar[player[0][4]].append(int(player['ship_type']))
+                    new_hangar[player[0][4]].append(current_ship)
                 if player[0][12] is not None:
                     if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                         module_hangar = ast.literal_eval(player[0][13])
@@ -434,9 +449,9 @@ class ManageSelf:
                     else:
                         modules = ast.literal_eval(player[0][12])
                         module_hangar = {player[0][4]: modules}
-                    values = (int(selected_ship['id']), str(new_hangar), str(module_hangar), ctx.author.id,)
+                    values = (str(insert_this), str(new_hangar), str(module_hangar), ctx.author.id,)
                 else:
-                    values = (int(selected_ship['id']), str(new_hangar), player[0][13], ctx.author.id,)
+                    values = (str(insert_this), str(new_hangar), player[0][13], ctx.author.id,)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
                             ship_hangar = (?),

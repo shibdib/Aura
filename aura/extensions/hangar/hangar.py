@@ -52,10 +52,10 @@ class Hangar:
             stored_ships_array = []
             owned_ship_ids = []
             ship_number = 1
-            for key in ship_hangar[player[0][4]]:
+            for ship in ship_hangar[player[0][4]]:
                 owned_ship_ids.append(ship_number)
-                current_hangar[key]['selection'] = ship_number
-                ship_name = await game_functions.get_ship_name(int(current_hangar[key]['type_id']))
+                ship['selection'] = ship_number
+                ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
                 stored_ships_array.append('{}. {}'.format(ship_number, ship_name))
             stored_ships = '\n'.join(stored_ships_array)
             embed = make_embed(icon=ctx.bot.user.avatar)
@@ -71,10 +71,11 @@ class Hangar:
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
             if int(content) in owned_ship_ids:
-                for key in ship_hangar[player[0][4]]:
-                    if current_hangar[key]['selection'] == int(content):
-                        ship_key = key
-                        selected_ship = await game_functions.get_ship(int(current_hangar[key]['type_id']))
+                for ship in ship_hangar[player[0][4]]:
+                    if ship['selection'] == int(content):
+                        ship_id = ship['id']
+                        selected_ship = await game_functions.get_ship(int(ship['ship_type']))
+                        insert_this = ship
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -90,10 +91,16 @@ class Hangar:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
-                current_ship = ast.literal_eval(player[0][4])
+                current_ship = ast.literal_eval(player[0][14])
                 if content != '1':
                     return await ctx.author.send('**Switch Canceled**')
-                new_hangar = ship_hangar[player[0][4]].pop(ship_key, None)
+                for ship in ship_hangar[player[0][4]]:
+                    if ship['id'] == ship_id:
+                        remove = ship
+                        break
+                ship_hangar[player[0][4]].remove(remove)
+                new_hangar = ship_hangar
+                insert_this.pop('selection', None)
                 if new_hangar is None:
                     new_hangar = {player[0][4]: [current_ship]}
                 else:
@@ -109,9 +116,9 @@ class Hangar:
                     else:
                         modules = ast.literal_eval(player[0][12])
                         module_hangar = {player[0][4]: modules}
-                    values = (int(selected_ship['id']), str(new_hangar), str(module_hangar), ctx.author.id,)
+                    values = (str(insert_this), str(new_hangar), str(module_hangar), ctx.author.id,)
                 else:
-                    values = (int(selected_ship['id']), str(new_hangar), player[0][13], ctx.author.id,)
+                    values = (str(insert_this), str(new_hangar), player[0][13], ctx.author.id,)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
                             ship_hangar = (?),
@@ -119,8 +126,7 @@ class Hangar:
                             module_hangar = (?)
                         WHERE
                             player_id = (?); '''
-                # await db.execute_sql(sql, values)
-                self.logger.info(values)
+                await db.execute_sql(sql, values)
                 return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
