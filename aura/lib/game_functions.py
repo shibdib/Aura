@@ -68,12 +68,13 @@ async def get_combat_attributes(player, ship_id):
 
 async def create_unique_id():
     sql = ''' SELECT int FROM data WHERE `entry` = 'current_id' '''
-    current_id = await db.select(sql)
+    current_id_array = await db.select(sql)
+    current_id = int(current_id_array[0][0])
     if current_id is None:
         current_id = 0
-    next_id = current_id + 1
+    current_id += 1
     sql = ''' REPLACE INTO data(entry,int)
               VALUES(?,?) '''
-    values = ('current_id', next_id)
+    values = ('current_id', current_id)
     await db.execute_sql(sql, values)
-    return next_id
+    return current_id

@@ -102,7 +102,7 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 new_id = await game_functions.create_unique_id()
-                new_ship = {new_id: {'ship_type': ship['id']}}
+                new_ship = {'id': new_id, 'ship_type': ship['id']}
                 content = msg.content
                 current_hangar = ast.literal_eval(player[0][15])
                 if content != '1':
@@ -120,8 +120,7 @@ class Market:
                             player_id = (?); '''
                 remaining_isk = int(player[0][5]) - int(ship['isk'])
                 values = (str(current_hangar), remaining_isk, ctx.author.id,)
-                # await db.execute_sql(sql, values)
-                self.logger.info(values)
+                await db.execute_sql(sql, values)
                 return await ctx.author.send('**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
                                              'Region**'.format(ship['name']))
             return await ctx.author.send('**ERROR** - Not a valid choice.')
