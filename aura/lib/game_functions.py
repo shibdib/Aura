@@ -1,5 +1,6 @@
 import ast
 
+from aura.lib import db
 from aura.lib import game_assets
 
 
@@ -63,3 +64,16 @@ async def get_combat_attributes(player, ship_id):
             maneuver = (maneuver * module['maneuver']) + maneuver
             tracking = (tracking * module['tracking']) + tracking
     return int(round(attack)), int(round(defense)), int(round(maneuver)), int(round(tracking))
+
+
+async def create_unique_id():
+    sql = ''' SELECT int FROM data WHERE `entry` = 'current_id' '''
+    current_id = await db.select(sql)
+    if current_id is None:
+        current_id = 0
+    next_id = current_id + 1
+    sql = ''' REPLACE INTO data(entry,int)
+              VALUES(?,?) '''
+    values = ('current_id', next_id)
+    await db.execute_sql(sql, values)
+    return next_id

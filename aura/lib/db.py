@@ -22,6 +22,14 @@ async def create_tables():
                                         additional_value TEXT DEFAULT NULL
                                     ); """
         await create_table(db, aura_table)
+        # create general table
+        data_table = """ CREATE TABLE IF NOT EXISTS data (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        entry TEXT NOT NULL UNIQUE,
+                                        int INTEGER DEFAULT 0,
+                                        text TEXT DEFAULT NULL
+                                    ); """
+        await create_table(db, aura_table)
         # create whitelist table
         whitelist_table = """ CREATE TABLE IF NOT EXISTS whitelist (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,

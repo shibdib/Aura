@@ -594,6 +594,8 @@ class EveRpg:
             ship_id = 4
         elif player[3] == 99:
             ship_id = 5
+        new_id = await game_functions.create_unique_id()
+        ship = {new_id: {'ship_type': ship_id}}
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?),
                     modules = NULL,
@@ -601,5 +603,5 @@ class EveRpg:
                     task = 21
                 WHERE
                     player_id = (?); '''
-        values = (ship_id, player[18], player[2],)
+        values = (ship, player[18], player[2],)
         await db.execute_sql(sql, values)

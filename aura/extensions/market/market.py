@@ -101,6 +101,8 @@ class Market:
                     return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                new_id = await game_functions.create_unique_id()
+                new_ship = {new_id: {'ship_type': ship['id']}}
                 content = msg.content
                 current_hangar = ast.literal_eval(player[0][15])
                 if content != '1':

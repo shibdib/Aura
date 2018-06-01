@@ -56,7 +56,7 @@ class GameModerator:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         player = msg.content
-        sql = ''' SELECT id FROM eve_rpg_players WHERE `player_id` = (?) '''
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (int(player),)
         result = await db.select_var(sql, values)
         if len(result) == 0:
@@ -79,7 +79,7 @@ class GameModerator:
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Confirmation",
-                        value="Confirm you want to give {} {} ISK\n\n**1.**Yes\n**2.**No".format(receiver, cost))
+                        value="Confirm you want to give {} {} ISK\n\n**1.** Yes\n**2.** No".format(receiver, cost))
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -96,6 +96,7 @@ class GameModerator:
         new_isk = int(result[0][5]) + int(isk)
         values = (new_isk, result[0][2],)
         await db.execute_sql(sql, values)
+        self.logger.info('GM - {} sent {} {} ISK'.format(ctx.author.display_name, receiver, isk))
         return await ctx.author.send('**ISK Sent**')
 
     async def warn_player(self, ctx):
