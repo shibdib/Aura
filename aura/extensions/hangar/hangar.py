@@ -30,7 +30,7 @@ class Hangar:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
-        current_ship = await game_functions.get_ship_name(int(player[0][14]))
+        current_ship = await game_functions.get_ship_name(int(player[0][14]['ship_type']))
         if player[0][15] is None:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -47,12 +47,15 @@ class Hangar:
                 embed.add_field(name="{} Ship Hangar".format(region_name),
                                 value='No Ships Found In This Region')
                 return await ctx.author.send(embed=embed)
+            current_hangar = ship_hangar[player[0][4]]
             stored_ships_array = []
             owned_ship_ids = []
-            for ship in ship_hangar[player[0][4]]:
-                owned_ship_ids.append(int(ship))
-                ship_name = await game_functions.get_ship_name(int(ship))
-                stored_ships_array.append('{}. {}'.format(ship, ship_name))
+            ship_number = 1
+            for key in ship_hangar[player[0][4]]:
+                owned_ship_ids.append(ship_number)
+                current_hangar[key]['selection'] = ship_number
+                ship_name = await game_functions.get_ship_name(int(current_hangar[key]['type_id']))
+                stored_ships_array.append('{}. {}'.format(ship_number, ship_name))
             stored_ships = '\n'.join(stored_ships_array)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -67,7 +70,10 @@ class Hangar:
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
             if int(content) in owned_ship_ids:
-                selected_ship = await game_functions.get_ship(int(content))
+                for key in ship_hangar[player[0][4]]:
+                    if current_hangar[key]['selection'] == int(content):
+                        ship_key = key
+                        selected_ship = await game_functions.get_ship(int(current_hangar[key]['type_id']))
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -83,13 +89,14 @@ class Hangar:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
+                current_ship = ast.literal_eval(player[0][4])
                 if content != '1':
                     return await ctx.author.send('**Switch Canceled**')
-                new_hangar = ship_hangar[player[0][4]].remove(selected_ship['id'])
+                new_hangar = ship_hangar[player[0][4]].pop(ship_key, None)
                 if new_hangar is None:
-                    new_hangar = {player[0][4]: [int(player[0][14])]}
+                    new_hangar = {player[0][4]: [current_ship]}
                 else:
-                    new_hangar[player[0][4]].append(int(player[0][14]))
+                    new_hangar[player[0][4]].append(current_ship)
                 if player[0][12] is not None:
                     if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                         module_hangar = ast.literal_eval(player[0][13])
@@ -111,7 +118,8 @@ class Hangar:
                             module_hangar = (?)
                         WHERE
                             player_id = (?); '''
-                await db.execute_sql(sql, values)
+                # await db.execute_sql(sql, values)
+                self.logger.info(values)
                 return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')

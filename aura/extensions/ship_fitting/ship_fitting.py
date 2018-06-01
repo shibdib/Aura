@@ -30,7 +30,7 @@ class ShipFitting:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
-        ship = await game_functions.get_ship(int(player[0][14]))
+        ship = await game_functions.get_ship(int(player[0][14]['ship_type']))
         module_count = 0
         clean_equipped_modules = ''
         remove_module_order = {}
@@ -56,14 +56,14 @@ class ShipFitting:
                 module_number += 1
             clean_equipped_modules = '\n'.join(equipped_modules_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
-            await game_functions.get_combat_attributes(player[0], int(player[0][14]))
+            await game_functions.get_combat_attributes(player[0], int(player[0][14]['ship_type']))
         value = '**{}** - {}/{} Module Slots\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current Maneuver:** {}\n' \
                 '**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'], ship_attack, ship_defense,
                                                   ship_maneuver, ship_tracking)
         if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__\n{}'.format(value, clean_equipped_modules)
         embed = make_embed(icon=ctx.bot.user.avatar)
-        ship_image = await game_functions.get_ship_image(int(player[0][14]))
+        ship_image = await game_functions.get_ship_image(int(player[0][14]['ship_type']))
         embed.set_thumbnail(url="{}".format(ship_image))
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")

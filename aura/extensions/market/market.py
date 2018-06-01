@@ -108,11 +108,11 @@ class Market:
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')
                 if current_hangar is None:
-                    current_hangar = {player[0][4]: [ship['id']]}
+                    current_hangar = {player[0][4]: [new_ship]}
                 elif player[0][4] not in current_hangar:
-                    current_hangar[player[0][4]] = [ship['id']]
+                    current_hangar[player[0][4]] = [new_ship]
                 else:
-                    current_hangar[player[0][4]].append(ship['id'])
+                    current_hangar[player[0][4]].append(new_ship)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship_hangar = (?),
                             isk = (?)
@@ -120,7 +120,8 @@ class Market:
                             player_id = (?); '''
                 remaining_isk = int(player[0][5]) - int(ship['isk'])
                 values = (str(current_hangar), remaining_isk, ctx.author.id,)
-                await db.execute_sql(sql, values)
+                # await db.execute_sql(sql, values)
+                self.logger.info(values)
                 return await ctx.author.send('**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
                                              'Region**'.format(ship['name']))
             return await ctx.author.send('**ERROR** - Not a valid choice.')
