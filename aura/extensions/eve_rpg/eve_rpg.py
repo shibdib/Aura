@@ -609,5 +609,5 @@ class EveRpg:
                     task = 1
                 WHERE
                     player_id = (?); '''
-        values = (ship, player[18], player[2],)
+        values = (str(ship), player[18], player[2],)
         await db.execute_sql(sql, values)
