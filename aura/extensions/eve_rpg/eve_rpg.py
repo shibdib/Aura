@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import random
 
@@ -275,6 +276,14 @@ class EveRpg:
                 if ship['id'] == 91:
                     multiplier = 4
                     defense_multi = 2.5
+                if miner[0][12] is not None:
+                    modules = ast.literal_eval(miner[0][12])
+                    for module in modules:
+                        if module == 17:
+                            isk = (isk * .1) + isk
+                            continue
+                        if module == 18:
+                            isk = (isk * .2) + isk
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(
