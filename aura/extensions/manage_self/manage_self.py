@@ -57,7 +57,8 @@ class ManageSelf:
                               "**3.** Modify current ship.\n"
                               "**4.** Change into another ship.\n"
                               "**5.** Visit the regional market.\n"
-                              "**6.** View your asset list.\n".format(
+                              "**6.** View your asset list.\n"
+                              "**10.** Change your clone to here.\n".format(
                             region_name, len(local_players), current_ship, current_task, wallet_balance))
         await ctx.author.send(embed=embed)
 
@@ -78,6 +79,8 @@ class ManageSelf:
             await self.visit_market(ctx, player)
         elif content == '6':
             await self.asset_list(ctx)
+        elif content == '10':
+            await self.change_clone(ctx, player)
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
@@ -660,3 +663,37 @@ class ManageSelf:
                 embed.add_field(name="Modules",
                                 value='{}'.format(stored_modules))
             await ctx.author.send(embed=embed)
+
+    async def change_clone(self, ctx, player):
+        if player[0][18] is player[0][4]:
+            return await ctx.author.send('**This region is already your clone location**')
+        home_region_name = await game_functions.get_region(player[0][18])
+        current_region_name = await game_functions.get_region(player[0][4])
+        embed = make_embed(icon=self.bot.user.avatar)
+        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Change Clone Location",
+                        value="Are you sure you want to change your clone location from **{}** to **{}**\n*Relocating"
+                              "your clone costs 10,000 ISK\n\n"
+                              "**1.** Yes.\n"
+                              "**2.** No.\n".format(home_region_name, current_region_name))
+        await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+        content = int(msg.content)
+        if content != 1:
+            return await ctx.author.send('**Clone Location Not Changed**')
+        if int(player[0][5]) < int(10000):
+            return await ctx.author.send('**Not enough ISK**')
+        sql = ''' UPDATE eve_rpg_players
+                SET home = (?),
+                    isk = (?)
+                WHERE
+                    player_id = (?); '''
+        remaining_isk = int(player[0][5]) - int(10000)
+        values = (player[0][4], remaining_isk, ctx.author.id,)
+        await db.execute_sql(sql, values)
+        return await ctx.author.send('**Clone Location Changed**')

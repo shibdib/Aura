@@ -105,10 +105,11 @@ class JoinGame:
         sql = ''' UPDATE eve_rpg_players
                 SET race = (?),
                     ship = (?),
-                    region = (?)
+                    region = (?),
+                    home = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(content), ship_id, region_id, author,)
+        values = (int(content), ship_id, region_id, region_id, author,)
         await db.execute_sql(sql, values)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,

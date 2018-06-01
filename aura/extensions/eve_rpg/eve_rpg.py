@@ -575,22 +575,16 @@ class EveRpg:
 
     async def destroy_ship(self, player):
         ship_id = 1
-        region_id = 1
         if player[3] == 1:
             ship_id = 1
-            region_id = 1
         elif player[3] == 2:
             ship_id = 2
-            region_id = 2
         elif player[3] == 3:
             ship_id = 3
-            region_id = 3
         elif player[3] == 4:
             ship_id = 4
-            region_id = 4
         elif player[3] == 99:
             ship_id = 5
-            region_id = 1
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?),
                     modules = NULL,
@@ -598,5 +592,5 @@ class EveRpg:
                     task = 21
                 WHERE
                     player_id = (?); '''
-        values = (ship_id, region_id, player[2],)
+        values = (ship_id, player[18], player[2],)
         await db.execute_sql(sql, values)

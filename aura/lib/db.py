@@ -1,5 +1,4 @@
 import sqlite3
-from sqlite3 import Error
 
 
 async def create_table(conn, create_table_sql):
@@ -56,7 +55,8 @@ async def create_tables():
                                         ship INTEGER DEFAULT 0,
                                         ship_hangar TEXT DEFAULT NULL,
                                         fleet INTEGER DEFAULT 0,
-                                        destination INTEGER DEFAULT 0
+                                        destination INTEGER DEFAULT 0,
+                                        home INTEGER DEFAULT 1
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:
