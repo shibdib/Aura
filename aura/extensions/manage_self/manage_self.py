@@ -465,6 +465,12 @@ class ManageSelf:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def visit_market(self, ctx, player):
+        """Visit the regional marketplace."""
+        if ctx.guild is not None:
+            await ctx.message.delete()
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        player = await db.select_var(sql, values)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
@@ -539,16 +545,18 @@ class ManageSelf:
                     return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                new_id = await game_functions.create_unique_id()
+                new_ship = {'id': new_id, 'ship_type': ship['id']}
                 content = msg.content
                 current_hangar = ast.literal_eval(player[0][15])
                 if content != '1':
                     return await ctx.author.send('**Purchase Canceled**')
                 if current_hangar is None:
-                    current_hangar = {player[0][4]: [ship['id']]}
+                    current_hangar = {player[0][4]: [new_ship]}
                 elif player[0][4] not in current_hangar:
-                    current_hangar[player[0][4]] = [ship['id']]
+                    current_hangar[player[0][4]] = [new_ship]
                 else:
-                    current_hangar[player[0][4]].append(ship['id'])
+                    current_hangar[player[0][4]].append(new_ship)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship_hangar = (?),
                             isk = (?)
