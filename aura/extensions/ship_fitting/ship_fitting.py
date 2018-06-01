@@ -30,7 +30,7 @@ class ShipFitting:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
-        player_ship_obj = ast.literal_eval(player[14])
+        player_ship_obj = ast.literal_eval(player[0][14])
         ship = await game_functions.get_ship(int(player_ship_obj['ship_type']))
         module_count = 0
         clean_equipped_modules = ''

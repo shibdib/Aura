@@ -30,7 +30,7 @@ class Hangar:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
-        player_ship_obj = ast.literal_eval(player[14])
+        player_ship_obj = ast.literal_eval(player[0][14])
         current_ship = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
         if player[0][15] is None:
             embed = make_embed(icon=ctx.bot.user.avatar)
