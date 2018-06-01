@@ -664,7 +664,7 @@ class ManageSelf:
                 for key, ships in ship_hangar.items():
                     for ship in ships:
                         region_name = await game_functions.get_region(key)
-                        ship_name = await game_functions.get_ship_name(int(ship))
+                        ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
                         stored_ships_array.append('{} - {}'.format(ship_name, region_name))
                 stored_ships = '\n'.join(stored_ships_array)
                 embed.add_field(name="Ships",
