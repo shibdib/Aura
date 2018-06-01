@@ -673,7 +673,7 @@ class ManageSelf:
         embed.set_footer(icon_url=self.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Change Clone Location",
-                        value="Are you sure you want to change your clone location from **{}** to **{}**\n*Relocating"
+                        value="Are you sure you want to change your clone location from **{}** to **{}**\n\n*Relocating"
                               " your clone costs 10,000 ISK*\n\n"
                               "**1.** Yes.\n"
                               "**2.** No.\n".format(home_region_name, current_region_name))
