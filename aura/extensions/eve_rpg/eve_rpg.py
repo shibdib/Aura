@@ -96,15 +96,15 @@ class EveRpg:
             ship_id = ratter[14]
             ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
-            survival = 300
+            survival = 400
             npc = 125
             if region_security == 'Low':
                 isk = random.randint(5500, 9500)
-                survival = 225
+                survival = 275
                 npc = 225
             elif region_security == 'Null':
                 isk = random.randint(8500, 19500)
-                survival = 175
+                survival = 225
                 npc = 350
             if ship['class'] == 1:
                 survival = 175
@@ -234,15 +234,15 @@ class EveRpg:
             ship_id = miner[14]
             ship = await game_functions.get_ship(ship_id)
             possible_npc = False
-            survival = 300
+            survival = 500
             ore = 100
             if region_security == 'Low':
-                survival = 250
+                survival = 350
                 ore = 150
                 possible_npc = 2
                 isk = random.randint(800, 1700)
             elif region_security == 'Null':
-                survival = 175
+                survival = 275
                 ore = 300
                 possible_npc = 4
                 isk = random.randint(950, 3250)
