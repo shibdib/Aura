@@ -103,7 +103,7 @@ class Hangar:
                         module_hangar = {player[0][4]: modules}
                     values = (int(selected_ship['id']), str(new_hangar), str(module_hangar), ctx.author.id,)
                 else:
-                    values = (int(selected_ship['id']), str(new_hangar), None, ctx.author.id,)
+                    values = (int(selected_ship['id']), str(new_hangar), player[0][13], ctx.author.id,)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
                             ship_hangar = (?),
