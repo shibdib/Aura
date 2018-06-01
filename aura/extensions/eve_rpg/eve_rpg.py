@@ -601,7 +601,7 @@ class EveRpg:
         elif player[3] == 99:
             ship_id = 5
         new_id = await game_functions.create_unique_id()
-        ship = {new_id: {'ship_type': ship_id}}
+        ship = {'id': new_id, 'ship_type': ship_id}
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?),
                     modules = NULL,
