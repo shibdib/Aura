@@ -29,7 +29,7 @@ async def create_tables():
                                         int INTEGER DEFAULT 0,
                                         text TEXT DEFAULT NULL
                                     ); """
-        await create_table(db, aura_table)
+        await create_table(db, data_table)
         # create whitelist table
         whitelist_table = """ CREATE TABLE IF NOT EXISTS whitelist (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
