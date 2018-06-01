@@ -20,4 +20,4 @@ bot_permissions = 224256
 
 # Don't touch
 preload_extensions = ['eve_rpg', 'set_channels', 'join_game', 'manage_self', 'market', 'travel', 'change_task', 'local',
-                      'stats', 'hangar', 'assets', 'ship_fitting']
+                      'stats', 'hangar', 'assets', 'ship_fitting', 'game_moderator']
