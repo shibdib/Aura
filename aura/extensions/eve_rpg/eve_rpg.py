@@ -574,10 +574,16 @@ class EveRpg:
 
     async def add_kill(self, player):
         sql = ''' UPDATE eve_rpg_players
-                SET kills = (?)
+                SET kills = (?),
+                    ship = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(player[10]) + 1, player[2],)
+        killer_ship = ast.literal_eval(player[14])
+        if killer_ship['kill_marks'] is None:
+            killer_ship['kill_marks'] = 1
+        else:
+            killer_ship['kill_marks'] += 1
+        values = (int(player[10]) + 1, killer_ship, player[2],)
         await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
