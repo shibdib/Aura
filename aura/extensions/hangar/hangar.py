@@ -48,7 +48,6 @@ class Hangar:
                 embed.add_field(name="{} Ship Hangar".format(region_name),
                                 value='No Ships Found In This Region')
                 return await ctx.author.send(embed=embed)
-            current_hangar = ship_hangar[player[0][4]]
             stored_ships_array = []
             owned_ship_ids = []
             ship_number = 1
@@ -57,6 +56,7 @@ class Hangar:
                 ship['selection'] = ship_number
                 ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
                 stored_ships_array.append('{}. {}'.format(ship_number, ship_name))
+                ship_number += 1
             stored_ships = '\n'.join(stored_ships_array)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
