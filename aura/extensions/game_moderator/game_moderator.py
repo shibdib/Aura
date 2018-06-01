@@ -142,6 +142,8 @@ class GameModerator:
         players = await db.select(sql)
         for player in players:
             channel = self.bot.get_user(player[2])
+            if channel is None:
+                continue
             if embed is False:
                 await channel.send(message)
             else:
