@@ -47,19 +47,17 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND `region` = (?) '''
             values = (destination_id,)
             inbound_campers = await db.select_var(sql, values)
+            traveler_ship = ast.literal_eval(traveler[14])
+            defender_ship_id = traveler_ship['ship_type']
+            defender_attack, defender_defense, defender_maneuver, defender_tracking = \
+                await game_functions.get_combat_attributes(traveler, defender_ship_id)
             if len(outbound_campers) is not 0 and region_security != 'High':
-                defender_ship_id = traveler[14]['ship_type']
-                defender_attack, defender_defense, defender_maneuver, defender_tracking = \
-                    await game_functions.get_combat_attributes(traveler, defender_ship_id)
                 for camper in outbound_campers:
                     conflict = await self.weighted_choice([(True, 35 - defender_maneuver), (False, 65), (None, 45)])
                     if conflict is True:
                         await self.solo_combat(camper, traveler)
                         return
             if len(inbound_campers) is not 0 and destination_security != 'High':
-                defender_ship_id = traveler[14]['ship_type']
-                defender_attack, defender_defense, defender_maneuver, defender_tracking = \
-                    await game_functions.get_combat_attributes(traveler, defender_ship_id)
                 for camper in inbound_campers:
                     conflict = await self.weighted_choice([(True, 60 - defender_maneuver), (False, 65), (None, 45)])
                     if conflict is True:
@@ -93,7 +91,8 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            ship_id = ratter[14]['ship_type']
+            ratter_ship = ast.literal_eval(ratter[14])
+            ship_id = ratter_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
             survival = 400
@@ -162,7 +161,8 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            ship_id = ratter[14]['ship_type']
+            ratter_ship = ast.literal_eval(ratter[14])
+            ship_id = ratter_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
             survival = 300
@@ -231,7 +231,8 @@ class EveRpg:
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
             isk = random.randint(100, 550)
-            ship_id = miner[14]['ship_type']
+            miner_ship = ast.literal_eval(miner[14])
+            ship_id = miner_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             possible_npc = False
             survival = 500
@@ -257,7 +258,8 @@ class EveRpg:
                 continue
             else:
                 #  Ship multi
-                ship_id = miner[14]['ship_type']
+                miner_ship = ast.literal_eval(miner[14])
+                ship_id = miner_ship['ship_type']
                 ship = await game_functions.get_ship(ship_id)
                 multiplier = 1
                 defense_multi = 1
@@ -356,8 +358,10 @@ class EveRpg:
                     break
 
     async def solo_combat(self, attacker, defender, concord=False):
-        attacker_ship_id = attacker[14]['ship_type']
-        defender_ship_id = defender[14]['ship_type']
+        attacker_ship = ast.literal_eval(attacker[14])
+        attacker_ship_id = attacker_ship['ship_type']
+        defender_ship = ast.literal_eval(defender[14])
+        defender_ship_id = defender_ship['ship_type']
         attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
             await game_functions.get_combat_attributes(attacker, attacker_ship_id)
         defender_attack, defender_defense, defender_maneuver, defender_tracking = \
@@ -396,16 +400,18 @@ class EveRpg:
         region_id = int(winner[4])
         region_name = await game_functions.get_region(int(region_id))
         loser_name = self.bot.get_user(int(loser[2])).display_name
-        winner_ship = await game_functions.get_ship_name(int(winner[14]['ship_type']))
+        winner_ship_obj = ast.literal_eval(winner[14])
+        winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
         winner_task = await game_functions.get_task(int(winner[6]))
-        loser_ship = await game_functions.get_ship_name(int(loser[14]['ship_type']))
+        loser_ship_obj = ast.literal_eval(loser[14])
+        loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
         loser_task = await game_functions.get_task(int(loser[6]))
         xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
         if escape is False:
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
-            ship_image = await game_functions.get_ship_image(loser[14]['ship_type'])
+            ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
             embed.set_thumbnail(url="{}".format(ship_image))
             embed.add_field(name="Killmail",
                             value="**Region** - {}\n\n"
@@ -428,7 +434,7 @@ class EveRpg:
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(loser[14]['ship_type'])
+                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
                 embed.set_thumbnail(url="{}".format(ship_image))
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
@@ -457,7 +463,7 @@ class EveRpg:
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(winner[14]['ship_type'])
+                ship_image = await game_functions.get_ship_image(winner_ship_obj['ship_type'])
                 embed.set_thumbnail(url="{}".format(ship_image))
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
@@ -483,7 +489,7 @@ class EveRpg:
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(loser[14]['ship_type'])
+                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
                 embed.set_thumbnail(url="{}".format(ship_image))
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
