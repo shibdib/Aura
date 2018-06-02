@@ -706,8 +706,8 @@ class ManageSelf:
         embed.set_footer(icon_url=self.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Insure Ship",
-                        value="Insurance is an upfront equivalent to 20% of the current ship price, in return upon your"
-                              " untimely death you will received 80% of the insured value of your ship back.\n\n"
+                        value="Insurance is an upfront payment equivalent to 20% of the current ship price, in return "
+                              "upon your untimely death you will receive 80% of the insured value of your ship back.\n\n"
                               "It will cost **{} ISK** to insure your {}\n\n"
                               "Is this acceptable?\n"
                               "**1.** Yes.\n"
