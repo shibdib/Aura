@@ -700,7 +700,8 @@ class ManageSelf:
         if 'insured' in ship:
             return await ctx.author.send('**Your current ship is already insured**')
         current_ship = await game_functions.get_ship(ship['ship_type'])
-        insurance_cost = '{0:,.2f}'.format(float(current_ship['isk'] * 0.2))
+        raw_cost = current_ship['isk'] * 0.2
+        insurance_cost = '{0:,.2f}'.format(float(raw_cost))
         insurance_payout = current_ship['isk'] * 0.8
         embed = make_embed(icon=self.bot.user.avatar)
         embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -721,7 +722,7 @@ class ManageSelf:
         content = int(msg.content)
         if content != 1:
             return await ctx.author.send('**Insurance Contract Canceled**')
-        if int(player[0][5]) < int(insurance_cost):
+        if int(player[0][5]) < int(raw_cost):
             return await ctx.author.send('**Not enough ISK**')
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?),
@@ -730,7 +731,7 @@ class ManageSelf:
                     player_id = (?); '''
         ship['insured'] = True
         ship['insurance_payout'] = insurance_payout
-        remaining_isk = int(player[0][5]) - int(insurance_cost)
+        remaining_isk = int(player[0][5]) - int(raw_cost)
         values = (ship, remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
         return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
