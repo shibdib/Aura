@@ -732,7 +732,7 @@ class ManageSelf:
         ship['insured'] = True
         ship['insurance_payout'] = insurance_payout
         remaining_isk = int(player[0][5]) - int(raw_cost)
-        values = (ship, remaining_isk, ctx.author.id,)
+        values = (str(ship), remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
         return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
 
