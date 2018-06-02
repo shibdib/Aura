@@ -355,7 +355,7 @@ class ManageSelf:
                 if len(module_hangar) == 0:
                     values = (str(equipped_modules), None, ctx.author.id,)
                 else:
-                    values = (str(equipped_modules), module_hangar, ctx.author.id,)
+                    values = (str(equipped_modules), str(module_hangar), ctx.author.id,)
             else:
                 values = (str(equipped_modules), str(module_hangar), ctx.author.id,)
             await db.execute_sql(sql, values)
