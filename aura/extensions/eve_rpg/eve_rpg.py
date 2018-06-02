@@ -618,7 +618,7 @@ class EveRpg:
                     player_id = (?); '''
         values = (str(ship), player[18], player[2],)
         await db.execute_sql(sql, values)
-        if 'insured' in ship:
+        if 'insured' in lost_ship:
             channel = self.bot.get_user(player[2])
             insurance_payout = '{0:,.2f}'.format(float(lost_ship['insurance_payout']))
             if player[6] == 4:
