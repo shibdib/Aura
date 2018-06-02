@@ -133,7 +133,7 @@ class GameModerator:
         for channels in game_channels:
             channel = self.bot.get_channel(int(channels[2]))
             if channel is None:
-                continue
+                await self.remove_bad_channel(channels[2])
             if embed is False:
                 await channel.send(message)
             else:
@@ -143,8 +143,20 @@ class GameModerator:
         for player in players:
             channel = self.bot.get_user(player[2])
             if channel is None:
-                continue
+                await self.remove_bad_user(player[2])
             if embed is False:
                 await channel.send(message)
             else:
                 await channel.send(embed=message)
+
+    async def remove_bad_user(self, player_id):
+        sql = ''' DELETE FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (player_id,)
+        await db.execute_sql(sql, values)
+        return self.logger.info('eve_rpg - Bad player removed successfully')
+
+    async def remove_bad_channel(self, channel_id):
+        sql = ''' DELETE FROM eve_rpg_channels WHERE `channel_id` = (?) '''
+        values = (channel_id,)
+        await db.execute_sql(sql, values)
+        return self.logger.info('eve_rpg - Bad Channel removed successfully')
