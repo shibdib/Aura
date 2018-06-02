@@ -579,7 +579,7 @@ class EveRpg:
                 WHERE
                     player_id = (?); '''
         killer_ship = ast.literal_eval(player[14])
-        if killer_ship['kill_marks'] is None:
+        if 'kill_marks' not in killer_ship:
             killer_ship['kill_marks'] = 1
         else:
             killer_ship['kill_marks'] += 1
@@ -618,7 +618,7 @@ class EveRpg:
                     player_id = (?); '''
         values = (str(ship), player[18], player[2],)
         await db.execute_sql(sql, values)
-        if lost_ship['insured'] is True:
+        if 'insured' in ship:
             lost_ship_details = await game_functions.get_ship(lost_ship['ship_type'])
             channel = self.bot.get_user(player[2])
             insurance_payout = '{0:,.2f}'.format(float(lost_ship['insurance_payout']))
