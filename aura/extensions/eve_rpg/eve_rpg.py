@@ -554,8 +554,10 @@ class EveRpg:
             if channel is None:
                 self.logger.exception('eve_rpg - Bad Channel Attempted removing....')
                 await self.remove_bad_channel(channels[2])
+                continue
             if embed is False:
                 await channel.send(message)
+                continue
             else:
                 await channel.send(embed=message)
 
