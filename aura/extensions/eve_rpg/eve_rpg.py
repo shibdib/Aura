@@ -606,6 +606,7 @@ class EveRpg:
             ship_id = 4
         elif player[3] == 99:
             ship_id = 5
+        lost_ship = ast.literal_eval(player[14])
         new_id = await game_functions.create_unique_id()
         ship = {'id': new_id, 'ship_type': ship_id}
         sql = ''' UPDATE eve_rpg_players
@@ -617,3 +618,17 @@ class EveRpg:
                     player_id = (?); '''
         values = (str(ship), player[18], player[2],)
         await db.execute_sql(sql, values)
+        if lost_ship['insured'] is True:
+            lost_ship_details = await game_functions.get_ship(lost_ship['ship_type'])
+            channel = self.bot.get_user(player[2])
+            insurance_payout = '{0:,.2f}'.format(float(lost_ship['insurance_payout']))
+            await channel.send('**Insurance Payout Received**\n\nThe loss of your {} was covered by insurance, {} ISK '
+                               'has been deposited into your account.'.format(lost_ship_details['name'],
+                                                                              insurance_payout))
+            sql = ''' UPDATE eve_rpg_players
+                    SET isk = (?)
+                    WHERE
+                        player_id = (?); '''
+            new_isk = int(player[0][5]) + int(insurance_payout)
+            values = (new_isk, player[2],)
+            await db.execute_sql(sql, values)

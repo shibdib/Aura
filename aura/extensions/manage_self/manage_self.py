@@ -59,6 +59,7 @@ class ManageSelf:
                               "**4.** Change into another ship.\n"
                               "**5.** Visit the regional market.\n"
                               "**6.** View your asset list.\n"
+                              "**7.** Insure your ship.\n"
                               "**10.** Change your clone to here.\n".format(
                             region_name, len(local_players), current_ship, current_task, wallet_balance))
         await ctx.author.send(embed=embed)
@@ -80,6 +81,8 @@ class ManageSelf:
             await self.visit_market(ctx, player)
         elif content == '6':
             await self.asset_list(ctx)
+        elif content == '7':
+            await self.insure_ship(ctx, player)
         elif content == '10':
             await self.change_clone(ctx, player)
         else:
@@ -689,6 +692,48 @@ class ManageSelf:
                 embed.add_field(name="Modules",
                                 value='{}'.format(stored_modules))
             await ctx.author.send(embed=embed)
+
+    async def insure_ship(self, ctx, player):
+        if player[0][6] is not 1:
+            return await ctx.author.send('**ERROR** - You must be docked to do this.')
+        ship = ast.literal_eval(player[0][14])
+        if ship['insured'] is True:
+            return await ctx.author.send('**Your current ship is already insured**')
+        current_ship = await game_functions.get_ship(ship['ship_type'])
+        insurance_cost = '{0:,.2f}'.format(float(current_ship['isk'] * 0.2))
+        insurance_payout = current_ship['isk'] * 0.8
+        embed = make_embed(icon=self.bot.user.avatar)
+        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Insure Ship",
+                        value="Insurance is an upfront equivalent to 20% of the current ship price, in return upon your"
+                              "untimely death you will received 80% of the insured value of your ship back.\n\n"
+                              "It will cost {} ISK to insure your {}*\n\n"
+                              "Is this acceptable?\n"
+                              "**1.** Yes.\n"
+                              "**2.** No.\n".format(insurance_cost, current_ship['name']))
+        await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+        content = int(msg.content)
+        if content != 1:
+            return await ctx.author.send('**Insurance Contract Canceled**')
+        if int(player[0][5]) < int(insurance_cost):
+            return await ctx.author.send('**Not enough ISK**')
+        sql = ''' UPDATE eve_rpg_players
+                SET ship = (?),
+                    isk = (?)
+                WHERE
+                    player_id = (?); '''
+        ship['insured'] = True
+        ship['insurance_payout'] = insurance_payout
+        remaining_isk = int(player[0][5]) - int(insurance_cost)
+        values = (ship, remaining_isk, ctx.author.id,)
+        await db.execute_sql(sql, values)
+        return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
 
     async def change_clone(self, ctx, player):
         if player[0][18] is player[0][4]:
