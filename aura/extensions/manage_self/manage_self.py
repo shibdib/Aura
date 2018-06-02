@@ -697,7 +697,7 @@ class ManageSelf:
         if player[0][6] is not 1:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         ship = ast.literal_eval(player[0][14])
-        if ship['insured'] is True:
+        if ship['insured'] is not None:
             return await ctx.author.send('**Your current ship is already insured**')
         current_ship = await game_functions.get_ship(ship['ship_type'])
         insurance_cost = '{0:,.2f}'.format(float(current_ship['isk'] * 0.2))
