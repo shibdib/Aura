@@ -135,11 +135,11 @@ class EveRpg:
                                       "**{}** flying a {} was killed by belt rats.".format(region_name,
                                                                                            user.display_name,
                                                                                            ship_name))
-                await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
                 await player.send(embed=embed)
-                return await self.send_global(embed, True)
+                await self.send_global(embed, True)
+                return await self.destroy_ship(ratter)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
                 # await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
@@ -205,10 +205,10 @@ class EveRpg:
                                       "**{}** flying a {} was killed while running an anomaly.".format(region_name,
                                                                                                        user.display_name,
                                                                                                        ship_name))
-                await self.destroy_ship(ratter)
                 await self.add_loss(ratter)
                 await user.send(embed=embed)
-                return await self.send_global(embed, True)
+                await self.send_global(embed, True)
+                return await self.destroy_ship(ratter)
             elif flee is True:
                 ratter_user = self.bot.get_user(ratter[2])
                 # await ratter_user.send('**NOTICE** - You nearly died to anomaly rats but managed to warp off.')
@@ -303,10 +303,11 @@ class EveRpg:
                                           "**{}** flying a {} was killed while belt mining.".format(region_name,
                                                                                                     user.display_name,
                                                                                                     ship['name']))
-                    await self.destroy_ship(miner)
                     await self.add_loss(miner)
                     await user.send(embed=embed)
-                    return await self.send_global(embed, True)
+                    await self.send_global(embed, True)
+                    return await self.destroy_ship(miner)
+
                 xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
@@ -420,7 +421,7 @@ class EveRpg:
                     module_drop = ' **Module Dropped**'
                 loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
             loser_module_list = '\n'.join(loser_modules_array)
-            loser_modules = '\n\n__Modules Lost__{}'.format(loser_module_list)
+            loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
         xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
         if escape is False:
             embed = make_embed(icon=self.bot.user.avatar)
