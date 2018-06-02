@@ -29,19 +29,19 @@ class GameModerator:
                                   "**3.** Ban Player.\n")
             await ctx.author.send(embed=embed)
 
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+            def check(m):
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-        content = msg.content
-        if content == '1':
-            await self.give_isk(ctx)
-        elif content == '2':
-            await self.warn_player(ctx)
-        elif content == '3':
-            await self.ban_player(ctx)
-        else:
-            return await ctx.author.send('**ERROR** - Not a valid choice.')
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+            content = msg.content
+            if content == '1':
+                await self.give_isk(ctx)
+            elif content == '2':
+                await self.warn_player(ctx)
+            elif content == '3':
+                await self.ban_player(ctx)
+            else:
+                return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def give_isk(self, ctx):
         embed = make_embed(icon=ctx.bot.user.avatar)
