@@ -406,6 +406,21 @@ class EveRpg:
         loser_ship_obj = ast.literal_eval(loser[14])
         loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
         loser_task = await game_functions.get_task(int(loser[6]))
+        loser_modules = ''
+        loser_modules_array = []
+        dropped_mods = []
+        if loser[12] is not None:
+            modules = ast.literal_eval(loser[12])
+            for module in modules:
+                module_item = await game_functions.get_module(module)
+                dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                module_drop = ''
+                if dropped is True:
+                    dropped_mods.append(module)
+                    module_drop = ' **Module Dropped**'
+                loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+            loser_module_list = '\n'.join(loser_modules_array)
+            loser_modules = '\n\n__Modules Lost__{}'.format(loser_module_list)
         xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
         if escape is False:
             embed = make_embed(icon=self.bot.user.avatar)
@@ -416,10 +431,10 @@ class EveRpg:
             embed.add_field(name="Killmail",
                             value="**Region** - {}\n\n"
                                   "**Loser**\n"
-                                  "**{}** flying a {} was killed while they were {}.\n\n"
+                                  "**{}** flying a {} was killed while they were {}.{}\n\n"
                                   "**Killer**\n"
                                   "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship,
-                                                                            loser_task,
+                                                                            loser_task, loser_modules,
                                                                             winner_name, winner_ship, winner_task))
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
@@ -452,6 +467,10 @@ class EveRpg:
                 await self.add_kill(loser)
                 await self.destroy_ship(winner)
                 await self.add_xp(loser, xp_gained)
+            else:
+                if len(dropped_mods) > 0:
+                    for mod in dropped_mods:
+                        await self.give_mod(winner, mod)
         else:
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
@@ -494,17 +513,20 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed while they were {}.\n\n"
+                                      "**{}** flying a {} was killed while they were {}.{}\n\n"
                                       "**Final Blow**\n"
                                       "Concord\n\n"
                                       "**Other Attackers**\n"
                                       "**{}** flying a {}".format(region_name, loser_name, loser_ship, loser_task,
-                                                                  winner_name, winner_ship))
+                                                                  loser_modules, winner_name, winner_ship))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
                 await self.add_loss(loser)
                 await self.add_kill(winner)
+                if len(dropped_mods) > 0:
+                    for mod in dropped_mods:
+                        await self.give_mod(winner, mod)
                 await self.destroy_ship(loser)
             sql = ''' UPDATE eve_rpg_players
                     SET task = 1
@@ -637,3 +659,19 @@ class EveRpg:
             new_isk = int(player[0][5]) + int(insurance_payout)
             values = (new_isk, player[2],)
             await db.execute_sql(sql, values)
+
+    async def give_mod(self, player, mod):
+        if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
+            module_hangar = ast.literal_eval(player[0][13])
+            module_hangar[player[0][4]].append(mod)
+        elif player[0][13] is not None:
+            module_hangar = ast.literal_eval(player[0][13])
+            module_hangar[player[0][4]] = [mod]
+        else:
+            module_hangar = {player[0][4]: [mod]}
+        sql = ''' UPDATE eve_rpg_players
+                SET module_hangar = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (str(module_hangar), player[2],)
+        await db.execute_sql(sql, values)
