@@ -619,9 +619,14 @@ class EveRpg:
         values = (str(ship), player[18], player[2],)
         await db.execute_sql(sql, values)
         if 'insured' in ship:
-            lost_ship_details = await game_functions.get_ship(lost_ship['ship_type'])
             channel = self.bot.get_user(player[2])
             insurance_payout = '{0:,.2f}'.format(float(lost_ship['insurance_payout']))
+            if player[6] == 4:
+                return await channel.send(
+                    '**Insurance DENIED** We regret to inform you that because you were performing'
+                    ' a criminal act at the time of your death we will be keeping your payout of '
+                    '{} ISK.'.format(insurance_payout))
+            lost_ship_details = await game_functions.get_ship(lost_ship['ship_type'])
             await channel.send('**Insurance Payout Received**\n\nThe loss of your {} was covered by insurance, {} ISK '
                                'has been deposited into your account.'.format(lost_ship_details['name'],
                                                                               insurance_payout))
