@@ -37,6 +37,14 @@ class ShipFitting:
         remove_module_order = {}
         module_number = 1
         remove_commands = []
+        #  check if insured
+        insured = ''
+        if 'insured' in player_ship_obj:
+            insured = '\n*This Ship Is Insured*'
+        #  check if killmark
+        killmarks = ''
+        if 'kill_marks' in player_ship_obj:
+            killmarks = '\n**{} Kill Marks**'
         if player[0][12] is not None:
             equipped_modules = ast.literal_eval(player[0][12])
             module_count = len(equipped_modules)
@@ -58,9 +66,9 @@ class ShipFitting:
             clean_equipped_modules = '\n'.join(equipped_modules_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(player[0], int(player_ship_obj['ship_type']))
-        value = '**{}** - {}/{} Module Slots\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current Maneuver:** {}\n' \
-                '**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'], ship_attack, ship_defense,
-                                                  ship_maneuver, ship_tracking)
+        value = '**{}** - {}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current Maneuver:** {}\n' \
+                '**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'], killmarks, insured,
+                                                  ship_attack, ship_defense, ship_maneuver, ship_tracking)
         if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__\n{}'.format(value, clean_equipped_modules)
         embed = make_embed(icon=ctx.bot.user.avatar)
