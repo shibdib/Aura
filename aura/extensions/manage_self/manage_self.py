@@ -707,8 +707,8 @@ class ManageSelf:
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Insure Ship",
                         value="Insurance is an upfront equivalent to 20% of the current ship price, in return upon your"
-                              "untimely death you will received 80% of the insured value of your ship back.\n\n"
-                              "It will cost {} ISK to insure your {}*\n\n"
+                              " untimely death you will received 80% of the insured value of your ship back.\n\n"
+                              "It will cost **{} ISK** to insure your {}*\n\n"
                               "Is this acceptable?\n"
                               "**1.** Yes.\n"
                               "**2.** No.\n".format(insurance_cost, current_ship['name']))
