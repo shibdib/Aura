@@ -681,7 +681,7 @@ class EveRpg:
                     SET isk = (?)
                     WHERE
                         player_id = (?); '''
-            new_isk = int(player[5]) + int(insurance_payout)
+            new_isk = int(player[5]) + int(lost_ship['insurance_payout'])
             values = (new_isk, player[2],)
             await db.execute_sql(sql, values)
 
