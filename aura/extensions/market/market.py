@@ -51,7 +51,9 @@ class Market:
             mining_barges = ['__**Mining Barges**__']
             exhumers = ['__**Exhumers**__']
             ships = game_assets.ships
+            accepted_options = []
             for key, ship in ships.items():
+                accepted_options.append(ship['id'])
                 cost = '{0:,.2f}'.format(float(ship['isk']))
                 if ship['class'] == 2:
                     frigates.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
@@ -82,8 +84,8 @@ class Market:
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
-            ship = await game_functions.get_ship(int(content))
-            if ship is not None:
+            if int(content) in accepted_options:
+                ship = await game_functions.get_ship(int(content))
                 cost = '{0:,.2f}'.format(float(ship['isk']))
                 if int(ship['isk']) > int(player[0][5]):
                     return await ctx.author.send('**Not Enough Isk**')

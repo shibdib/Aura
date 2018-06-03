@@ -15,7 +15,7 @@ class GameModerator:
     @commands.group(name='gm', case_insensitive=True)
     @checks.is_co_owner()
     @checks.has_account()
-    async def _local(self, ctx):
+    async def _gm(self, ctx):
         """Change your current task."""
         if ctx.invoked_subcommand is None:
             if ctx.guild is not None:
@@ -115,7 +115,8 @@ class GameModerator:
                         value="Send the player ID")
         await ctx.author.send(embed=embed)
 
-    @_local.group(name='global')
+    @_gm.group(name='global')
+    @checks.is_co_owner()
     @checks.has_account()
     async def _chat(self, ctx, *, message: str):
         """Talk in global."""

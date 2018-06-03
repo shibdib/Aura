@@ -16,7 +16,7 @@ class ManageSelf:
         self.config = bot.config
         self.logger = bot.logger
 
-    @commands.command(name='me', case_insensitive=True)
+    @commands.group(name='me', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -47,7 +47,8 @@ class ManageSelf:
                             value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
                                   "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
                                   "*Ship is currently traveling to {}.......*".format(
-                                region_name, len(local_players), current_ship, current_task, wallet_balance, destination))
+                                region_name, len(local_players), current_ship, current_task, wallet_balance,
+                                destination))
             return await ctx.author.send(embed=embed)
         embed.add_field(name="Welcome {}".format(player_name),
                         value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
@@ -88,6 +89,11 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
+    @_me.group(name='1')
+    @commands.command(name='task', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def change_task(self, ctx, player):
         if player[0][6] == 20:
             return await ctx.author.send('**ERROR** - You need to finish traveling first.')
@@ -151,6 +157,11 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
+    @_me.group(name='2')
+    @commands.command(name='travel', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def travel(self, ctx, region_id, region_name):
         connected_regions = []
         region_connections = await game_functions.get_region_connections(region_id)
@@ -186,6 +197,11 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
+    @_me.group(name='3')
+    @commands.command(name='fitting', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def modify_ship(self, ctx):
         """Fit your current ship."""
         if ctx.guild is not None:
@@ -363,6 +379,11 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
+    @_me.group(name='4')
+    @commands.command(name='hangar', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def change_ship(self, ctx):
         """Visit your regional ship hangar."""
         if ctx.guild is not None:
@@ -475,6 +496,11 @@ class ManageSelf:
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
+    @_me.group(name='5')
+    @commands.command(name='market', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def visit_market(self, ctx, player):
         """Visit the regional marketplace."""
         if ctx.guild is not None:
@@ -506,7 +532,9 @@ class ManageSelf:
             mining_barges = ['__**Mining Barges**__']
             exhumers = ['__**Exhumers**__']
             ships = game_assets.ships
+            accepted_options = []
             for key, ship in ships.items():
+                accepted_options.append(ship['id'])
                 cost = '{0:,.2f}'.format(float(ship['isk']))
                 if ship['class'] == 2:
                     frigates.append('**{}.** {} - {} ISK'.format(ship['id'], ship['name'], cost))
@@ -537,8 +565,8 @@ class ManageSelf:
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
-            ship = await game_functions.get_ship(int(content))
-            if ship is not None:
+            if int(content) in accepted_options:
+                ship = await game_functions.get_ship(int(content))
                 cost = '{0:,.2f}'.format(float(ship['isk']))
                 if int(ship['isk']) > int(player[0][5]):
                     return await ctx.author.send('**Not Enough Isk**')
@@ -659,6 +687,11 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
+    @_me.group(name='6')
+    @commands.command(name='assets', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def asset_list(self, ctx):
         """View your assets."""
         if ctx.guild is not None:
@@ -701,7 +734,13 @@ class ManageSelf:
                                 value='{}'.format(stored_modules))
             await ctx.author.send(embed=embed)
 
+    @_me.group(name='7')
+    @commands.command(name='insure', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def insure_ship(self, ctx, player):
+        """Insure your current ship."""
         if player[0][6] is not 1:
             return await ctx.author.send('**ERROR** - You must be docked to do this.')
         ship = ast.literal_eval(player[0][14])
@@ -744,7 +783,13 @@ class ManageSelf:
         await db.execute_sql(sql, values)
         return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
 
+    @_me.group(name='10')
+    @commands.command(name='clone', case_insensitive=True)
+    @checks.spam_check()
+    @checks.is_whitelist()
+    @checks.has_account()
     async def change_clone(self, ctx, player):
+        """Change your clone location."""
         if player[0][18] is player[0][4]:
             return await ctx.author.send('**This region is already your clone location**')
         home_region_name = await game_functions.get_region(player[0][18])
