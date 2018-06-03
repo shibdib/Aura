@@ -300,7 +300,7 @@ class Market:
                             break
                     ship_hangar[player[0][4]].remove(remove)
                     new_hangar = ship_hangar
-                    new_isk = float(player[0][5]) + float(sale_price)
+                    new_isk = float(player[0][5]) + float(ship_info['isk'] * 0.95)
                     if None is not None:
                         if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                             module_hangar = ast.literal_eval(player[0][13])
@@ -382,7 +382,7 @@ class Market:
                         return await ctx.author.send('**Sale Canceled**')
                     module_hangar[player[0][4]].remove(sell_module_order[int(content)])
                     new_hangar = module_hangar
-                    new_isk = float(player[0][5]) + float(sale_price)
+                    new_isk = float(player[0][5]) + float(module_info['isk'] * 0.95)
                     values = (str(new_hangar), int(new_isk), ctx.author.id,)
                     sql = ''' UPDATE eve_rpg_players
                             SET module_hangar = (?),
