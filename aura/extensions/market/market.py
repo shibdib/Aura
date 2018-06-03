@@ -301,7 +301,7 @@ class Market:
                     ship_hangar[player[0][4]].remove(remove)
                     new_hangar = ship_hangar
                     new_isk = float(player[0][5]) + float(sale_price)
-                    if player[0][12] is not None:
+                    if None is not None:
                         if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                             module_hangar = ast.literal_eval(player[0][13])
                             for module in ast.literal_eval(player[0][12]):
