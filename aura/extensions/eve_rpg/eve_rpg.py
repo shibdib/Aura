@@ -510,11 +510,11 @@ class EveRpg:
                 try:
                     await winner_user.send(embed=embed)
                 except Exception:
-                    self.logger.error('User {} message error'.format(winner_user[2]))
+                    self.logger.error('User {} message error'.format(winner_user.id))
                 try:
                     await loser_user.send(embed=embed)
                 except Exception:
-                    self.logger.error('User {} message error'.format(loser_user[2]))
+                    self.logger.error('User {} message error'.format(loser_user.id))
                 await self.send_global(embed, True)
                 await self.add_loss(winner)
                 await self.add_kill(loser)
