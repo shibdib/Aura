@@ -593,7 +593,7 @@ class ManageSelf:
                     content = msg.content
                     if content != '1':
                         return await ctx.author.send('**Purchase Canceled**')
-                    if ast.literal_eval(player[0][15]) is None:
+                    if player[0][15] is None:
                         current_hangar = {player[0][4]: [new_ship]}
                     elif player[0][4] not in ast.literal_eval(player[0][15]):
                         current_hangar = ast.literal_eval(player[0][15])
