@@ -380,7 +380,7 @@ class Market:
                     content = msg.content
                     if content != '1':
                         return await ctx.author.send('**Sale Canceled**')
-                    module_hangar[player[0][4]].remove(int(content))
+                    module_hangar[player[0][4]].remove(sell_module_order[int(content)])
                     new_hangar = module_hangar
                     new_isk = float(player[0][5]) + float(sale_price)
                     values = (str(new_hangar), int(new_isk), ctx.author.id,)
