@@ -107,91 +107,165 @@ class ShipFitting:
             return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-        content = int(msg.content)
-        if int(msg.content) in remove_commands:
-            selected_module = await game_functions.get_module(int(remove_module_order[content]))
-            embed = make_embed(icon=self.bot.user.avatar)
-            embed.set_footer(icon_url=self.bot.user.avatar_url,
-                             text="Aura - EVE Text RPG")
-            embed.set_thumbnail(url="{}".format(selected_module['image']))
-            embed.add_field(name="Confirm Switch",
-                            value="Are you sure you want to remove a **{}**\n\n"
-                                  "**1.** Yes.\n"
-                                  "**2.** No.\n".format(selected_module['name']))
-            await ctx.author.send(embed=embed)
+        if len(msg.content) > 1:
+            module_array = ast.literal_eval('[{}]'.format(msg.content))
+            if module_array is list:
+                equip_modules = []
+                equip_modules_text = []
+                remove_modules = []
+                remove_modules_text = []
+                for module in module_array:
+                    if int(module) in remove_commands:
+                        selected_module = await game_functions.get_module(int(remove_module_order[module]))
+                        remove_modules_text.append('{}'.format(selected_module['name']))
+                        remove_modules.append(int(remove_module_order[module]))
+                    elif int(module) in equip_commands:
+                        selected_module = await game_functions.get_module(int(equip_module_order[module]))
+                        equip_modules_text.append('{}'.format(selected_module['name']))
+                        equip_modules.append(int(equip_module_order[module]))
+                if (module_count + len(equip_modules)) - len(remove_modules) >= ship['slots']:
+                    return await ctx.author.send('**The current selection would put you over the maximum modules for '
+                                                 'this ship**')
+                equip_list = '\n'.join(equip_modules_text)
+                remove_list = '\n'.join(remove_modules_text)
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="Confirm Switch",
+                                value="__Remove__\n{}\n__Equip__\n{}\n\n"
+                                      "**1.** Yes.\n"
+                                      "**2.** No.\n".format(remove_list, equip_list))
+                await ctx.author.send(embed=embed)
 
-            def check(m):
-                return m.author == ctx.author and m.channel == ctx.author.dm_channel
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
-            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-            response = msg.content
-            if response != '1':
-                return await ctx.author.send('**Removal Canceled**')
-            if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                response = msg.content
+                if response != '1':
+                    return await ctx.author.send('**Changes Canceled**')
+                if len(remove_modules) > 0:
+                    if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
+                        module_hangar = ast.literal_eval(player[0][13])
+                        module_hangar[player[0][4]].join(remove_modules)
+                    elif player[0][13] is not None:
+                        module_hangar = ast.literal_eval(player[0][13])
+                        module_hangar[player[0][4]] = remove_modules
+                    else:
+                        module_hangar = {player[0][4]: remove_modules}
+                    equipped_modules = ast.literal_eval(player[0][12])
+                    for remove in remove_modules:
+                        equipped_modules.remove(remove)
+                    player[0][13] = str(module_hangar)
+                    if len(equipped_modules) > 0:
+                        player[0][12] = str(equipped_modules)
+                    else:
+                        player[0][12] = None
+                if len(equip_modules) > 0:
+                    if player[0][12] is not None:
+                        equipped_modules = ast.literal_eval(player[0][12])
+                        equipped_modules.join(equip_modules)
+                    else:
+                        equipped_modules = equip_modules
+                    module_hangar = ast.literal_eval(player[0][13])
+                    for remove in equip_modules:
+                        module_hangar[player[0][4]].remove(remove)
+                    player[0][13] = str(module_hangar)
+                    player[0][12] = str(equipped_modules)
+                sql = ''' UPDATE eve_rpg_players
+                        SET modules = (?),
+                            module_hangar = (?)
+                        WHERE
+                            player_id = (?); '''
+                values = (player[0][12], player[0][13], ctx.author.id,)
+                await db.execute_sql(sql, values)
+                return await ctx.author.send('**Changes Complete**')
+        else:
+            content = int(msg.content)
+            if int(msg.content) in remove_commands:
+                selected_module = await game_functions.get_module(int(remove_module_order[content]))
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.set_thumbnail(url="{}".format(selected_module['image']))
+                embed.add_field(name="Confirm Switch",
+                                value="Are you sure you want to remove a **{}**\n\n"
+                                      "**1.** Yes.\n"
+                                      "**2.** No.\n".format(selected_module['name']))
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                response = msg.content
+                if response != '1':
+                    return await ctx.author.send('**Removal Canceled**')
+                if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
+                    module_hangar = ast.literal_eval(player[0][13])
+                    module_hangar[player[0][4]].append(remove_module_order[content])
+                elif player[0][13] is not None:
+                    module_hangar = ast.literal_eval(player[0][13])
+                    module_hangar[player[0][4]] = [remove_module_order[content]]
+                else:
+                    module_hangar = {player[0][4]: [remove_module_order[content]]}
+                sql = ''' UPDATE eve_rpg_players
+                        SET modules = (?),
+                            module_hangar = (?)
+                        WHERE
+                            player_id = (?); '''
+                remove_module_order.pop(content, None)
+                if remove_module_order is not None and len(remove_module_order) > 0:
+                    now_equipped = []
+                    for key, module in remove_module_order.items():
+                        now_equipped.append(module)
+                    values = (str(now_equipped), str(module_hangar), ctx.author.id,)
+                else:
+                    values = (None, str(module_hangar), ctx.author.id,)
+                await db.execute_sql(sql, values)
+                return await ctx.author.send('**{} Has Been Removed**'.format(selected_module['name']))
+            elif int(msg.content) in equip_commands:
+                if module_count >= ship['slots']:
+                    return await ctx.author.send('**All module slots are occupied for this ship**')
+                selected_module = await game_functions.get_module(int(equip_module_order[content]))
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.set_thumbnail(url="{}".format(selected_module['image']))
+                embed.add_field(name="Confirm Switch",
+                                value="Are you sure you want to equip a **{}**\n\n"
+                                      "**1.** Yes.\n"
+                                      "**2.** No.\n".format(selected_module['name']))
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                response = msg.content
+                if player[0][12] is not None:
+                    equipped_modules = ast.literal_eval(player[0][12])
+                    equipped_modules.append(equip_module_order[content])
+                else:
+                    equipped_modules = [equip_module_order[content]]
+                if response != '1':
+                    return await ctx.author.send('**Equipping Module Canceled**')
                 module_hangar = ast.literal_eval(player[0][13])
-                module_hangar[player[0][4]].append(remove_module_order[content])
-            elif player[0][13] is not None:
-                module_hangar = ast.literal_eval(player[0][13])
-                module_hangar[player[0][4]] = [remove_module_order[content]]
-            else:
-                module_hangar = {player[0][4]: [remove_module_order[content]]}
-            sql = ''' UPDATE eve_rpg_players
-                    SET modules = (?),
-                        module_hangar = (?)
-                    WHERE
-                        player_id = (?); '''
-            remove_module_order.pop(content, None)
-            if remove_module_order is not None and len(remove_module_order) > 0:
-                now_equipped = []
-                for key, module in remove_module_order.items():
-                    now_equipped.append(module)
-                values = (str(now_equipped), str(module_hangar), ctx.author.id,)
-            else:
-                values = (None, str(module_hangar), ctx.author.id,)
-            await db.execute_sql(sql, values)
-            return await ctx.author.send('**{} Has Been Removed**'.format(selected_module['name']))
-        elif int(msg.content) in equip_commands:
-            if module_count >= ship['slots']:
-                return await ctx.author.send('**All module slots are occupied for this ship**')
-            selected_module = await game_functions.get_module(int(equip_module_order[content]))
-            embed = make_embed(icon=self.bot.user.avatar)
-            embed.set_footer(icon_url=self.bot.user.avatar_url,
-                             text="Aura - EVE Text RPG")
-            embed.set_thumbnail(url="{}".format(selected_module['image']))
-            embed.add_field(name="Confirm Switch",
-                            value="Are you sure you want to equip a **{}**\n\n"
-                                  "**1.** Yes.\n"
-                                  "**2.** No.\n".format(selected_module['name']))
-            await ctx.author.send(embed=embed)
-
-            def check(m):
-                return m.author == ctx.author and m.channel == ctx.author.dm_channel
-
-            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-            response = msg.content
-            if player[0][12] is not None:
-                equipped_modules = ast.literal_eval(player[0][12])
-                equipped_modules.append(equip_module_order[content])
-            else:
-                equipped_modules = [equip_module_order[content]]
-            if response != '1':
-                return await ctx.author.send('**Equipping Module Canceled**')
-            module_hangar = ast.literal_eval(player[0][13])
-            module_hangar[player[0][4]].remove(equip_module_order[content])
-            sql = ''' UPDATE eve_rpg_players
-                    SET modules = (?),
-                        module_hangar = (?)
-                    WHERE
-                        player_id = (?); '''
-            if module_hangar[player[0][4]] is None or len(module_hangar[player[0][4]]) < 1:
-                module_hangar.pop(player[0][4], None)
-                if len(module_hangar) == 0:
-                    values = (str(equipped_modules), None, ctx.author.id,)
+                module_hangar[player[0][4]].remove(equip_module_order[content])
+                sql = ''' UPDATE eve_rpg_players
+                        SET modules = (?),
+                            module_hangar = (?)
+                        WHERE
+                            player_id = (?); '''
+                if module_hangar[player[0][4]] is None or len(module_hangar[player[0][4]]) < 1:
+                    module_hangar.pop(player[0][4], None)
+                    if len(module_hangar) == 0:
+                        values = (str(equipped_modules), None, ctx.author.id,)
+                    else:
+                        values = (str(equipped_modules), str(module_hangar), ctx.author.id,)
                 else:
                     values = (str(equipped_modules), str(module_hangar), ctx.author.id,)
+                await db.execute_sql(sql, values)
+                return await ctx.author.send('**{} Has Been Equipped**'.format(selected_module['name']))
             else:
-                values = (str(equipped_modules), str(module_hangar), ctx.author.id,)
-            await db.execute_sql(sql, values)
-            return await ctx.author.send('**{} Has Been Equipped**'.format(selected_module['name']))
-        else:
-            return await ctx.author.send('**ERROR** - Not a valid choice.')
+                return await ctx.author.send('**ERROR** - Not a valid choice.')

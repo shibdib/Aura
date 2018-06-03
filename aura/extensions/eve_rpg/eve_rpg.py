@@ -797,7 +797,7 @@ class EveRpg:
                     WHERE
                         player_id = (?); '''
             values = (player[8] + 1, 0, player[2],)
-        await db.execute_sql(sql, values)
+        return await db.execute_sql(sql, values)
 
     async def add_isk(self, player, isk):
         sql = ''' UPDATE eve_rpg_players
@@ -805,7 +805,7 @@ class EveRpg:
                 WHERE
                     player_id = (?); '''
         values = (int(player[5]) + isk, player[2],)
-        await db.execute_sql(sql, values)
+        return await db.execute_sql(sql, values)
 
     async def add_kill(self, player):
         sql = ''' UPDATE eve_rpg_players
@@ -819,7 +819,7 @@ class EveRpg:
         else:
             killer_ship['kill_marks'] += 1
         values = (int(player[10]) + 1, str(killer_ship), player[2],)
-        await db.execute_sql(sql, values)
+        return await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
         sql = ''' UPDATE eve_rpg_players
@@ -827,7 +827,7 @@ class EveRpg:
                 WHERE
                     player_id = (?); '''
         values = (int(player[11]) + 1, player[2],)
-        await db.execute_sql(sql, values)
+        return await db.execute_sql(sql, values)
 
     async def destroy_ship(self, player):
         ship_id = 1
@@ -871,7 +871,7 @@ class EveRpg:
                         player_id = (?); '''
             new_isk = float(player[5]) + float(lost_ship['insurance_payout'])
             values = (int(float(new_isk)), player[2],)
-            await db.execute_sql(sql, values)
+            return await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mod):
         ship = ast.literal_eval(player[14])
@@ -884,7 +884,7 @@ class EveRpg:
                 WHERE
                     player_id = (?); '''
         values = (str(ship), player[2],)
-        await db.execute_sql(sql, values)
+        return await db.execute_sql(sql, values)
 
     async def give_pvp_loot(self, player):
         ship = ast.literal_eval(player[14])
@@ -933,4 +933,4 @@ class EveRpg:
                     WHERE
                         player_id = (?); '''
             values = (str(ship), player[2],)
-            await db.execute_sql(sql, values)
+            return await db.execute_sql(sql, values)
