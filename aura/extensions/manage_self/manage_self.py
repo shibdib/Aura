@@ -817,7 +817,7 @@ class ManageSelf:
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
                 if int(content) in owned_module_ids:
-                    module = sell_module_order[content]
+                    module = sell_module_order[int(content)]
                     module_info = await game_functions.get_module(int(module))
                     sale_price = '{0:,.2f}'.format(float(module_info['isk'] * 0.95))
                     embed = make_embed(icon=self.bot.user.avatar)
@@ -837,7 +837,7 @@ class ManageSelf:
                     content = msg.content
                     if content != '1':
                         return await ctx.author.send('**Sale Canceled**')
-                    module_hangar[player[0][4]].remove(content)
+                    module_hangar[player[0][4]].remove(int(content))
                     new_hangar = module_hangar
                     new_isk = float(player[0][5]) + float(sale_price)
                     values = (str(new_hangar), int(new_isk), ctx.author.id,)
