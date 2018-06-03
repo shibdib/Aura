@@ -236,6 +236,8 @@ class Market:
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
+            region_id = int(player[0][4])
+            region_name = await game_functions.get_region(region_id)
             wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
             if content == '1':
                 ship_hangar = ast.literal_eval(player[0][15])
@@ -252,10 +254,10 @@ class Market:
                 for ship in ship_hangar[player[0][4]]:
                     owned_ship_ids.append(ship_number)
                     ship['selection'] = ship_number
-                    sale_price = '{0:,.2f}'.format(float(ship['isk'] * 0.95))
+                    ship_info = await game_functions.get_ship(int(ship['ship_type']))
+                    sale_price = '{0:,.2f}'.format(float(ship_info['isk'] * 0.95))
                     ship['sale_price'] = sale_price
-                    ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
-                    stored_ships_array.append('{}. {} *({} ISK)*'.format(ship_number, ship_name, sale_price))
+                    stored_ships_array.append('{}. {} *({} ISK)*'.format(ship_number, ship_info['name'], sale_price))
                     ship_number += 1
                 stored_ships = '\n'.join(stored_ships_array)
                 embed = make_embed(icon=ctx.bot.user.avatar)
