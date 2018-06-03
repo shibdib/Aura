@@ -591,14 +591,15 @@ class ManageSelf:
                     new_id = await game_functions.create_unique_id()
                     new_ship = {'id': new_id, 'ship_type': ship['id']}
                     content = msg.content
-                    current_hangar = ast.literal_eval(player[0][15])
                     if content != '1':
                         return await ctx.author.send('**Purchase Canceled**')
-                    if current_hangar is None:
+                    if ast.literal_eval(player[0][15]) is None:
                         current_hangar = {player[0][4]: [new_ship]}
-                    elif player[0][4] not in current_hangar:
+                    elif player[0][4] not in ast.literal_eval(player[0][15]):
+                        current_hangar = ast.literal_eval(player[0][15])
                         current_hangar[player[0][4]] = [new_ship]
                     else:
+                        current_hangar = ast.literal_eval(player[0][15])
                         current_hangar[player[0][4]].append(new_ship)
                     sql = ''' UPDATE eve_rpg_players
                             SET ship_hangar = (?),
@@ -877,7 +878,88 @@ class ManageSelf:
                 else:
                     return await ctx.author.send('**ERROR** - Not a valid choice.')
             elif content == '3':
-                return await ctx.author.send('**ERROR** - Not yet implemented.')
+                component_hangar = ast.literal_eval(player[0][15])
+                if player[0][4] not in component_hangar:
+                    embed = make_embed(icon=ctx.bot.user.avatar)
+                    embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="{} Ship Hangar".format(region_name),
+                                    value='No Ships Found In This Region')
+                    return await ctx.author.send(embed=embed)
+                stored_ships_array = []
+                owned_ship_ids = []
+                component_number = 1
+                for component in component_hangar[player[0][4]]:
+                    owned_ship_ids.append(component_number)
+                    component['selection'] = component_number
+                    component_info = await game_functions.get_component(int(component['type_id']))
+                    sale_price = '{0:,.2f}'.format(float((component_info['isk'] * 0.95) * component['amount']))
+                    component['sale_price'] = sale_price
+                    stored_ships_array.append('{}. {}x {} *({} ISK/e)*'.format(component_number, component['amount'],
+                                                                               component_info['name'], sale_price))
+                    component_number += 1
+                stored_components = '\n'.join(stored_ships_array)
+                embed = make_embed(icon=ctx.bot.user.avatar)
+                embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="{} Ship Hangar".format(region_name),
+                                value=stored_components)
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                content = msg.content
+                if int(content) in owned_ship_ids:
+                    for component in component_hangar[player[0][4]]:
+                        if component['selection'] == int(content):
+                            component_id = component['id']
+                            selected_component = await game_functions.get_component(int(component['type_id']))
+                            sale_price = component['sale_price']
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.set_thumbnail(url="{}".format(selected_component['image']))
+                    embed.add_field(name="Confirm Sale",
+                                    value="Are you sure you want to sell a **{}** for {} ISK\n\n"
+                                          "**1.** Yes.\n"
+                                          "**2.** No.\n".format(selected_component['name'], sale_price))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    content = msg.content
+                    if content != '1':
+                        return await ctx.author.send('**Sale Canceled**')
+                    for component in component_hangar[player[0][4]]:
+                        if component['id'] == component_id:
+                            remove = component
+                            break
+                    component_hangar[player[0][4]].remove(remove)
+                    new_hangar = component_hangar
+                    new_isk = float(player[0][5]) + float((component_info['isk'] * 0.95) * component['amount'])
+                    if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
+                        new_hangar.pop(player[0][4], None)
+                        if len(new_hangar) == 0:
+                            values = (None, int(float(new_isk)), ctx.author.id,)
+                        else:
+                            values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
+                    else:
+                        values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
+                    sql = ''' UPDATE eve_rpg_players
+                            SET component_hangar = (?),
+                                isk = (?)
+                            WHERE
+                                player_id = (?); '''
+                    await db.execute_sql(sql, values)
+                    return await ctx.author.send('**Sold {} {} for {} ISK**'.format(component['amount'],
+                                                                                    selected_component['name'],
+                                                                                    sale_price))
+                else:
+                    return await ctx.author.send('**ERROR** - Not a valid choice.')
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
         else:
@@ -1002,12 +1084,13 @@ class ManageSelf:
         player = await db.select_var(sql, values)
         player_ship_obj = ast.literal_eval(player[0][14])
         for module in player_ship_obj['component_cargo_bay']:
-            current_hangar = ast.literal_eval(player[0][19])
-            if current_hangar is None:
+            if ast.literal_eval(player[0][19]) is None:
                 current_hangar = {player[0][4]: [module]}
-            elif player[0][4] not in current_hangar:
+            elif player[0][4] not in ast.literal_eval(player[0][19]):
+                current_hangar = ast.literal_eval(player[0][19])
                 current_hangar[player[0][4]] = [module]
             else:
+                current_hangar = ast.literal_eval(player[0][19])
                 current_hangar[player[0][4]].append(module)
             player_ship_obj.pop('component_cargo_bay', None)
             sql = ''' UPDATE eve_rpg_players
