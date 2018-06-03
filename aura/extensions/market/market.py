@@ -31,8 +31,8 @@ class Market:
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Select Market Task",
-                        value="**1.** Buy.\n"
-                              "**2.** Sell.\n")
+                        value="**1.** Buy\n"
+                              "**2.** Sell\n")
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -222,7 +222,6 @@ class Market:
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
         elif content == '2':
-            return await ctx.author.send('**ERROR** - Not yet implemented.')
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -239,7 +238,92 @@ class Market:
             content = msg.content
             wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
             if content == '1':
-                return await ctx.author.send('**ERROR** - Not yet implemented.')
+                ship_hangar = ast.literal_eval(player[0][15])
+                if player[0][4] not in ship_hangar:
+                    embed = make_embed(icon=ctx.bot.user.avatar)
+                    embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="{} Ship Hangar".format(region_name),
+                                    value='No Ships Found In This Region')
+                    return await ctx.author.send(embed=embed)
+                stored_ships_array = []
+                owned_ship_ids = []
+                ship_number = 1
+                for ship in ship_hangar[player[0][4]]:
+                    owned_ship_ids.append(ship_number)
+                    ship['selection'] = ship_number
+                    sale_price = '{0:,.2f}'.format(float(ship['isk'] * 0.95))
+                    ship['sale_price'] = sale_price
+                    ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
+                    stored_ships_array.append('{}. {} *({} ISK)*'.format(ship_number, ship_name, sale_price))
+                    ship_number += 1
+                stored_ships = '\n'.join(stored_ships_array)
+                embed = make_embed(icon=ctx.bot.user.avatar)
+                embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="{} Ship Hangar".format(region_name),
+                                value=stored_ships)
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                content = msg.content
+                if int(content) in owned_ship_ids:
+                    for ship in ship_hangar[player[0][4]]:
+                        if ship['selection'] == int(content):
+                            ship_id = ship['id']
+                            selected_ship = await game_functions.get_ship(int(ship['ship_type']))
+                            sale_price = ship['sale_price']
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.set_thumbnail(url="{}".format(selected_ship['image']))
+                    embed.add_field(name="Confirm Sale",
+                                    value="Are you sure you want to sell a **{}** for {} ISK\n\n"
+                                          "**1.** Yes.\n"
+                                          "**2.** No.\n".format(current_ship, selected_ship['name'], sale_price))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    content = msg.content
+                    if content != '1':
+                        return await ctx.author.send('**Sale Canceled**')
+                    for ship in ship_hangar[player[0][4]]:
+                        if ship['id'] == ship_id:
+                            remove = ship
+                            break
+                    ship_hangar[player[0][4]].remove(remove)
+                    new_hangar = ship_hangar
+                    new_isk = int(player[0][5]) + int(sale_price)
+                    if player[0][12] is not None:
+                        if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
+                            module_hangar = ast.literal_eval(player[0][13])
+                            for module in ast.literal_eval(player[0][12]):
+                                module_hangar[player[0][4]].append(module)
+                        elif player[0][13] is not None:
+                            module_hangar = ast.literal_eval(player[0][13])
+                            module_hangar[player[0][4]] = ast.literal_eval(player[0][12])
+                        else:
+                            modules = ast.literal_eval(player[0][12])
+                            module_hangar = {player[0][4]: modules}
+                        values = (str(new_hangar), str(module_hangar), new_isk, ctx.author.id,)
+                    else:
+                        values = (str(new_hangar), player[0][13], new_isk, ctx.author.id,)
+                    sql = ''' UPDATE eve_rpg_players
+                            SET ship_hangar = (?),
+                                module_hangar = (?),
+                                isk = (?)
+                            WHERE
+                                player_id = (?); '''
+                    await db.execute_sql(sql, values)
+                    return await ctx.author.send('**Sold a {} for {} ISK**'.format(selected_ship['name'], sale_price))
+                else:
+                    return await ctx.author.send('**ERROR** - Not a valid choice.')
             elif content == '2':
                 return await ctx.author.send('**ERROR** - Not yet implemented.')
             elif content == '3':
