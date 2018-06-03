@@ -301,7 +301,7 @@ class Market:
                             break
                     ship_hangar[player[0][4]].remove(remove)
                     new_hangar = ship_hangar
-                    new_isk = int(player[0][5]) + int(sale_price)
+                    new_isk = float(player[0][5]) + float(sale_price)
                     if player[0][12] is not None:
                         if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                             module_hangar = ast.literal_eval(player[0][13])
@@ -313,9 +313,9 @@ class Market:
                         else:
                             modules = ast.literal_eval(player[0][12])
                             module_hangar = {player[0][4]: modules}
-                        values = (str(new_hangar), str(module_hangar), new_isk, ctx.author.id,)
+                        values = (str(new_hangar), str(module_hangar), int(new_isk), ctx.author.id,)
                     else:
-                        values = (str(new_hangar), player[0][13], new_isk, ctx.author.id,)
+                        values = (str(new_hangar), player[0][13], int(new_isk), ctx.author.id,)
                     sql = ''' UPDATE eve_rpg_players
                             SET ship_hangar = (?),
                                 module_hangar = (?),

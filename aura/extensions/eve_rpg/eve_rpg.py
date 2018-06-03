@@ -507,8 +507,14 @@ class EveRpg:
                                       "**Other Attackers**\n"
                                       "**{}** flying a {}".format(region_name, winner_name, winner_ship, winner_task,
                                                                   loser_name, loser_ship))
-                await winner_user.send(embed=embed)
-                await loser_user.send(embed=embed)
+                try:
+                    await winner_user.send(embed=embed)
+                except Exception:
+                    self.logger.error('User {} message error'.format(winner_user[2]))
+                try:
+                    await loser_user.send(embed=embed)
+                except Exception:
+                    self.logger.error('User {} message error'.format(loser_user[2]))
                 await self.send_global(embed, True)
                 await self.add_loss(winner)
                 await self.add_kill(loser)
