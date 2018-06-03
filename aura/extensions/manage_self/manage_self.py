@@ -37,10 +37,10 @@ class ManageSelf:
             current_task = await game_functions.get_task(int(player[0][6]))
             player_ship_obj = ast.literal_eval(player[0][14])
             module_cargo_option = ''
-            if 'module_cargo_bay' in player_ship_obj:
+            if 'module_cargo_bay' in player_ship_obj and int(player[0][6]) == 1:
                 module_cargo_option = '**8.** Empty Module Cargo Bay\n'
             component_cargo_option = ''
-            if 'component_cargo_bay' in player_ship_obj:
+            if 'component_cargo_bay' in player_ship_obj and int(player[0][6]) == 1:
                 component_cargo_option = '**9.** Empty Component Cargo Bay\n'
             current_ship_raw = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
             current_ship = current_ship_raw
@@ -94,9 +94,9 @@ class ManageSelf:
                 await self.asset_list(ctx)
             elif content == '7':
                 await self.insure_ship(ctx, player)
-            elif content == '8' and 'module_cargo_bay' in player_ship_obj:
+            elif content == '8' and 'module_cargo_bay' in player_ship_obj and int(player[0][6]) == 1:
                 await self.empty_module_cargo(ctx)
-            elif content == '9' and 'component_cargo_bay' in player_ship_obj:
+            elif content == '9' and 'component_cargo_bay' in player_ship_obj and int(player[0][6]) == 1:
                 await self.empty_component_cargo(ctx)
             elif content == '10':
                 await self.change_clone(ctx, player)
