@@ -798,7 +798,7 @@ class ManageSelf:
                 for module in module_hangar[player[0][4]]:
                     sell_module_order[module_number] = int(module)
                     owned_module_ids.append(module_number)
-                    module_info = await game_functions.get_ship(int(module))
+                    module_info = await game_functions.get_module(int(module))
                     sale_price = '{0:,.2f}'.format(float(module_info['isk'] * 0.95))
                     stored_module_array.append(
                         '{}. {} *({} ISK)*'.format(module_number, module_info['name'], sale_price))
@@ -818,7 +818,7 @@ class ManageSelf:
                 content = msg.content
                 if int(content) in owned_module_ids:
                     module = sell_module_order[content]
-                    module_info = await game_functions.get_ship(int(module))
+                    module_info = await game_functions.get_module(int(module))
                     sale_price = '{0:,.2f}'.format(float(module_info['isk'] * 0.95))
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
