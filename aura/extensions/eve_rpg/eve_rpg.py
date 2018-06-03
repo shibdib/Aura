@@ -659,19 +659,19 @@ class EveRpg:
                     SET isk = (?)
                     WHERE
                         player_id = (?); '''
-            new_isk = int(player[0][5]) + int(insurance_payout)
+            new_isk = int(player[5]) + int(insurance_payout)
             values = (new_isk, player[2],)
             await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mod):
-        if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
-            module_hangar = ast.literal_eval(player[0][13])
-            module_hangar[player[0][4]].append(mod)
-        elif player[0][13] is not None:
-            module_hangar = ast.literal_eval(player[0][13])
-            module_hangar[player[0][4]] = [mod]
+        if player[13] is not None and player[4] in ast.literal_eval(player[13]):
+            module_hangar = ast.literal_eval(player[13])
+            module_hangar[player[4]].append(mod)
+        elif player[13] is not None:
+            module_hangar = ast.literal_eval(player[13])
+            module_hangar[player[4]] = [mod]
         else:
-            module_hangar = {player[0][4]: [mod]}
+            module_hangar = {player[4]: [mod]}
         sql = ''' UPDATE eve_rpg_players
                 SET module_hangar = (?)
                 WHERE
