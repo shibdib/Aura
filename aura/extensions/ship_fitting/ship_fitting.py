@@ -109,7 +109,7 @@ class ShipFitting:
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         if len(msg.content) > 1:
             module_array = ast.literal_eval('[{}]'.format(msg.content))
-            if module_array is list:
+            if type(module_array) is list:
                 equip_modules = []
                 equip_modules_text = []
                 remove_modules = []
@@ -123,7 +123,7 @@ class ShipFitting:
                         selected_module = await game_functions.get_module(int(equip_module_order[module]))
                         equip_modules_text.append('{}'.format(selected_module['name']))
                         equip_modules.append(int(equip_module_order[module]))
-                if (module_count + len(equip_modules)) - len(remove_modules) >= ship['slots']:
+                if ((int(module_count) + len(equip_modules)) - len(remove_modules)) > ship['slots']:
                     return await ctx.author.send('**The current selection would put you over the maximum modules for '
                                                  'this ship**')
                 equip_list = '\n'.join(equip_modules_text)
@@ -144,10 +144,12 @@ class ShipFitting:
                 response = msg.content
                 if response != '1':
                     return await ctx.author.send('**Changes Canceled**')
+                hangar = None
+                equipped = None
                 if len(remove_modules) > 0:
                     if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                         module_hangar = ast.literal_eval(player[0][13])
-                        module_hangar[player[0][4]].join(remove_modules)
+                        module_hangar[player[0][4]] += remove_modules
                     elif player[0][13] is not None:
                         module_hangar = ast.literal_eval(player[0][13])
                         module_hangar[player[0][4]] = remove_modules
@@ -156,28 +158,40 @@ class ShipFitting:
                     equipped_modules = ast.literal_eval(player[0][12])
                     for remove in remove_modules:
                         equipped_modules.remove(remove)
-                    player[0][13] = str(module_hangar)
                     if len(equipped_modules) > 0:
-                        player[0][12] = str(equipped_modules)
+                        equipped = str(equipped_modules)
                     else:
-                        player[0][12] = None
+                        equipped = []
+                    hangar = str(module_hangar)
+                if hangar is None:
+                    hangar = player[0][13]
+                if equipped is None:
+                    equipped = player[0][12]
                 if len(equip_modules) > 0:
-                    if player[0][12] is not None:
-                        equipped_modules = ast.literal_eval(player[0][12])
-                        equipped_modules.join(equip_modules)
+                    if equipped is not None and type(equipped) is str:
+                        equipped_modules = ast.literal_eval(equipped)
+                        equipped_modules += equip_modules
                     else:
                         equipped_modules = equip_modules
-                    module_hangar = ast.literal_eval(player[0][13])
+                    module_hangar = ast.literal_eval(hangar)
                     for remove in equip_modules:
                         module_hangar[player[0][4]].remove(remove)
-                    player[0][13] = str(module_hangar)
-                    player[0][12] = str(equipped_modules)
+                if len(module_hangar[player[0][4]]) == 0:
+                    module_hangar.pop(player[0][4], None)
+                if len(module_hangar) > 0:
+                    hangar = str(module_hangar)
+                else:
+                    hangar = None
+                if len(equipped_modules) > 0:
+                    equipped = str(equipped_modules)
+                else:
+                    equipped = None
                 sql = ''' UPDATE eve_rpg_players
                         SET modules = (?),
                             module_hangar = (?)
                         WHERE
                             player_id = (?); '''
-                values = (player[0][12], player[0][13], ctx.author.id,)
+                values = (equipped, hangar, ctx.author.id,)
                 await db.execute_sql(sql, values)
                 return await ctx.author.send('**Changes Complete**')
         else:
