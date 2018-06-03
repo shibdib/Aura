@@ -107,14 +107,14 @@ class Hangar:
                 new_hangar = ship_hangar
                 insert_this.pop('selection', None)
                 if 'modules' in insert_this:
-                    modules = insert_this['modules']
+                    modules = str(insert_this['modules'])
                 else:
                     modules = None
                 if new_hangar is None:
                     new_hangar = {player[0][4]: [current_ship]}
                 else:
                     new_hangar[player[0][4]].append(current_ship)
-                values = (str(insert_this), str(new_hangar), str(modules), ctx.author.id,)
+                values = (str(insert_this), str(new_hangar), modules, ctx.author.id,)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
                             ship_hangar = (?),
