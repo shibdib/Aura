@@ -627,7 +627,7 @@ class EveRpg:
             killer_ship['kill_marks'] = 1
         else:
             killer_ship['kill_marks'] += 1
-        values = (int(player[10]) + 1, killer_ship, player[2],)
+        values = (int(player[10]) + 1, str(killer_ship), player[2],)
         await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
