@@ -75,11 +75,12 @@ class GameModerator:
         isk = msg.content
         cost = '{0:,.2f}'.format(float(isk))
         embed = make_embed(icon=ctx.bot.user.avatar)
-        receiver = self.bot.get_user(int(result[0][2])).display_name
+        receiver = self.bot.get_user(int(result[0][2]))
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Confirmation",
-                        value="Confirm you want to give {} {} ISK\n\n**1.** Yes\n**2.** No".format(receiver, cost))
+                        value="Confirm you want to give {} {} ISK\n\n**1.** Yes\n**2.** No".format(
+                            receiver.display_name, cost))
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -93,8 +94,8 @@ class GameModerator:
                 SET isk = (?)
                 WHERE
                     player_id = (?); '''
-        new_isk = int(result[0][5]) + int(isk)
-        values = (new_isk, result[0][2],)
+        new_isk = float(result[0][5]) + float(isk)
+        values = (int(float(new_isk)), result[0][2],)
         await db.execute_sql(sql, values)
         self.logger.info('GM - {} sent {} {} ISK'.format(ctx.author.display_name, receiver, isk))
         await receiver.send('A member of the GM team has added {} ISK to your wallet.'.format(cost))

@@ -102,7 +102,7 @@ class Market:
                 if int(content) in accepted_options:
                     ship = await game_functions.get_ship(int(content))
                     cost = '{0:,.2f}'.format(float(ship['isk']))
-                    if int(ship['isk']) > int(player[0][5]):
+                    if int(float(ship['isk'])) > int(float(player[0][5])):
                         return await ctx.author.send('**Not Enough Isk**')
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -135,7 +135,7 @@ class Market:
                                 isk = (?)
                             WHERE
                                 player_id = (?); '''
-                    remaining_isk = int(player[0][5]) - int(ship['isk'])
+                    remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
                     values = (str(current_hangar), remaining_isk, ctx.author.id,)
                     await db.execute_sql(sql, values)
                     return await ctx.author.send(
@@ -178,7 +178,7 @@ class Market:
                 module = await game_functions.get_module(int(content))
                 if module is not None:
                     cost = '{0:,.2f}'.format(float(module['isk']))
-                    if int(module['isk']) > int(player[0][5]):
+                    if int(float(module['isk'])) > int(float(player[0][5])):
                         return await ctx.author.send('**Not Enough Isk**')
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -210,7 +210,7 @@ class Market:
                                 isk = (?)
                             WHERE
                                 player_id = (?); '''
-                    remaining_isk = int(player[0][5]) - int(module['isk'])
+                    remaining_isk = int(float(player[0][5])) - int(float(module['isk']))
                     values = (str(current_hangar), remaining_isk, ctx.author.id,)
                     await db.execute_sql(sql, values)
                     return await ctx.author.send(
@@ -312,15 +312,15 @@ class Market:
                         else:
                             modules = ast.literal_eval(player[0][12])
                             module_hangar = {player[0][4]: modules}
-                        values = (str(new_hangar), str(module_hangar), int(new_isk), ctx.author.id,)
+                        values = (str(new_hangar), str(module_hangar), int(float(new_isk)), ctx.author.id,)
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
-                            values = (None, player[0][13], int(new_isk), ctx.author.id,)
+                            values = (None, player[0][13], int(float(new_isk)), ctx.author.id,)
                         else:
-                            values = (str(new_hangar), player[0][13], int(new_isk), ctx.author.id,)
+                            values = (str(new_hangar), player[0][13], int(float(new_isk)), ctx.author.id,)
                     else:
-                        values = (str(new_hangar), player[0][13], int(new_isk), ctx.author.id,)
+                        values = (str(new_hangar), player[0][13], int(float(new_isk)), ctx.author.id,)
                     sql = ''' UPDATE eve_rpg_players
                             SET ship_hangar = (?),
                                 module_hangar = (?),
@@ -392,11 +392,11 @@ class Market:
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
-                            values = (None, int(new_isk), ctx.author.id,)
+                            values = (None, int(float(new_isk)), ctx.author.id,)
                         else:
-                            values = (str(new_hangar), int(new_isk), ctx.author.id,)
+                            values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
                     else:
-                        values = (str(new_hangar), int(new_isk), ctx.author.id,)
+                        values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
                     sql = ''' UPDATE eve_rpg_players
                             SET module_hangar = (?),
                                 isk = (?)

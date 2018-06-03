@@ -681,8 +681,8 @@ class EveRpg:
                     SET isk = (?)
                     WHERE
                         player_id = (?); '''
-            new_isk = int(player[5]) + int(lost_ship['insurance_payout'])
-            values = (new_isk, player[2],)
+            new_isk = float(player[5]) + float(lost_ship['insurance_payout'])
+            values = (int(float(new_isk)), player[2],)
             await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mod):
