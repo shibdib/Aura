@@ -98,32 +98,27 @@ class Hangar:
                     if ship['id'] == ship_id:
                         remove = ship
                         break
+                if player[0][12] is not None:
+                    old_modules = ast.literal_eval(player[0][12])
+                    current_ship['modules'] = old_modules
+                elif 'modules' in current_ship:
+                    current_ship.pop('modules', None)
                 ship_hangar[player[0][4]].remove(remove)
                 new_hangar = ship_hangar
                 insert_this.pop('selection', None)
+                if 'modules' in insert_this:
+                    modules = insert_this['modules']
+                else:
+                    modules = None
                 if new_hangar is None:
                     new_hangar = {player[0][4]: [current_ship]}
                 else:
                     new_hangar[player[0][4]].append(current_ship)
-                if player[0][12] is not None:
-                    if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
-                        module_hangar = ast.literal_eval(player[0][13])
-                        for module in ast.literal_eval(player[0][12]):
-                            module_hangar[player[0][4]].append(module)
-                    elif player[0][13] is not None:
-                        module_hangar = ast.literal_eval(player[0][13])
-                        module_hangar[player[0][4]] = ast.literal_eval(player[0][12])
-                    else:
-                        modules = ast.literal_eval(player[0][12])
-                        module_hangar = {player[0][4]: modules}
-                    values = (str(insert_this), str(new_hangar), str(module_hangar), ctx.author.id,)
-                else:
-                    values = (str(insert_this), str(new_hangar), player[0][13], ctx.author.id,)
+                values = (str(insert_this), str(new_hangar), str(modules), ctx.author.id,)
                 sql = ''' UPDATE eve_rpg_players
                         SET ship = (?),
                             ship_hangar = (?),
-                            modules = NULL,
-                            module_hangar = (?)
+                            modules = (?)
                         WHERE
                             player_id = (?); '''
                 await db.execute_sql(sql, values)
