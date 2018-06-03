@@ -408,14 +408,14 @@ class Market:
                 else:
                     return await ctx.author.send('**ERROR** - Not a valid choice.')
             elif content == '3':
-                component_hangar = ast.literal_eval(player[0][15])
-                if player[0][4] not in component_hangar:
+                if player[0][19] is None or player[0][4] not in ast.literal_eval(player[0][19]):
                     embed = make_embed(icon=ctx.bot.user.avatar)
                     embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
                     embed.add_field(name="{} Component Hangar".format(region_name),
                                     value='No Components Found In This Region')
                     return await ctx.author.send(embed=embed)
+                component_hangar = ast.literal_eval(player[0][19])
                 stored_ships_array = []
                 owned_ship_ids = []
                 component_number = 1
