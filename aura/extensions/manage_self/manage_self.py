@@ -1085,7 +1085,7 @@ class ManageSelf:
         player = await db.select_var(sql, values)
         player_ship_obj = ast.literal_eval(player[0][14])
         for module in player_ship_obj['component_cargo_bay']:
-            if ast.literal_eval(player[0][19]) is None:
+            if player[0][19] is None:
                 current_hangar = {player[0][4]: [module]}
             elif player[0][4] not in ast.literal_eval(player[0][19]):
                 current_hangar = ast.literal_eval(player[0][19])

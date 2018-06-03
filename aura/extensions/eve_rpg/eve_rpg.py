@@ -725,18 +725,20 @@ class EveRpg:
             component = await game_functions.get_component(loot_type)
             tier_2_loot = {'type_id': loot_type, 'id': loot_id, 'amount': tier_2_amount}
             loot.append(tier_2_loot)
-            tier_1_text = '{}x {}\n'.format(tier_2_amount, component['name'])
+            tier_2_text = '{}x {}\n'.format(tier_2_amount, component['name'])
         if tier_3 is True:
             loot_id = await game_functions.create_unique_id()
             loot_type = await self.weighted_choice([(4, 65), (5, 35)])
             component = await game_functions.get_component(loot_type)
             tier_3_loot = {'type_id': loot_type, 'id': loot_id, 'amount': tier_3_amount}
             loot.append(tier_3_loot)
-            tier_1_text = '{}x {}\n'.format(tier_3_amount, component['name'])
+            tier_3_text = '{}x {}\n'.format(tier_3_amount, component['name'])
         if tier_1 is True or tier_2 is True or tier_3 is True:
             channel = self.bot.get_user(player[2])
             await channel.send('**Ship Component Salvage Received**\n{}{}{}\n\n*Salvage stored in your ships component'
-                               ' cargo bay.'.format(tier_1_text, tier_2_text, tier_3_text))
+                               ' cargo bay. Dock and do !!me to see an option to empty it*'.format(tier_1_text,
+                                                                                                   tier_2_text,
+                                                                                                   tier_3_text))
             ship['component_cargo_bay'] = loot
             sql = ''' UPDATE eve_rpg_players
                     SET ship = (?)
