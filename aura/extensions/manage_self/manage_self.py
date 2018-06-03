@@ -36,6 +36,12 @@ class ManageSelf:
             region_name = await game_functions.get_region(region_id)
             current_task = await game_functions.get_task(int(player[0][6]))
             player_ship_obj = ast.literal_eval(player[0][14])
+            module_cargo_option = ''
+            if 'module_cargo_bay' in player_ship_obj:
+                module_cargo_option = '**8.** Empty Module Cargo Bay\n'
+            component_cargo_option = ''
+            if 'component_cargo_bay' in player_ship_obj:
+                component_cargo_option = '**9.** Empty Component Cargo Bay\n'
             current_ship_raw = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
             current_ship = current_ship_raw
             wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
@@ -62,8 +68,11 @@ class ManageSelf:
                                   "**5.** Visit the regional market.\n"
                                   "**6.** View your asset list.\n"
                                   "**7.** Insure your ship.\n"
+                                  "{}"
+                                  "{}"
                                   "**10.** Change your clone to here.\n".format(
-                                region_name, len(local_players), current_ship, current_task, wallet_balance))
+                                region_name, len(local_players), current_ship, current_task, wallet_balance,
+                                module_cargo_option, component_cargo_option))
             await ctx.author.send(embed=embed)
 
             def check(m):
@@ -85,6 +94,10 @@ class ManageSelf:
                 await self.asset_list(ctx)
             elif content == '7':
                 await self.insure_ship(ctx, player)
+            elif content == '8' and 'module_cargo_bay' in player_ship_obj:
+                await self.empty_module_cargo(ctx)
+            elif content == '9' and 'component_cargo_bay' in player_ship_obj:
+                await self.empty_component_cargo(ctx)
             elif content == '10':
                 await self.change_clone(ctx, player)
             else:
@@ -942,6 +955,53 @@ class ManageSelf:
         values = (str(ship), remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
         return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
+
+    async def empty_module_cargo(self, ctx):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        player = await db.select_var(sql, values)
+        player_ship_obj = ast.literal_eval(player[0][14])
+        for module in player_ship_obj['module_cargo_bay']:
+            if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
+                module_hangar = ast.literal_eval(player[0][13])
+                module_hangar[player[0][4]].append(module)
+            elif player[0][13] is not None:
+                module_hangar = ast.literal_eval(player[0][13])
+                module_hangar[player[0][4]] = [module]
+            else:
+                module_hangar = {player[0][4]: [module]}
+            player_ship_obj.pop('module_cargo_bay', None)
+            sql = ''' UPDATE eve_rpg_players
+                    SET ship = (?),
+                        module_hangar = (?)
+                    WHERE
+                        player_id = (?); '''
+            values = (str(player_ship_obj), str(module_hangar), ctx.author.id,)
+            await db.execute_sql(sql, values)
+            return await ctx.author.send('**Module Cargo Bay Emptied Into Your Regional Hangar**')
+
+    async def empty_component_cargo(self, ctx):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        player = await db.select_var(sql, values)
+        player_ship_obj = ast.literal_eval(player[0][14])
+        for module in player_ship_obj['component_cargo_bay']:
+            current_hangar = ast.literal_eval(player[0][19])
+            if current_hangar is None:
+                current_hangar = {player[0][4]: [module]}
+            elif player[0][4] not in current_hangar:
+                current_hangar[player[0][4]] = [module]
+            else:
+                current_hangar[player[0][4]].append(module)
+            player_ship_obj.pop('component_cargo_bay', None)
+            sql = ''' UPDATE eve_rpg_players
+                    SET ship = (?),
+                        component_hangar = (?)
+                    WHERE
+                        player_id = (?); '''
+            values = (str(player_ship_obj), str(current_hangar), ctx.author.id,)
+            await db.execute_sql(sql, values)
+            return await ctx.author.send('**Component Cargo Bay Emptied Into Your Regional Hangar**')
 
     async def change_clone(self, ctx, player):
         """Change your clone location."""

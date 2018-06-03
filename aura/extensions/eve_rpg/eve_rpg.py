@@ -683,17 +683,61 @@ class EveRpg:
             await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mod):
-        if player[13] is not None and player[4] in ast.literal_eval(player[13]):
-            module_hangar = ast.literal_eval(player[13])
-            module_hangar[player[4]].append(mod)
-        elif player[13] is not None:
-            module_hangar = ast.literal_eval(player[13])
-            module_hangar[player[4]] = [mod]
+        ship = ast.literal_eval(player[14])
+        if 'module_cargo_bay' in ship:
+            ship['module_cargo_bay'].append(mod)
         else:
-            module_hangar = {player[4]: [mod]}
+            ship['module_cargo_bay'] = [mod]
         sql = ''' UPDATE eve_rpg_players
-                SET module_hangar = (?)
+                SET ship = (?)
                 WHERE
                     player_id = (?); '''
-        values = (str(module_hangar), player[2],)
+        values = (str(ship), player[2],)
         await db.execute_sql(sql, values)
+
+    async def give_pvp_loot(self, player):
+        ship = ast.literal_eval(player[14])
+        tier_1_amount = random.randint(1, 50)
+        tier_1 = await self.weighted_choice([(True, 90), (False, 10)])
+        tier_1_text = ''
+        tier_2_amount = random.randint(1, 10)
+        tier_2 = await self.weighted_choice([(True, 55), (False, 45)])
+        tier_2_text = ''
+        tier_3_amount = random.randint(1, 3)
+        tier_3 = await self.weighted_choice([(True, 2), (False, 98)])
+        tier_3_text = ''
+        if 'component_cargo_bay' in ship:
+            loot = ship['component_cargo_bay']
+        else:
+            loot = []
+        if tier_1 is True:
+            loot_id = await game_functions.create_unique_id()
+            component = await game_functions.get_component(1)
+            tier_1_loot = {'type_id': 1, 'id': loot_id, 'amount': tier_1_amount}
+            loot.append(tier_1_loot)
+            tier_1_text = '{}x {}\n'.format(tier_1_amount, component['name'])
+        if tier_2 is True:
+            loot_id = await game_functions.create_unique_id()
+            loot_type = await self.weighted_choice([(2, 35), (3, 65)])
+            component = await game_functions.get_component(loot_type)
+            tier_2_loot = {'type_id': loot_type, 'id': loot_id, 'amount': tier_2_amount}
+            loot.append(tier_2_loot)
+            tier_1_text = '{}x {}\n'.format(tier_2_amount, component['name'])
+        if tier_3 is True:
+            loot_id = await game_functions.create_unique_id()
+            loot_type = await self.weighted_choice([(4, 65), (5, 35)])
+            component = await game_functions.get_component(loot_type)
+            tier_3_loot = {'type_id': loot_type, 'id': loot_id, 'amount': tier_3_amount}
+            loot.append(tier_3_loot)
+            tier_1_text = '{}x {}\n'.format(tier_3_amount, component['name'])
+        if tier_1 is True or tier_2 is True or tier_3 is True:
+            channel = self.bot.get_user(player[2])
+            await channel.send('**Ship Component Salvage Received**\n{}{}{}\n\n*Salvage stored in your ships component'
+                               ' cargo bay.'.format(tier_1_text, tier_2_text, tier_3_text))
+            ship['component_cargo_bay'] = loot
+            sql = ''' UPDATE eve_rpg_players
+                    SET ship = (?)
+                    WHERE
+                        player_id = (?); '''
+            values = (str(ship), player[2],)
+            await db.execute_sql(sql, values)

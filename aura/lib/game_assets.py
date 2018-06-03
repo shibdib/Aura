@@ -179,3 +179,17 @@ modules = {  # Attack
          'tracking': 0, 'image': 'https://image.eveonline.com/Render/16236_128.png', 'isk': 287445, 'special': '20% '
                                                                                                                'Mining Bonus'},
 }
+
+components = {
+    # Junk tier 1
+    1: {'id': 1, 'name': 'Metal Scraps', 'image': 'https://image.eveonline.com/Type/15331_64.png', 'isk': 1960},
+    # Junk tier 2
+    2: {'id': 2, 'name': 'Burned Logic Circuit', 'image': 'https://image.eveonline.com/Type/25600_64.png',
+        'isk': 77198},
+    3: {'id': 3, 'name': 'Armor Plates', 'image': 'https://image.eveonline.com/Type/25605_64.png', 'isk': 47239},
+    # Junk tier 3
+    4: {'id': 4, 'name': 'Intact Shield Emitter', 'image': 'https://image.eveonline.com/Type/25608_64.png',
+        'isk': 1213453},
+    5: {'id': 5, 'name': 'Intact Armor Plates', 'image': 'https://image.eveonline.com/Type/25624_64.png',
+        'isk': 5797061},
+}

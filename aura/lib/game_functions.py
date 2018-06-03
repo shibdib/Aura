@@ -34,6 +34,13 @@ async def get_module(module_id):
         return None
 
 
+async def get_component(component_id):
+    try:
+        return game_assets.components[component_id]
+    except Exception:
+        return None
+
+
 async def get_ship_name(ship_id):
     return game_assets.ships[ship_id]['name']
 
