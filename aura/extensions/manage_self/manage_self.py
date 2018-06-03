@@ -90,10 +90,6 @@ class ManageSelf:
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @_me.group(name='1')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def change_task(self, ctx, player):
         if player[0][6] == 20:
             return await ctx.author.send('**ERROR** - You need to finish traveling first.')
@@ -157,10 +153,6 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @_me.group(name='2')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def travel(self, ctx, region_id, region_name):
         connected_regions = []
         region_connections = await game_functions.get_region_connections(region_id)
@@ -196,10 +188,6 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @_me.group(name='3')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def modify_ship(self, ctx):
         """Fit your current ship."""
         if ctx.guild is not None:
@@ -377,10 +365,6 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @_me.group(name='4')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def change_ship(self, ctx):
         """Visit your regional ship hangar."""
         if ctx.guild is not None:
@@ -493,10 +477,6 @@ class ManageSelf:
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @_me.group(name='5')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def visit_market(self, ctx, player):
         """Visit the regional marketplace."""
         if ctx.guild is not None:
@@ -683,10 +663,6 @@ class ManageSelf:
         else:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
-    @_me.group(name='6')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def asset_list(self, ctx):
         """View your assets."""
         if ctx.guild is not None:
@@ -729,10 +705,6 @@ class ManageSelf:
                                 value='{}'.format(stored_modules))
             await ctx.author.send(embed=embed)
 
-    @_me.group(name='7')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
     async def insure_ship(self, ctx, player):
         """Insure your current ship."""
         if player[0][6] is not 1:
@@ -776,11 +748,7 @@ class ManageSelf:
         values = (str(ship), remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
         return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
-
-    @_me.group(name='10')
-    @checks.spam_check()
-    @checks.is_whitelist()
-    @checks.has_account()
+    
     async def change_clone(self, ctx, player):
         """Change your clone location."""
         if player[0][18] is player[0][4]:
