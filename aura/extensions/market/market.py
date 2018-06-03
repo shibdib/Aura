@@ -413,8 +413,8 @@ class Market:
                     embed = make_embed(icon=ctx.bot.user.avatar)
                     embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
-                    embed.add_field(name="{} Ship Hangar".format(region_name),
-                                    value='No Ships Found In This Region')
+                    embed.add_field(name="{} Component Hangar".format(region_name),
+                                    value='No Components Found In This Region')
                     return await ctx.author.send(embed=embed)
                 stored_ships_array = []
                 owned_ship_ids = []
@@ -432,7 +432,7 @@ class Market:
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                embed.add_field(name="{} Ship Hangar".format(region_name),
+                embed.add_field(name="{} Component Hangar".format(region_name),
                                 value=stored_components)
                 await ctx.author.send(embed=embed)
 
@@ -452,9 +452,10 @@ class Market:
                                      text="Aura - EVE Text RPG")
                     embed.set_thumbnail(url="{}".format(selected_component['image']))
                     embed.add_field(name="Confirm Sale",
-                                    value="Are you sure you want to sell a **{}** for {} ISK\n\n"
+                                    value="Are you sure you want to sell **{}x {}** for {} ISK\n\n"
                                           "**1.** Yes.\n"
-                                          "**2.** No.\n".format(selected_component['name'], sale_price))
+                                          "**2.** No.\n".format(component['amount'], selected_component['name'],
+                                                                sale_price))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
