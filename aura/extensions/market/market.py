@@ -285,7 +285,7 @@ class Market:
                     embed.add_field(name="Confirm Sale",
                                     value="Are you sure you want to sell a **{}** for {} ISK\n\n"
                                           "**1.** Yes.\n"
-                                          "**2.** No.\n".format(current_ship, selected_ship['name'], sale_price))
+                                          "**2.** No.\n".format(selected_ship['name'], sale_price))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
