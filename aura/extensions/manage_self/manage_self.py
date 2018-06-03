@@ -24,73 +24,73 @@ class ManageSelf:
         """Manage your character."""
         if ctx.guild is not None:
             await ctx.message.delete()
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
-        values = (ctx.message.author.id,)
-        player = await db.select_var(sql, values)
-        player_name = self.bot.get_user(int(player[0][2])).display_name
-        region_id = int(player[0][4])
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
-        values = (region_id,)
-        local_players = await db.select_var(sql, values)
-        region_name = await game_functions.get_region(region_id)
-        current_task = await game_functions.get_task(int(player[0][6]))
-        player_ship_obj = ast.literal_eval(player[0][14])
-        current_ship_raw = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
-        current_ship = current_ship_raw
-        wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
-        embed = make_embed(icon=ctx.bot.user.avatar)
-        embed.set_footer(icon_url=ctx.bot.user.avatar_url,
-                         text="Aura - EVE Text RPG")
-        if int(player[0][6]) == 20:
-            destination = await game_functions.get_region(int(player[0][17]))
+        if ctx.invoked_subcommand is None:
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+            values = (ctx.message.author.id,)
+            player = await db.select_var(sql, values)
+            player_name = self.bot.get_user(int(player[0][2])).display_name
+            region_id = int(player[0][4])
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
+            values = (region_id,)
+            local_players = await db.select_var(sql, values)
+            region_name = await game_functions.get_region(region_id)
+            current_task = await game_functions.get_task(int(player[0][6]))
+            player_ship_obj = ast.literal_eval(player[0][14])
+            current_ship_raw = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
+            current_ship = current_ship_raw
+            wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
+            embed = make_embed(icon=ctx.bot.user.avatar)
+            embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            if int(player[0][6]) == 20:
+                destination = await game_functions.get_region(int(player[0][17]))
+                embed.add_field(name="Welcome {}".format(player_name),
+                                value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
+                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
+                                      "*Ship is currently traveling to {}.......*".format(
+                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
+                                    destination))
+                return await ctx.author.send(embed=embed)
             embed.add_field(name="Welcome {}".format(player_name),
                             value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
                                   "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
-                                  "*Ship is currently traveling to {}.......*".format(
-                                region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                destination))
-            return await ctx.author.send(embed=embed)
-        embed.add_field(name="Welcome {}".format(player_name),
-                        value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                              "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
-                              "*User interface initiated.... Select desired action below......*\n\n"
-                              "**1.** Change task.\n"
-                              "**2.** Travel to a new region.\n"
-                              "**3.** Modify current ship.\n"
-                              "**4.** Change into another ship.\n"
-                              "**5.** Visit the regional market.\n"
-                              "**6.** View your asset list.\n"
-                              "**7.** Insure your ship.\n"
-                              "**10.** Change your clone to here.\n".format(
-                            region_name, len(local_players), current_ship, current_task, wallet_balance))
-        await ctx.author.send(embed=embed)
+                                  "*User interface initiated.... Select desired action below......*\n\n"
+                                  "**1.** Change task.\n"
+                                  "**2.** Travel to a new region.\n"
+                                  "**3.** Modify current ship.\n"
+                                  "**4.** Change into another ship.\n"
+                                  "**5.** Visit the regional market.\n"
+                                  "**6.** View your asset list.\n"
+                                  "**7.** Insure your ship.\n"
+                                  "**10.** Change your clone to here.\n".format(
+                                region_name, len(local_players), current_ship, current_task, wallet_balance))
+            await ctx.author.send(embed=embed)
 
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+            def check(m):
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
-        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-        content = msg.content
-        if content == '1':
-            await self.change_task(ctx, player)
-        elif content == '2':
-            await self.travel(ctx, region_id, region_name)
-        elif content == '3':
-            await self.modify_ship(ctx)
-        elif content == '4':
-            await self.change_ship(ctx)
-        elif content == '5':
-            await self.visit_market(ctx, player)
-        elif content == '6':
-            await self.asset_list(ctx)
-        elif content == '7':
-            await self.insure_ship(ctx, player)
-        elif content == '10':
-            await self.change_clone(ctx, player)
-        else:
-            return await ctx.author.send('**ERROR** - Not a valid choice.')
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+            content = msg.content
+            if content == '1':
+                await self.change_task(ctx, player)
+            elif content == '2':
+                await self.travel(ctx, region_id, region_name)
+            elif content == '3':
+                await self.modify_ship(ctx)
+            elif content == '4':
+                await self.change_ship(ctx)
+            elif content == '5':
+                await self.visit_market(ctx, player)
+            elif content == '6':
+                await self.asset_list(ctx)
+            elif content == '7':
+                await self.insure_ship(ctx, player)
+            elif content == '10':
+                await self.change_clone(ctx, player)
+            else:
+                return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     @_me.group(name='1')
-    @commands.command(name='task', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -158,7 +158,6 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     @_me.group(name='2')
-    @commands.command(name='travel', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -198,7 +197,6 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     @_me.group(name='3')
-    @commands.command(name='fitting', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -380,7 +378,6 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     @_me.group(name='4')
-    @commands.command(name='hangar', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -497,7 +494,6 @@ class ManageSelf:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     @_me.group(name='5')
-    @commands.command(name='market', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -688,7 +684,6 @@ class ManageSelf:
             return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     @_me.group(name='6')
-    @commands.command(name='assets', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -735,7 +730,6 @@ class ManageSelf:
             await ctx.author.send(embed=embed)
 
     @_me.group(name='7')
-    @commands.command(name='insure', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -784,7 +778,6 @@ class ManageSelf:
         return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
 
     @_me.group(name='10')
-    @commands.command(name='clone', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
