@@ -485,6 +485,7 @@ class EveRpg:
                 if len(dropped_mods) > 0:
                     for mod in dropped_mods:
                         await self.give_mod(winner, mod)
+                await self.give_pvp_loot(winner)
         else:
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
@@ -547,6 +548,7 @@ class EveRpg:
                 if len(dropped_mods) > 0:
                     for mod in dropped_mods:
                         await self.give_mod(winner, mod)
+                await self.give_pvp_loot(winner)
                 await self.destroy_ship(loser)
             sql = ''' UPDATE eve_rpg_players
                     SET task = 1
