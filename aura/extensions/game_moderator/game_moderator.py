@@ -97,6 +97,7 @@ class GameModerator:
         values = (new_isk, result[0][2],)
         await db.execute_sql(sql, values)
         self.logger.info('GM - {} sent {} {} ISK'.format(ctx.author.display_name, receiver, isk))
+        await receiver.send('A member of the GM team has added {} ISK to your wallet.'.format(cost))
         return await ctx.author.send('**ISK Sent**')
 
     async def warn_player(self, ctx):
