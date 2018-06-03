@@ -1060,48 +1060,53 @@ class ManageSelf:
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
         player_ship_obj = ast.literal_eval(player[0][14])
+        new_modules = []
         for module in player_ship_obj['module_cargo_bay']:
-            if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
-                module_hangar = ast.literal_eval(player[0][13])
-                module_hangar[player[0][4]].append(module)
-            elif player[0][13] is not None:
-                module_hangar = ast.literal_eval(player[0][13])
-                module_hangar[player[0][4]] = [module]
-            else:
-                module_hangar = {player[0][4]: [module]}
-            player_ship_obj.pop('module_cargo_bay', None)
-            sql = ''' UPDATE eve_rpg_players
-                    SET ship = (?),
-                        module_hangar = (?)
-                    WHERE
-                        player_id = (?); '''
-            values = (str(player_ship_obj), str(module_hangar), ctx.author.id,)
-            await db.execute_sql(sql, values)
-            return await ctx.author.send('**Module Cargo Bay Emptied Into Your Regional Hangar**')
+            new_modules.append(module)
+        if player[0][13] is None:
+            current_hangar = {player[0][4]: new_modules}
+        elif player[0][4] not in ast.literal_eval(player[0][13]):
+            current_hangar = ast.literal_eval(player[0][13])
+            current_hangar[player[0][4]] = new_modules
+        else:
+            current_hangar = ast.literal_eval(player[0][13])
+            for component in new_modules:
+                current_hangar[player[0][4]].append(component)
+        sql = ''' UPDATE eve_rpg_players
+                SET ship = (?),
+                    module_hangar = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (str(player_ship_obj), str(current_hangar), ctx.author.id,)
+        await db.execute_sql(sql, values)
+        return await ctx.author.send('**Module Cargo Bay Emptied Into Your Regional Hangar**')
 
     async def empty_component_cargo(self, ctx):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
         player_ship_obj = ast.literal_eval(player[0][14])
+        new_components = []
         for module in player_ship_obj['component_cargo_bay']:
-            if player[0][19] is None:
-                current_hangar = {player[0][4]: [module]}
-            elif player[0][4] not in ast.literal_eval(player[0][19]):
-                current_hangar = ast.literal_eval(player[0][19])
-                current_hangar[player[0][4]] = [module]
-            else:
-                current_hangar = ast.literal_eval(player[0][19])
-                current_hangar[player[0][4]].append(module)
-            player_ship_obj.pop('component_cargo_bay', None)
-            sql = ''' UPDATE eve_rpg_players
-                    SET ship = (?),
-                        component_hangar = (?)
-                    WHERE
-                        player_id = (?); '''
-            values = (str(player_ship_obj), str(current_hangar), ctx.author.id,)
-            await db.execute_sql(sql, values)
-            return await ctx.author.send('**Component Cargo Bay Emptied Into Your Regional Hangar**')
+            new_components.append(module)
+        if player[0][19] is None:
+            current_hangar = {player[0][4]: new_components}
+        elif player[0][4] not in ast.literal_eval(player[0][19]):
+            current_hangar = ast.literal_eval(player[0][19])
+            current_hangar[player[0][4]] = new_components
+        else:
+            current_hangar = ast.literal_eval(player[0][19])
+            for component in new_components:
+                current_hangar[player[0][4]].append(component)
+        player_ship_obj.pop('component_cargo_bay', None)
+        sql = ''' UPDATE eve_rpg_players
+                SET ship = (?),
+                    component_hangar = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (str(player_ship_obj), str(current_hangar), ctx.author.id,)
+        await db.execute_sql(sql, values)
+        return await ctx.author.send('**Component Cargo Bay Emptied Into Your Regional Hangar**')
 
     async def change_clone(self, ctx, player):
         """Change your clone location."""
