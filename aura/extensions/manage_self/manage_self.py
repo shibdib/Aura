@@ -910,6 +910,9 @@ class ManageSelf:
                 stored_modules = '\n'.join(stored_modules_array)
                 embed.add_field(name="Modules",
                                 value='{}'.format(stored_modules))
+            if player[0][13] is None and player[0][15] is None:
+                embed.add_field(name="Asset List",
+                                value='No Assets Found')
             await ctx.author.send(embed=embed)
 
     async def insure_ship(self, ctx, player):
