@@ -15,6 +15,7 @@ class EveRpg:
         self.logger = bot.logger
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.tick_loop())
+        self.user_check_counter = 0
 
     async def tick_loop(self):
         await self.bot.wait_until_ready()
@@ -30,6 +31,18 @@ class EveRpg:
             except Exception:
                 self.logger.exception('ERROR:')
                 await asyncio.sleep(5)
+
+    async def process_users(self):
+        if self.user_check_counter >= 100:
+            sql = "SELECT * FROM eve_rpg_players"
+            players = await db.select(sql)
+            for player in players:
+                user = self.bot.get_user(player[2])
+                if user is None:
+                    await self.remove_bad_user(player[2])
+                    continue
+        else:
+            self.user_check_counter += 1
 
     async def process_travel(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 20 '''
