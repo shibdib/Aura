@@ -238,7 +238,6 @@ class Market:
             content = msg.content
             region_id = int(player[0][4])
             region_name = await game_functions.get_region(region_id)
-            wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
             if content == '1':
                 ship_hangar = ast.literal_eval(player[0][15])
                 if player[0][4] not in ship_hangar:
@@ -327,7 +326,73 @@ class Market:
                 else:
                     return await ctx.author.send('**ERROR** - Not a valid choice.')
             elif content == '2':
-                return await ctx.author.send('**ERROR** - Not yet implemented.')
+                module_hangar = ast.literal_eval(player[0][13])
+                if player[0][4] not in module_hangar:
+                    embed = make_embed(icon=ctx.bot.user.avatar)
+                    embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="{} Module Hangar".format(region_name),
+                                    value='No Modules Found In This Region')
+                    return await ctx.author.send(embed=embed)
+                sell_module_order = {}
+                stored_module_array = []
+                owned_module_ids = []
+                module_number = 1
+                for module in module_hangar[player[0][4]]:
+                    sell_module_order[module_number] = int(module)
+                    owned_module_ids.append(module_number)
+                    module_info = await game_functions.get_ship(int(module))
+                    sale_price = '{0:,.2f}'.format(float(module_info['isk'] * 0.95))
+                    stored_module_array.append(
+                        '{}. {} *({} ISK)*'.format(module_number, module_info['name'], sale_price))
+                    module_number += 1
+                stored_modules = '\n'.join(stored_module_array)
+                embed = make_embed(icon=ctx.bot.user.avatar)
+                embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="{} Module Hangar".format(region_name),
+                                value=stored_modules)
+                await ctx.author.send(embed=embed)
+
+                def check(m):
+                    return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                content = msg.content
+                if int(content) in owned_module_ids:
+                    module = sell_module_order[content]
+                    module_info = await game_functions.get_ship(int(module))
+                    sale_price = '{0:,.2f}'.format(float(module_info['isk'] * 0.95))
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.set_thumbnail(url="{}".format(module_info['image']))
+                    embed.add_field(name="Confirm Sale",
+                                    value="Are you sure you want to sell a **{}** for {} ISK\n\n"
+                                          "**1.** Yes.\n"
+                                          "**2.** No.\n".format(module_info['name'], sale_price))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    content = msg.content
+                    if content != '1':
+                        return await ctx.author.send('**Sale Canceled**')
+                    module_hangar[player[0][4]].remove(content)
+                    new_hangar = module_hangar
+                    new_isk = float(player[0][5]) + float(sale_price)
+                    values = (str(new_hangar), int(new_isk), ctx.author.id,)
+                    sql = ''' UPDATE eve_rpg_players
+                            SET module_hangar = (?),
+                                isk = (?)
+                            WHERE
+                                player_id = (?); '''
+                    await db.execute_sql(sql, values)
+                    return await ctx.author.send('**Sold a {} for {} ISK**'.format(module_info['name'], sale_price))
+                else:
+                    return await ctx.author.send('**ERROR** - Not a valid choice.')
             elif content == '3':
                 return await ctx.author.send('**ERROR** - Not yet implemented.')
             else:
