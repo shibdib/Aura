@@ -748,6 +748,7 @@ class ManageSelf:
                             ship_id = ship['id']
                             selected_ship = await game_functions.get_ship(int(ship['ship_type']))
                             sale_price = ship['sale_price']
+                            break
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
@@ -895,8 +896,8 @@ class ManageSelf:
                     component_info = await game_functions.get_component(int(component['type_id']))
                     sale_price = '{0:,.2f}'.format(float((component_info['isk'] * 0.95) * component['amount']))
                     component['sale_price'] = sale_price
-                    stored_ships_array.append('{}. {}x {} *({} ISK/e)*'.format(component_number, component['amount'],
-                                                                               component_info['name'], sale_price))
+                    stored_ships_array.append('{}. {}x {} *({} ISK)*'.format(component_number, component['amount'],
+                                                                             component_info['name'], sale_price))
                     component_number += 1
                 stored_components = '\n'.join(stored_ships_array)
                 embed = make_embed(icon=ctx.bot.user.avatar)
@@ -917,6 +918,7 @@ class ManageSelf:
                             component_id = component['id']
                             selected_component = await game_functions.get_component(int(component['type_id']))
                             sale_price = component['sale_price']
+                            break
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
