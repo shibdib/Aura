@@ -483,9 +483,7 @@ class EveRpg:
                 await self.destroy_ship(winner)
                 await self.add_xp(loser, xp_gained)
             else:
-                if len(dropped_mods) > 0:
-                    for mod in dropped_mods:
-                        await self.give_mod(winner, mod)
+                await self.give_mod(winner, dropped_mods)
                 await self.give_pvp_loot(winner)
         else:
             winner_user = self.bot.get_user(winner[2])
@@ -546,9 +544,7 @@ class EveRpg:
                 await self.send_global(embed, True)
                 await self.add_loss(loser)
                 await self.add_kill(winner)
-                if len(dropped_mods) > 0:
-                    for mod in dropped_mods:
-                        await self.give_mod(winner, mod)
+                await self.give_mod(winner, dropped_mods)
                 await self.give_pvp_loot(winner)
                 await self.destroy_ship(loser)
             sql = ''' UPDATE eve_rpg_players
@@ -734,9 +730,7 @@ class EveRpg:
                 await self.send_global(embed, True)
                 await self.add_loss(loser)
                 await self.add_kill(winner)
-                if len(dropped_mods) > 0:
-                    for mod in dropped_mods:
-                        await self.give_mod(winner, mod)
+                await self.give_mod(winner, dropped_mods)
                 await self.give_pvp_loot(winner)
                 await self.destroy_ship(loser)
             sql = ''' UPDATE eve_rpg_players
@@ -874,12 +868,13 @@ class EveRpg:
             values = (int(float(new_isk)), player[2],)
             return await db.execute_sql(sql, values)
 
-    async def give_mod(self, player, mod):
+    async def give_mod(self, player, mods):
         ship = ast.literal_eval(player[14])
-        if 'module_cargo_bay' in ship:
-            ship['module_cargo_bay'].append(mod)
-        else:
-            ship['module_cargo_bay'] = [mod]
+        for mod in mods:
+            if 'module_cargo_bay' in ship:
+                ship['module_cargo_bay'].append(mod)
+            else:
+                ship['module_cargo_bay'] = [mod]
         new_ship = str(ship)
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?)
