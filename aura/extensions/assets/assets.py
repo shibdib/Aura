@@ -35,7 +35,7 @@ class Assets:
                              text="Aura - EVE Text RPG")
             embed.add_field(name="Asset List",
                             value='No Assets Found')
-            return await ctx.author.send(embed=embed)
+            await ctx.author.send(embed=embed)
         else:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
