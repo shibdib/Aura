@@ -15,11 +15,11 @@ class ManageSelf:
         self.config = bot.config
         self.logger = bot.logger
 
-    @commands.group(name='me', case_insensitive=True)
+    @commands.command(name='me', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
-    async def _me(self, ctx):
+    async def _me(self, ctx, redirect=False):
         """Manage your character."""
         if ctx.guild is not None:
             try:
@@ -59,22 +59,37 @@ class ManageSelf:
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     destination))
                 return await ctx.author.send(embed=embed)
-            embed.add_field(name="Welcome {}".format(player_name),
-                            value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                  "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
-                                  "*User interface initiated.... Select desired action below......*\n\n"
-                                  "**1.** Change task.\n"
-                                  "**2.** Travel to a new region.\n"
-                                  "**3.** Modify current ship.\n"
-                                  "**4.** Change into another ship.\n"
-                                  "**5.** Visit the regional market.\n"
-                                  "**6.** View your asset list.\n"
-                                  "**7.** Insure your ship.\n"
-                                  "{}"
-                                  "{}"
-                                  "**10.** Change your clone to here.\n".format(
-                                region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                module_cargo_option, component_cargo_option))
+            if redirect is False:
+                embed.add_field(name="Welcome {}".format(player_name),
+                                value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
+                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
+                                      "*User interface initiated.... Select desired action below......*\n\n"
+                                      "**1.** Change task.\n"
+                                      "**2.** Travel to a new region.\n"
+                                      "**3.** Modify current ship.\n"
+                                      "**4.** Change into another ship.\n"
+                                      "**5.** Visit the regional market.\n"
+                                      "**6.** View your asset list.\n"
+                                      "**7.** Insure your ship.\n"
+                                      "{}"
+                                      "{}"
+                                      "**10.** Change your clone to here.\n".format(
+                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
+                                    module_cargo_option, component_cargo_option))
+            if redirect is True:
+                embed.add_field(name="Welcome {}".format(player_name),
+                                value="**1.** Change task.\n"
+                                      "**2.** Travel to a new region.\n"
+                                      "**3.** Modify current ship.\n"
+                                      "**4.** Change into another ship.\n"
+                                      "**5.** Visit the regional market.\n"
+                                      "**6.** View your asset list.\n"
+                                      "**7.** Insure your ship.\n"
+                                      "{}"
+                                      "{}"
+                                      "**10.** Change your clone to here.\n".format(
+                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
+                                    module_cargo_option, component_cargo_option))
             await ctx.author.send(embed=embed)
 
             def check(m):

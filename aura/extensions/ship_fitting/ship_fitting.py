@@ -69,9 +69,10 @@ class ShipFitting:
             clean_equipped_modules = '\n'.join(equipped_modules_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(player[0], int(player_ship_obj['ship_type']))
-        value = '**{}** - {}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current Maneuver:** {}\n' \
-                '**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'], killmarks, insured,
-                                                  ship_attack, ship_defense, ship_maneuver, ship_tracking)
+        value = '**{}** - {}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current ' \
+                'Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'], killmarks,
+                                                                  insured, ship_attack, ship_defense, ship_maneuver,
+                                                                  ship_tracking)
         if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__\n{}'.format(value, clean_equipped_modules)
         embed = make_embed(icon=ctx.bot.user.avatar)
@@ -127,8 +128,8 @@ class ShipFitting:
                         equip_modules_text.append('{}'.format(selected_module['name']))
                         equip_modules.append(int(equip_module_order[module]))
                 if ((int(module_count) + len(equip_modules)) - len(remove_modules)) > ship['slots']:
-                    await ctx.author.send('**The current selection would put you over the maximum modules for '
-                                                 'this ship**')
+                    await ctx.author.send('**The current selection would put you over the maximum modules for this '
+                                          'ship**')
                     return await ctx.invoke(self.bot.get_command("me"))
                 equip_list = '\n'.join(equip_modules_text)
                 remove_list = '\n'.join(remove_modules_text)
@@ -199,7 +200,7 @@ class ShipFitting:
                 values = (equipped, hangar, ctx.author.id,)
                 await db.execute_sql(sql, values)
                 await ctx.author.send('**Changes Complete**')
-                return await ctx.invoke(self.bot.get_command("me"))
+                return await ctx.invoke(self.bot.get_command("me"), True)
         else:
             content = int(msg.content)
             if int(msg.content) in remove_commands:
@@ -293,4 +294,4 @@ class ShipFitting:
                 await ctx.author.send('**{} Has Been Equipped**'.format(selected_module['name']))
             else:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-            return await ctx.invoke(self.bot.get_command("me"))
+            return await ctx.invoke(self.bot.get_command("me"), True)
