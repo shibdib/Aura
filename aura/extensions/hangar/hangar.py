@@ -110,7 +110,7 @@ class Hangar:
                 ship_hangar[player[0][4]].remove(remove)
                 new_hangar = ship_hangar
                 insert_this.pop('selection', None)
-                if 'modules' in insert_this and 'modules' is not None:
+                if 'modules' in insert_this and insert_this['modules'] is not None:
                     modules = str(insert_this['modules'])
                 else:
                     modules = None
