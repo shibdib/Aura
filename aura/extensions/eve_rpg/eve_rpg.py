@@ -67,7 +67,7 @@ class EveRpg:
                 await db.execute_sql(sql, values)
             if player[12] == 'None':
                 sql = ''' UPDATE eve_rpg_players
-                        SET modules = NULL,
+                        SET modules = NULL
                         WHERE
                             player_id = (?); '''
                 values = (player[2],)
