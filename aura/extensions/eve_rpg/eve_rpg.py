@@ -65,7 +65,13 @@ class EveRpg:
                             player_id = (?); '''
                 values = (str(ship), player[18], player[2],)
                 await db.execute_sql(sql, values)
-
+            if player[12] == 'None':
+                sql = ''' UPDATE eve_rpg_players
+                        SET modules = NULL,
+                        WHERE
+                            player_id = (?); '''
+                values = (player[2],)
+                await db.execute_sql(sql, values)
 
     async def process_users(self):
         if self.user_check_counter >= 100:
