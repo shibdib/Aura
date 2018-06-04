@@ -50,7 +50,10 @@ class ShipFitting:
             killmarks = '\n**{} Kill Marks**'
         if player[0][12] is not None:
             equipped_modules = ast.literal_eval(player[0][12])
-            module_count = len(equipped_modules)
+            if equipped_modules is not None:
+                module_count = len(equipped_modules)
+            else:
+                module_count = 0
             equipped_modules_array = []
             for item in equipped_modules:
                 remove_module_order[module_number] = int(item)
