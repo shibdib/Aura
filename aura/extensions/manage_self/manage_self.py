@@ -51,15 +51,6 @@ class ManageSelf:
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
             timeout = 60
-            if int(player[0][6]) == 20:
-                destination = await game_functions.get_region(int(player[0][17]))
-                embed.add_field(name="Welcome {}".format(player_name),
-                                value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
-                                      "*Ship is currently traveling to {}.......*".format(
-                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    destination))
-                return await ctx.author.send(embed=embed)
             if redirect is False:
                 embed.add_field(name="Welcome {}".format(player_name),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"

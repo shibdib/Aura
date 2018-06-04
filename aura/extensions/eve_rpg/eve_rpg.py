@@ -91,7 +91,6 @@ class EveRpg:
             local_players = await db.select_var(sql, values)
             await player.send('You have arrived in {}\n\nLocal Count - {}'.format(destination_name,
                                                                                          len(local_players)))
-            return await self.bot.invoke(self.bot.get_command("me"), True)
 
     async def process_belt_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 '''
@@ -819,7 +818,8 @@ class EveRpg:
             killer_ship['kill_marks'] = 1
         else:
             killer_ship['kill_marks'] += 1
-        values = (int(player[10]) + 1, str(killer_ship), player[2],)
+        new_ship = str(killer_ship)
+        values = (int(player[10]) + 1, new_ship, player[2],)
         return await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
@@ -880,11 +880,12 @@ class EveRpg:
             ship['module_cargo_bay'].append(mod)
         else:
             ship['module_cargo_bay'] = [mod]
+        new_ship = str(ship)
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?)
                 WHERE
                     player_id = (?); '''
-        values = (str(ship), player[2],)
+        values = (new_ship, player[2],)
         return await db.execute_sql(sql, values)
 
     async def give_pvp_loot(self, player):
