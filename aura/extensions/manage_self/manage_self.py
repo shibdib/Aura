@@ -50,6 +50,7 @@ class ManageSelf:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
+            timeout = 60
             if int(player[0][6]) == 20:
                 destination = await game_functions.get_region(int(player[0][17]))
                 embed.add_field(name="Welcome {}".format(player_name),
@@ -77,6 +78,7 @@ class ManageSelf:
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     module_cargo_option, component_cargo_option))
             if redirect is True:
+                timeout = None
                 embed.add_field(name="Welcome {}".format(player_name),
                                 value="**1.** Change task.\n"
                                       "**2.** Travel to a new region.\n"
@@ -94,7 +96,7 @@ class ManageSelf:
             def check(m):
                 return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
-            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+            msg = await self.bot.wait_for('message', check=check, timeout=timeout)
             content = msg.content
             if content == '1':
                 await ctx.invoke(self.bot.get_command("task"))
