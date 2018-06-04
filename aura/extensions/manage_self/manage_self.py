@@ -148,9 +148,11 @@ class ManageSelf:
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = int(msg.content)
         if content != 1:
-            return await ctx.author.send('**Insurance Contract Canceled**')
+            await ctx.author.send('**Insurance Contract Canceled**')
+            return await ctx.invoke(self.bot.get_command("me"), True)
         if int(float(player[0][5])) < int(float(raw_cost)):
-            return await ctx.author.send('**Not enough ISK**')
+            await ctx.author.send('**Not enough ISK**')
+            return await ctx.invoke(self.bot.get_command("me"), True)
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?),
                     isk = (?)
@@ -161,7 +163,8 @@ class ManageSelf:
         remaining_isk = int(float(player[0][5])) - int(float(raw_cost))
         values = (str(ship), remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
-        return await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
+        await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
+        return await ctx.invoke(self.bot.get_command("me"), True)
 
     async def empty_module_cargo(self, ctx):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
@@ -214,12 +217,14 @@ class ManageSelf:
                     player_id = (?); '''
         values = (str(player_ship_obj), str(current_hangar), ctx.author.id,)
         await db.execute_sql(sql, values)
-        return await ctx.author.send('**Component Cargo Bay Emptied Into Your Regional Hangar**')
+        await ctx.author.send('**Component Cargo Bay Emptied Into Your Regional Hangar**')
+        return await ctx.invoke(self.bot.get_command("me"), True)
 
     async def change_clone(self, ctx, player):
         """Change your clone location."""
         if player[0][18] is player[0][4]:
-            return await ctx.author.send('**This region is already your clone location**')
+            await ctx.author.send('**This region is already your clone location**')
+            return await ctx.invoke(self.bot.get_command("me"), True)
         home_region_name = await game_functions.get_region(player[0][18])
         current_region_name = await game_functions.get_region(player[0][4])
         embed = make_embed(icon=self.bot.user.avatar)
@@ -238,9 +243,11 @@ class ManageSelf:
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = int(msg.content)
         if content != 1:
-            return await ctx.author.send('**Clone Location Not Changed**')
+            await ctx.author.send('**Clone Location Not Changed**')
+            return await ctx.invoke(self.bot.get_command("me"), True)
         if int(float(player[0][5])) < int(float(10000)):
-            return await ctx.author.send('**Not enough ISK**')
+            await ctx.author.send('**Not enough ISK**')
+            return await ctx.invoke(self.bot.get_command("me"), True)
         sql = ''' UPDATE eve_rpg_players
                 SET home = (?),
                     isk = (?)
@@ -249,4 +256,5 @@ class ManageSelf:
         remaining_isk = int(float(player[0][5])) - int(float(10000))
         values = (player[0][4], remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
-        return await ctx.author.send('**Clone Location Changed**')
+        await ctx.author.send('**Clone Location Changed**')
+        return await ctx.invoke(self.bot.get_command("me"), True)

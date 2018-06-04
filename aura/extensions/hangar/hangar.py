@@ -106,11 +106,11 @@ class Hangar:
                     old_modules = ast.literal_eval(player[0][12])
                     current_ship['modules'] = old_modules
                 elif 'modules' in current_ship:
-                    current_ship.pop('modules', None)
+                    current_ship['modules'] = None
                 ship_hangar[player[0][4]].remove(remove)
                 new_hangar = ship_hangar
                 insert_this.pop('selection', None)
-                if 'modules' in insert_this:
+                if 'modules' in insert_this and 'modules' is not None:
                     modules = str(insert_this['modules'])
                 else:
                     modules = None

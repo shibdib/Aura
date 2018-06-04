@@ -149,6 +149,11 @@ class Market:
                             '**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
                             'Region**'.format(ship['name']))
                     elif content == '3':
+                        if player[0][12] is not None:
+                            old_modules = ast.literal_eval(player[0][12])
+                            player_ship_obj['modules'] = old_modules
+                        elif 'modules' in player_ship_obj:
+                            player_ship_obj['modules'] = None
                         if player[0][15] is None:
                             current_hangar = {player[0][4]: [player_ship_obj]}
                         elif player[0][4] not in ast.literal_eval(player[0][15]):
@@ -159,12 +164,13 @@ class Market:
                             current_hangar[player[0][4]].append(player_ship_obj)
                         sql = ''' UPDATE eve_rpg_players
                                 SET ship = (?),
+                                    modules = (?),
                                     ship_hangar = (?),
                                     isk = (?)
                                 WHERE
                                     player_id = (?); '''
                         remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
-                        values = (str(new_ship), str(current_hangar), remaining_isk, ctx.author.id,)
+                        values = (str(new_ship), None, str(current_hangar), remaining_isk, ctx.author.id,)
                         await db.execute_sql(sql, values)
                         await ctx.author.send(
                             '**{} Purchase Complete, It Is Now Your Active Ship**'.format(ship['name']))
