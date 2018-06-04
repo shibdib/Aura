@@ -89,7 +89,7 @@ class ManageSelf:
             elif content == '4':
                 await self.change_ship(ctx)
             elif content == '5':
-                await self.visit_market(ctx)
+                await ctx.invoke(self.bot.get_command("market"))
             elif content == '6':
                 await self.asset_list(ctx)
             elif content == '7':

@@ -56,6 +56,7 @@ class Market:
 
             msg = await self.bot.wait_for('message', check=check, timeout=120.0)
             content = msg.content
+            player_ship_obj = ast.literal_eval(player[0][14])
             wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
             if content == '1':
                 frigates = ['__**Frigates**__']
@@ -111,7 +112,8 @@ class Market:
                     embed.add_field(name="Confirm Purchase",
                                     value="Are you sure you want to buy a **{}** for {} ISK\n\n"
                                           "**1.** Yes.\n"
-                                          "**2.** No.\n".format(ship['name'], cost))
+                                          "**2.** No.\n"
+                                          "**3.** Yes and make it my active ship.\n".format(ship['name'], cost))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -121,27 +123,48 @@ class Market:
                     new_id = await game_functions.create_unique_id()
                     new_ship = {'id': new_id, 'ship_type': ship['id']}
                     content = msg.content
-                    if content != '1':
+                    if content != '1' or content != '3':
                         return await ctx.author.send('**Purchase Canceled**')
-                    if player[0][15] is None:
-                        current_hangar = {player[0][4]: [new_ship]}
-                    elif player[0][4] not in ast.literal_eval(player[0][15]):
-                        current_hangar = ast.literal_eval(player[0][15])
-                        current_hangar[player[0][4]] = [new_ship]
-                    else:
-                        current_hangar = ast.literal_eval(player[0][15])
-                        current_hangar[player[0][4]].append(new_ship)
-                    sql = ''' UPDATE eve_rpg_players
-                            SET ship_hangar = (?),
-                                isk = (?)
-                            WHERE
-                                player_id = (?); '''
-                    remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
-                    values = (str(current_hangar), remaining_isk, ctx.author.id,)
-                    await db.execute_sql(sql, values)
-                    return await ctx.author.send(
-                        '**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
-                        'Region**'.format(ship['name']))
+                    if content == '1':
+                        if player[0][15] is None:
+                            current_hangar = {player[0][4]: [new_ship]}
+                        elif player[0][4] not in ast.literal_eval(player[0][15]):
+                            current_hangar = ast.literal_eval(player[0][15])
+                            current_hangar[player[0][4]] = [new_ship]
+                        else:
+                            current_hangar = ast.literal_eval(player[0][15])
+                            current_hangar[player[0][4]].append(new_ship)
+                        sql = ''' UPDATE eve_rpg_players
+                                SET ship_hangar = (?),
+                                    isk = (?)
+                                WHERE
+                                    player_id = (?); '''
+                        remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
+                        values = (str(current_hangar), remaining_isk, ctx.author.id,)
+                        await db.execute_sql(sql, values)
+                        return await ctx.author.send(
+                            '**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
+                            'Region**'.format(ship['name']))
+                    elif content == '3':
+                        if player[0][15] is None:
+                            current_hangar = {player[0][4]: [player_ship_obj]}
+                        elif player[0][4] not in ast.literal_eval(player[0][15]):
+                            current_hangar = ast.literal_eval(player[0][15])
+                            current_hangar[player[0][4]] = [player_ship_obj]
+                        else:
+                            current_hangar = ast.literal_eval(player[0][15])
+                            current_hangar[player[0][4]].append(player_ship_obj)
+                        sql = ''' UPDATE eve_rpg_players
+                                SET ship = (?),
+                                    ship_hangar = (?),
+                                    isk = (?)
+                                WHERE
+                                    player_id = (?); '''
+                        remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
+                        values = (str(new_ship), str(current_hangar), remaining_isk, ctx.author.id,)
+                        await db.execute_sql(sql, values)
+                        return await ctx.author.send(
+                            '**{} Purchase Complete, It Is Now Your Active Ship**'.format(ship['name']))
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
             elif content == '2':
                 attack = ['__**Attack**__']
