@@ -19,6 +19,7 @@ class EveRpg:
 
     async def tick_loop(self):
         await self.bot.wait_until_ready()
+        await self.initial_checks()
         while not self.bot.is_closed():
             try:
                 await self.process_travel()
