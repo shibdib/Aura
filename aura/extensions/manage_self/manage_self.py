@@ -74,7 +74,8 @@ class ManageSelf:
                                       "**7.** Insure your ship.\n"
                                       "{}"
                                       "{}"
-                                      "**10.** Change your clone to here.\n".format(
+                                      "**10.** Change your clone to here.\n"
+                                      "**11.** View Local.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     module_cargo_option, component_cargo_option))
             if redirect is True:
@@ -89,8 +90,8 @@ class ManageSelf:
                                       "**7.** Insure your ship.\n"
                                       "{}"
                                       "{}"
-                                      "**10.** Change your clone to here.\n".format(module_cargo_option,
-                                                                                    component_cargo_option))
+                                      "**10.** Change your clone to here.\n"
+                                      "**11.** View Local.\n".format(module_cargo_option, component_cargo_option))
             await ctx.author.send(embed=embed)
 
             def check(m):
@@ -118,6 +119,8 @@ class ManageSelf:
                 await self.empty_component_cargo(ctx)
             elif content == '10':
                 await self.change_clone(ctx, player)
+            elif content == '11':
+                await ctx.invoke(self.bot.get_command("local"))
             else:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 

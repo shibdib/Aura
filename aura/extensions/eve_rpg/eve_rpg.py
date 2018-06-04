@@ -89,8 +89,9 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
             values = (destination_id,)
             local_players = await db.select_var(sql, values)
-            return await player.send('You have arrived in {}\n\nLocal Count - {}'.format(destination_name,
+            await player.send('You have arrived in {}\n\nLocal Count - {}'.format(destination_name,
                                                                                          len(local_players)))
+            return await player.invoke(self.bot.get_command("me"), True)
 
     async def process_belt_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 '''
