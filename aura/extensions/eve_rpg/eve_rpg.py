@@ -897,7 +897,7 @@ class EveRpg:
         tier_2 = await self.weighted_choice([(True, 55), (False, 45)])
         tier_2_text = ''
         tier_3_amount = random.randint(1, 3)
-        tier_3 = await self.weighted_choice([(True, 2), (False, 98)])
+        tier_3 = await self.weighted_choice([(True, 5), (False, 95)])
         tier_3_text = ''
         if 'component_cargo_bay' in ship:
             loot = ship['component_cargo_bay']
