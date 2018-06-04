@@ -47,6 +47,7 @@ class Local:
             embed.add_field(name="Local List",
                             value="{}".format(local_list))
             await ctx.author.send(embed=embed)
+            await ctx.invoke(self.bot.get_command("me"), True)
 
     @_local.group(name='chat')
     @checks.has_account()
