@@ -166,7 +166,8 @@ class Market:
                                 SET ship = (?),
                                     modules = (?),
                                     ship_hangar = (?),
-                                    isk = (?)
+                                    isk = (?),
+                                    task = 1
                                 WHERE
                                     player_id = (?); '''
                         remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
