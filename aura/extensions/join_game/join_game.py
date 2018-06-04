@@ -103,7 +103,7 @@ class JoinGame:
             ship_id = 5
             region = 'The Forge'
             region_id = 1
-        new_ship_id = game_functions.create_unique_id()
+        new_ship_id = await game_functions.create_unique_id()
         new_ship = {'id': new_ship_id, 'ship_type': ship_id}
         sql = ''' UPDATE eve_rpg_players
                 SET race = (?),
