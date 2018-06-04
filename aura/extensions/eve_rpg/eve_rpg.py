@@ -33,6 +33,39 @@ class EveRpg:
                 self.logger.exception('ERROR:')
                 await asyncio.sleep(5)
 
+    async def initial_checks(self):
+        sql = "SELECT * FROM eve_rpg_players"
+        players = await db.select(sql)
+        for player in players:
+            user = self.bot.get_user(player[2])
+            if user is None:
+                await self.remove_bad_user(player[2])
+                continue
+            if player[14] is None:
+                ship_id = 1
+                if player[3] == 1:
+                    ship_id = 1
+                elif player[3] == 2:
+                    ship_id = 2
+                elif player[3] == 3:
+                    ship_id = 3
+                elif player[3] == 4:
+                    ship_id = 4
+                elif player[3] == 99:
+                    ship_id = 5
+                new_id = await game_functions.create_unique_id()
+                ship = {'id': new_id, 'ship_type': ship_id}
+                sql = ''' UPDATE eve_rpg_players
+                        SET ship = (?),
+                            modules = NULL,
+                            region = (?),
+                            task = 1
+                        WHERE
+                            player_id = (?); '''
+                values = (str(ship), player[18], player[2],)
+                await db.execute_sql(sql, values)
+
+
     async def process_users(self):
         if self.user_check_counter >= 100:
             sql = "SELECT * FROM eve_rpg_players"

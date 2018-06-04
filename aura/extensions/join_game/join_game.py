@@ -2,6 +2,7 @@ from discord.ext import commands
 
 from aura.core import checks
 from aura.lib import db
+from aura.lib import game_functions
 from aura.utils import make_embed
 
 
@@ -102,6 +103,8 @@ class JoinGame:
             ship_id = 5
             region = 'The Forge'
             region_id = 1
+        new_ship_id = game_functions.create_unique_id()
+        new_ship = {'id': new_ship_id, 'ship_type': ship_id}
         sql = ''' UPDATE eve_rpg_players
                 SET race = (?),
                     ship = (?),
@@ -109,7 +112,7 @@ class JoinGame:
                     home = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(content), ship_id, region_id, region_id, author,)
+        values = (int(content), str(new_ship), region_id, region_id, author,)
         await db.execute_sql(sql, values)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
