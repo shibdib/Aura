@@ -96,7 +96,8 @@ class Hangar:
                 content = msg.content
                 current_ship = ast.literal_eval(player[0][14])
                 if content != '1':
-                    return await ctx.author.send('**Switch Canceled**')
+                    await ctx.author.send('**Switch Canceled**')
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 for ship in ship_hangar[player[0][4]]:
                     if ship['id'] == ship_id:
                         remove = ship
@@ -125,6 +126,7 @@ class Hangar:
                         WHERE
                             player_id = (?); '''
                 await db.execute_sql(sql, values)
-                return await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
+                await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
             else:
-                return await ctx.author.send('**ERROR** - Not a valid choice.')
+                await ctx.author.send('**ERROR** - Not a valid choice.')
+        return await ctx.invoke(self.bot.get_command("me"), True)

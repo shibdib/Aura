@@ -73,7 +73,7 @@ class ChangeTask:
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
         if content == '5' or content == '8' or content == '10':
-            return await ctx.author.send('**Not Yet Implemented**')
+            await ctx.author.send('**Not Yet Implemented**')
         elif int(content) in accepted:
             sql = ''' UPDATE eve_rpg_players
                     SET task = (?)
@@ -85,6 +85,7 @@ class ChangeTask:
             values = (ctx.message.author.id,)
             player = await db.select_var(sql, values)
             new_task = await game_functions.get_task(int(player[0][6]))
-            return await ctx.author.send('**Task Updated** - You are now {}.'.format(new_task))
+            await ctx.author.send('**Task Updated** - You are now {}.'.format(new_task))
         else:
-            return await ctx.author.send('**ERROR** - Not a valid choice.')
+            await ctx.author.send('**ERROR** - Not a valid choice.')
+        return await ctx.invoke(self.bot.get_command("me"), True)

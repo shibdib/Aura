@@ -57,8 +57,9 @@ class Travel:
             values = (int(content), ctx.author.id,)
             destination = await game_functions.get_region(int(content))
             await db.execute_sql(sql, values)
-            return await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
+            await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
         elif content == '5':
-            return await ctx.author.send('**Not Yet Implemented**')
+            await ctx.author.send('**Not Yet Implemented**')
         else:
-            return await ctx.author.send('**ERROR** - Not a valid choice.')
+            await ctx.author.send('**ERROR** - Not a valid choice.')
+        return await ctx.invoke(self.bot.get_command("me"), True)

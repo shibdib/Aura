@@ -130,7 +130,7 @@ class ShipFitting:
                 if ((int(module_count) + len(equip_modules)) - len(remove_modules)) > ship['slots']:
                     await ctx.author.send('**The current selection would put you over the maximum modules for this '
                                           'ship**')
-                    return await ctx.invoke(self.bot.get_command("me"))
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 equip_list = '\n'.join(equip_modules_text)
                 remove_list = '\n'.join(remove_modules_text)
                 embed = make_embed(icon=self.bot.user.avatar)
@@ -149,7 +149,7 @@ class ShipFitting:
                 response = msg.content
                 if response != '1':
                     await ctx.author.send('**Changes Canceled**')
-                    return await ctx.invoke(self.bot.get_command("me"))
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 hangar = None
                 equipped = None
                 if len(remove_modules) > 0:
@@ -222,7 +222,7 @@ class ShipFitting:
                 response = msg.content
                 if response != '1':
                     await ctx.author.send('**Removal Canceled**')
-                    return await ctx.invoke(self.bot.get_command("me"))
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                     module_hangar = ast.literal_eval(player[0][13])
                     module_hangar[player[0][4]].append(remove_module_order[content])
@@ -246,11 +246,11 @@ class ShipFitting:
                     values = (None, str(module_hangar), ctx.author.id,)
                 await db.execute_sql(sql, values)
                 await ctx.author.send('**{} Has Been Removed**'.format(selected_module['name']))
-                return await ctx.invoke(self.bot.get_command("me"))
+                return await ctx.invoke(self.bot.get_command("me"), True)
             elif int(msg.content) in equip_commands:
                 if module_count >= ship['slots']:
                     await ctx.author.send('**All module slots are occupied for this ship**')
-                    return await ctx.invoke(self.bot.get_command("me"))
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 selected_module = await game_functions.get_module(int(equip_module_order[content]))
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -274,7 +274,7 @@ class ShipFitting:
                     equipped_modules = [equip_module_order[content]]
                 if response != '1':
                     await ctx.author.send('**Equipping Module Canceled**')
-                    return await ctx.invoke(self.bot.get_command("me"))
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 module_hangar = ast.literal_eval(player[0][13])
                 module_hangar[player[0][4]].remove(equip_module_order[content])
                 sql = ''' UPDATE eve_rpg_players

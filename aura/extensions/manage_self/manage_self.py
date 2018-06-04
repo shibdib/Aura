@@ -87,9 +87,8 @@ class ManageSelf:
                                       "**7.** Insure your ship.\n"
                                       "{}"
                                       "{}"
-                                      "**10.** Change your clone to here.\n".format(
-                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    module_cargo_option, component_cargo_option))
+                                      "**10.** Change your clone to here.\n".format(module_cargo_option,
+                                                                                    component_cargo_option))
             await ctx.author.send(embed=embed)
 
             def check(m):

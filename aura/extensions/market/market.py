@@ -127,7 +127,7 @@ class Market:
                     new_ship = {'id': new_id, 'ship_type': ship['id']}
                     content = msg.content
                     if content != '1' or content != '3':
-                        return await ctx.author.send('**Purchase Canceled**')
+                        await ctx.author.send('**Purchase Canceled**')
                     if content == '1':
                         if player[0][15] is None:
                             current_hangar = {player[0][4]: [new_ship]}
@@ -145,7 +145,7 @@ class Market:
                         remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
                         values = (str(current_hangar), remaining_isk, ctx.author.id,)
                         await db.execute_sql(sql, values)
-                        return await ctx.author.send(
+                        await ctx.author.send(
                             '**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
                             'Region**'.format(ship['name']))
                     elif content == '3':
@@ -166,9 +166,11 @@ class Market:
                         remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
                         values = (str(new_ship), str(current_hangar), remaining_isk, ctx.author.id,)
                         await db.execute_sql(sql, values)
-                        return await ctx.author.send(
+                        await ctx.author.send(
                             '**{} Purchase Complete, It Is Now Your Active Ship**'.format(ship['name']))
-                return await ctx.author.send('**ERROR** - Not a valid choice.')
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                await ctx.author.send('**ERROR** - Not a valid choice.')
+                return await ctx.invoke(self.bot.get_command("me"), True)
             elif content == '2':
                 attack = ['__**Attack**__']
                 defense = ['__**Defense**__']
@@ -223,7 +225,8 @@ class Market:
                     msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                     content = msg.content
                     if content != '1':
-                        return await ctx.author.send('**Purchase Canceled**')
+                        await ctx.author.send('**Purchase Canceled**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
                     if player[0][13] is None:
                         current_hangar = {player[0][4]: [module['id']]}
                     else:
@@ -240,14 +243,16 @@ class Market:
                     remaining_isk = int(float(player[0][5])) - int(float(module['isk']))
                     values = (str(current_hangar), remaining_isk, ctx.author.id,)
                     await db.execute_sql(sql, values)
-                    return await ctx.author.send(
+                    await ctx.author.send(
                         '**{} Purchase Complete, It Is Now Stored In Your Module Hangar For This '
                         'Region**'.format(module['name']))
-                return await ctx.author.send('**ERROR** - Not a valid choice.')
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                await ctx.author.send('**ERROR** - Not a valid choice.')
             elif content == '3':
-                return await ctx.author.send('**Not Yet Implemented**')
+                await ctx.author.send('**Not Yet Implemented**')
             else:
-                return await ctx.author.send('**ERROR** - Not a valid choice.')
+                await ctx.author.send('**ERROR** - Not a valid choice.')
+            return await ctx.invoke(self.bot.get_command("me"), True)
         elif content == '2':
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -356,9 +361,10 @@ class Market:
                             WHERE
                                 player_id = (?); '''
                     await db.execute_sql(sql, values)
-                    return await ctx.author.send('**Sold a {} for {} ISK**'.format(selected_ship['name'], sale_price))
+                    await ctx.author.send('**Sold a {} for {} ISK**'.format(selected_ship['name'], sale_price))
                 else:
-                    return await ctx.author.send('**ERROR** - Not a valid choice.')
+                    await ctx.author.send('**ERROR** - Not a valid choice.')
+                return await ctx.invoke(self.bot.get_command("me"), True)
             elif content == '2':
                 module_hangar = ast.literal_eval(player[0][13])
                 if player[0][4] not in module_hangar:
@@ -431,9 +437,10 @@ class Market:
                             WHERE
                                 player_id = (?); '''
                     await db.execute_sql(sql, values)
-                    return await ctx.author.send('**Sold a {} for {} ISK**'.format(module_info['name'], sale_price))
+                    await ctx.author.send('**Sold a {} for {} ISK**'.format(module_info['name'], sale_price))
                 else:
-                    return await ctx.author.send('**ERROR** - Not a valid choice.')
+                    await ctx.author.send('**ERROR** - Not a valid choice.')
+                return await ctx.invoke(self.bot.get_command("me"), True)
             elif content == '3':
                 if player[0][19] is None or player[0][4] not in ast.literal_eval(player[0][19]):
                     embed = make_embed(icon=ctx.bot.user.avatar)
@@ -514,12 +521,13 @@ class Market:
                             WHERE
                                 player_id = (?); '''
                     await db.execute_sql(sql, values)
-                    return await ctx.author.send('**Sold {} {} for {} ISK**'.format(component['amount'],
-                                                                                    selected_component['name'],
-                                                                                    sale_price))
+                    await ctx.author.send('**Sold {} {} for {} ISK**'.format(component['amount'],
+                                                                             selected_component['name'],
+                                                                             sale_price))
                 else:
-                    return await ctx.author.send('**ERROR** - Not a valid choice.')
+                    await ctx.author.send('**ERROR** - Not a valid choice.')
             else:
-                return await ctx.author.send('**ERROR** - Not a valid choice.')
+                await ctx.author.send('**ERROR** - Not a valid choice.')
         else:
-            return await ctx.author.send('**ERROR** - Not a valid choice.')
+            await ctx.author.send('**ERROR** - Not a valid choice.')
+        return await ctx.invoke(self.bot.get_command("me"), True)

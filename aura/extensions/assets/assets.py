@@ -66,3 +66,4 @@ class Assets:
                 embed.add_field(name="Asset List",
                                 value='No Assets Found')
             await ctx.author.send(embed=embed)
+        return await ctx.invoke(self.bot.get_command("me"), True)
