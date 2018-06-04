@@ -132,7 +132,7 @@ class JoinGame:
         await ctx.author.send(embed=embed)
         await self.send_global('**New Player** {} has joined the game.'.format(ctx.author.display_name))
         self.logger.info('eve_rpg - ' + str(ctx.message.author) + ' added to the game.')
-        return await ctx.invoke(self.bot.get_command("me"), True)
+        return await ctx.invoke(self.bot.get_command("me"))
 
     async def send_global(self, message, embed=False):
         sql = "SELECT * FROM eve_rpg_channels"
