@@ -126,7 +126,7 @@ class Market:
                     new_id = await game_functions.create_unique_id()
                     new_ship = {'id': new_id, 'ship_type': ship['id']}
                     content = msg.content
-                    if content != '1' or content != '3':
+                    if content != '1' and content != '3':
                         await ctx.author.send('**Purchase Canceled**')
                     if content == '1':
                         if player[0][15] is None:
