@@ -17,6 +17,11 @@ class Stats:
     @checks.is_whitelist()
     async def _rpg_top(self, ctx):
         """Get the top RPG players"""
+        if ctx.guild is not None:
+            try:
+                await ctx.message.delete()
+            except Exception:
+                pass
         sql = ''' SELECT * FROM eve_rpg_players ORDER BY `kills` DESC LIMIT 10 '''
         top_killers = await db.select(sql)
         top_killers_array = []

@@ -19,7 +19,10 @@ class GameModerator:
         """Change your current task."""
         if ctx.invoked_subcommand is None:
             if ctx.guild is not None:
-                await ctx.message.delete()
+                try:
+                    await ctx.message.delete()
+                except Exception:
+                    pass
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")

@@ -22,7 +22,10 @@ class Hangar:
     async def ship_hangar(self, ctx):
         """Visit your regional ship hangar."""
         if ctx.guild is not None:
-            await ctx.message.delete()
+            try:
+                await ctx.message.delete()
+            except Exception:
+                pass
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)

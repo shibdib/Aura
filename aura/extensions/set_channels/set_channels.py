@@ -17,6 +17,11 @@ class SetChannels:
         """Sets a channel as an RPG channel.
         Do **!setRpg** to have a channel relay all RPG events.
         The RPG includes players from all servers this instance of the bot is on."""
+        if ctx.guild is not None:
+            try:
+                await ctx.message.delete()
+            except Exception:
+                pass
         sql = ''' REPLACE INTO eve_rpg_channels(server_id,channel_id,owner_id)
                   VALUES(?,?,?) '''
         author = ctx.message.author.id

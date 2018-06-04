@@ -20,7 +20,10 @@ class Local:
         """Change your current task."""
         if ctx.invoked_subcommand is None:
             if ctx.guild is not None:
-                await ctx.message.delete()
+                try:
+                    await ctx.message.delete()
+                except Exception:
+                    pass
             sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
             values = (ctx.message.author.id,)
             player = await db.select_var(sql, values)
@@ -50,7 +53,10 @@ class Local:
     async def _chat(self, ctx, *, message: str):
         """Talk in local."""
         if ctx.guild is not None:
-            await ctx.message.delete()
+            try:
+                await ctx.message.delete()
+            except Exception:
+                pass
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
