@@ -64,12 +64,13 @@ async def get_combat_attributes(player, ship_id):
     tracking = int(ship['tracking'])
     if player[12] is not None:
         equipped_modules = ast.literal_eval(player[12])
-        for item in equipped_modules:
-            module = await get_module(int(item))
-            attack = (attack * module['attack']) + attack
-            defense = (defense * module['defense']) + defense
-            maneuver = (maneuver * module['maneuver']) + maneuver
-            tracking = (tracking * module['tracking']) + tracking
+        if equipped_modules is not None:
+            for item in equipped_modules:
+                module = await get_module(int(item))
+                attack = (attack * module['attack']) + attack
+                defense = (defense * module['defense']) + defense
+                maneuver = (maneuver * module['maneuver']) + maneuver
+                tracking = (tracking * module['tracking']) + tracking
     return int(round(attack)), int(round(defense)), int(round(maneuver)), int(round(tracking))
 
 
