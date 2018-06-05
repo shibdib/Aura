@@ -99,10 +99,8 @@ class ShipFitting:
         embed = make_embed(icon=ctx.bot.user.avatar)
         ship_image = await game_functions.get_ship_image(int(player_ship_obj['ship_type']))
         embed.set_thumbnail(url="{}".format(ship_image))
-        embed.set_footer(icon_url=ctx.bot.user.avatar_url,
-                         text="Aura - EVE Text RPG")
-        embed.add_field(name="Ship Fitting".format(region_name),
-                        value=value, inline=False)
+        embed.set_footer(icon_url=ctx.bot.user.avatar_url, text="Aura - EVE Text RPG")
+        embed.add_field(name="Ship Fitting".format(region_name), value=value, inline=False)
         equip_module_order = {}
         equip_commands = []
         equip_drones_commands = []
@@ -131,9 +129,9 @@ class ShipFitting:
                         stats = '{} {}'.format(stats, module['special'])
                     stored_modules_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
                     module_number += 1
-                stored_modules = '\n'.join(stored_modules_array)
-                embed.add_field(name="Module/Drone Hangar",
-                                value='{}'.format(stored_modules), inline=False)
+                if len(stored_modules_array) > 0:
+                    stored_modules = '\n'.join(stored_modules_array)
+                    embed.add_field(name="Module/Drone Hangar", value='{}'.format(stored_modules), inline=False)
         await ctx.author.send(embed=embed)
 
         def check(m):
