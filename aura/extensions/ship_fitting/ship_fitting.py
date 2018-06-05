@@ -173,14 +173,17 @@ class ShipFitting:
                     remove_drones_text.append('{}'.format(selected_module['name']))
                     remove_modules.append(int(remove_module_order[module]))
                     drone_remove_count += 1
+            if ((int(drone_count) + int(drone_equip_count)) - int(drone_remove_count)) > 5:
+                await ctx.author.send('**This ship can only have 5 drones equipped at one time**')
+                return await ctx.invoke(self.bot.get_command("fitting"), True)
             if ((int(drone_size) + int(equip_size)) - int(remove_size)) > ship['drone_bay']:
                 await ctx.author.send('**The current selection would overfill your drone bay**')
-                return await ctx.invoke(self.bot.get_command("me"), True)
+                return await ctx.invoke(self.bot.get_command("fitting"), True)
             if ((int(module_count) + (len(equip_modules) - drone_equip_count)) - (len(remove_modules) -
                                                                                   drone_remove_count)) > ship['slots']:
                 await ctx.author.send('**The current selection would put you over the maximum modules for this '
                                       'ship**')
-                return await ctx.invoke(self.bot.get_command("me"), True)
+                return await ctx.invoke(self.bot.get_command("fitting"), True)
             equip_list = '\n'.join(equip_modules_text)
             if len(equip_drones_commands) > 0:
                 equip_list = equip_list + '\n'.join(equip_drones_text)
@@ -206,6 +209,10 @@ class ShipFitting:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             hangar = None
             equipped = None
+            module_hangar = None
+            equipped_modules = []
+            if player[0][13] is not None:
+                module_hangar = ast.literal_eval(player[0][13])
             if len(remove_modules) > 0:
                 if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                     module_hangar = ast.literal_eval(player[0][13])
