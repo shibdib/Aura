@@ -200,7 +200,7 @@ class Market:
                         mining.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
                     elif module['class'] == 10:
                         lights.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
-                merged = attack + defense + maneuver + tracking + mining
+                merged = attack + defense + maneuver + tracking + mining + lights
                 module_list = '\n'.join(merged)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
