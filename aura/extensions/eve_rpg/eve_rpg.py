@@ -826,7 +826,8 @@ class EveRpg:
     async def refresh_player(self, player):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (player[2],)
-        return await db.select_var(sql, values)
+        new_player = await db.select_var(sql, values)
+        return new_player[0]
 
     async def add_xp(self, player, xp_gained):
         player = await self.refresh_player(player)
