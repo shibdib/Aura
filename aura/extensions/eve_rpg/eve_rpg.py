@@ -92,31 +92,20 @@ class EveRpg:
             return
         for traveler in travelers:
             region_id = int(traveler[4])
-            region_security = await game_functions.get_region_security(region_id)
             destination_id = int(traveler[17])
-            destination_security = await game_functions.get_region_security(destination_id)
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND `region` = (?) '''
-            values = (region_id,)
-            outbound_campers = await db.select_var(sql, values)
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND `region` = (?) '''
-            values = (destination_id,)
-            inbound_campers = await db.select_var(sql, values)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 3 AND (`region` = (?) OR `region` = (?)) '''
+            values = (region_id, destination_id,)
+            campers = await db.select_var(sql, values)
             traveler_ship = ast.literal_eval(traveler[14])
             defender_ship_id = traveler_ship['ship_type']
             defender_attack, defender_defense, defender_maneuver, defender_tracking = \
                 await game_functions.get_combat_attributes(traveler, defender_ship_id)
-            if len(outbound_campers) is not 0 and region_security != 'High':
-                for camper in outbound_campers:
+            if len(campers) is not 0:
+                for camper in campers:
                     conflict = await self.weighted_choice([(True, 35 - defender_maneuver), (False, 65), (None, 45)])
                     if conflict is True:
                         await self.solo_combat(camper, traveler)
-                        return
-            if len(inbound_campers) is not 0 and destination_security != 'High':
-                for camper in inbound_campers:
-                    conflict = await self.weighted_choice([(True, 60 - defender_maneuver), (False, 65), (None, 45)])
-                    if conflict is True:
-                        await self.solo_combat(camper, traveler)
-                        continue
+                        return self.process_travel()
             destination_name = await game_functions.get_region(destination_id)
             sql = ''' UPDATE eve_rpg_players
                     SET region = (?),
@@ -518,13 +507,13 @@ class EveRpg:
             await self.send_global(embed, True)
             await self.destroy_ship(loser)
             await self.add_loss(loser)
-            await self.add_kill(winner)
+            await self.add_kill(winner, dropped_mods)
             await self.add_xp(winner, xp_gained)
             if winner_dies is True:
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
+                ship_image = await game_functions.get_ship_image(winner_ship_obj['ship_type'])
                 embed.set_thumbnail(url="{}".format(ship_image))
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
@@ -539,11 +528,10 @@ class EveRpg:
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
                 await self.add_loss(winner)
-                await self.add_kill(loser)
+                await self.add_kill(loser, None)
                 await self.destroy_ship(winner)
                 await self.add_xp(loser, xp_gained)
             else:
-                await self.give_mod(winner, dropped_mods)
                 await self.give_pvp_loot(winner)
         else:
             winner_user = self.bot.get_user(winner[2])
@@ -577,7 +565,7 @@ class EveRpg:
                     self.logger.error('User {} message error'.format(loser_user.id))
                 await self.send_global(embed, True)
                 await self.add_loss(winner)
-                await self.add_kill(loser)
+                await self.add_kill(loser, None)
                 await self.destroy_ship(winner)
                 await self.add_xp(winner, xp_gained)
 
@@ -603,8 +591,7 @@ class EveRpg:
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
                 await self.add_loss(loser)
-                await self.add_kill(winner)
-                await self.give_mod(winner, dropped_mods)
+                await self.add_kill(winner, dropped_mods)
                 await self.give_pvp_loot(winner)
                 await self.destroy_ship(loser)
             sql = ''' UPDATE eve_rpg_players
@@ -711,7 +698,7 @@ class EveRpg:
             await self.send_global(embed, True)
             await self.destroy_ship(loser)
             await self.add_loss(loser)
-            await self.add_kill(winner)
+            await self.add_kill(winner, dropped_mods)
             await self.add_xp(winner, xp_gained)
             if winner_dies is True:
                 embed = make_embed(icon=self.bot.user.avatar)
@@ -732,7 +719,7 @@ class EveRpg:
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
                 await self.add_loss(winner)
-                await self.add_kill(loser)
+                await self.add_kill(loser, None)
                 await self.destroy_ship(winner)
                 await self.add_xp(loser, xp_gained)
         else:
@@ -763,7 +750,7 @@ class EveRpg:
                 self.logger.error('User {} message error'.format(loser_user.id))
                 await self.send_global(embed, True)
                 await self.add_loss(winner)
-                await self.add_kill(loser)
+                await self.add_kill(loser, None)
                 await self.destroy_ship(winner)
                 await self.add_xp(winner, xp_gained)
 
@@ -789,8 +776,7 @@ class EveRpg:
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
                 await self.add_loss(loser)
-                await self.add_kill(winner)
-                await self.give_mod(winner, dropped_mods)
+                await self.add_kill(winner, dropped_mods)
                 await self.give_pvp_loot(winner)
                 await self.destroy_ship(loser)
             sql = ''' UPDATE eve_rpg_players
@@ -861,26 +847,27 @@ class EveRpg:
         values = (int(player[5]) + isk, player[2],)
         return await db.execute_sql(sql, values)
 
-    async def add_kill(self, player):
+    async def add_kill(self, player, mods):
         if player is None:
             return
-        self.logger.info('kill_marks - {}'.format(player))
         sql = ''' UPDATE eve_rpg_players
-                SET kills = (?),
-                    ship = (?)
+                SET kills=?,
+                    ship=?
                 WHERE
-                    player_id = (?); '''
-        self.logger.info('kill_marks - {}'.format(player[14]))
+                    player_id=?; '''
         killer_ship = ast.literal_eval(player[14])
         self.logger.info('kill_marks - {}'.format(killer_ship))
         if 'kill_marks' not in killer_ship:
             killer_ship['kill_marks'] = 1
         else:
             killer_ship['kill_marks'] += 1
-        self.logger.info('kill_marks - {}'.format(killer_ship))
-        new_ship = str(killer_ship)
-        self.logger.info('kill_marks - {}'.format(new_ship))
-        values = (int(player[10]) + 1, new_ship, player[2],)
+        if mods is not None:
+            for mod in mods:
+                if 'module_cargo_bay' in killer_ship:
+                    killer_ship['module_cargo_bay'].append(mod)
+                else:
+                    killer_ship['module_cargo_bay'] = [mod]
+        values = (int(player[10]) + 1, str(killer_ship), player[2],)
         self.logger.info('kill_marks - {}'.format(values))
         return await db.execute_sql(sql, values)
 
