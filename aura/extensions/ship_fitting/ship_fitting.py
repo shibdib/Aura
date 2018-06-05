@@ -168,7 +168,7 @@ class ShipFitting:
                     equip_modules.append(int(equip_module_order[module]))
                     drone_equip_count += 1
                 elif int(module) in remove_drones_commands:
-                    selected_module = await game_functions.get_module(int(equip_module_order[module]))
+                    selected_module = await game_functions.get_module(int(remove_module_order[module]))
                     remove_size += selected_module['size']
                     remove_drones_text.append('{}'.format(selected_module['name']))
                     remove_modules.append(int(equip_module_order[module]))
