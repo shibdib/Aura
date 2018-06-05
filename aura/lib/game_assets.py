@@ -185,6 +185,15 @@ modules = {  # Attack
           'image': 'https://image.eveonline.com/Type/2464_64.png', 'isk': 4020, 'special': None, 'size': 5},
     104: {'id': 104, 'name': 'Acolyte I', 'class': 10, 'attack': 1, 'defense': 0, 'maneuver': 1.5, 'tracking': 1,
           'image': 'https://image.eveonline.com/Type/2203_64.png', 'isk': 2283, 'special': None, 'size': 5},
+    # Light 2
+    105: {'id': 105, 'name': 'Warrior II', 'class': 10, 'attack': 1, 'defense': 0, 'maneuver': 3, 'tracking': 2,
+          'image': 'https://image.eveonline.com/Type/2488_64.png', 'isk': 407854, 'special': None, 'size': 5},
+    106: {'id': 106, 'name': 'Hobgoblin II', 'class': 10, 'attack': 3, 'defense': 0, 'maneuver': 1, 'tracking': 1,
+          'image': 'https://image.eveonline.com/Type/2456_64.png', 'isk': 381735, 'special': None, 'size': 5},
+    107: {'id': 107, 'name': 'Hornet II', 'class': 10, 'attack': 1.5, 'defense': 0, 'maneuver': 2, 'tracking': 1,
+          'image': 'https://image.eveonline.com/Type/2466_64.png', 'isk': 464348, 'special': None, 'size': 5},
+    108: {'id': 108, 'name': 'Acolyte II', 'class': 10, 'attack': 1.5, 'defense': 0, 'maneuver': 2, 'tracking': 1,
+          'image': 'https://image.eveonline.com/Type/2205_64.png', 'isk': 448662, 'special': None, 'size': 5},
     # Mining
     121: {'id': 121, 'name': 'Mining Drone I', 'class': 14, 'attack': 0, 'defense': 0, 'maneuver': 0, 'tracking': 0,
           'image': 'https://image.eveonline.com/Type/10246_64.png', 'isk': 18316, 'special': '5% Mining Bonus', 'size': 5},

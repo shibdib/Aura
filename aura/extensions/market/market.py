@@ -194,6 +194,7 @@ class Market:
                 tracking = ['__**Tracking**__']
                 mining = ['__**Mining**__']
                 lights = ['__**Light Drones**__']
+                mining_drones = ['__**Mining Drones**__']
                 modules = game_assets.modules
                 for key, module in modules.items():
                     cost = '{0:,.2f}'.format(float(module['isk']))
@@ -209,10 +210,12 @@ class Market:
                         mining.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, cost))
                     elif module['class'] == 10:
                         lights.append('**{}.** {} ({}/{}/{}/{}) - *Size: {}m3* - {} ISK'.format(module['id'], module['name'], module['attack'], module['defense'], module['maneuver'], module['tracking'], module['size'], cost))
+                    elif module['class'] == 14:
+                        mining_drones.append('**{}.** {} ({}) - *Size: {}m3* - {} ISK'.format(module['id'], module['name'], module['special'], module['size'], cost))
                 merged = attack + defense
                 merged_two = maneuver + tracking
                 merged_three = mining
-                merged_drones = lights
+                merged_drones = lights + mining_drones
                 module_list = '\n'.join(merged)
                 module_list_two = '\n'.join(merged_two)
                 module_list_three = '\n'.join(merged_three)
