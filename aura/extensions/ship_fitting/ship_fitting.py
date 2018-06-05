@@ -122,8 +122,8 @@ class ShipFitting:
                     stats = '({}%/{}%/{}%/{}%)'.format(module_attack * 100, module_defense * 100,
                                                        module_maneuver * 100, module_tracking * 100)
                     if 10 >= module['class'] < 15:
-                        stats = '({}/{}/{}/{})'.format(module_attack, module_defense,
-                                                       module_maneuver, module_tracking)
+                        stats = '({}/{}/{}/{}) - Size: {}m3'.format(module_attack, module_defense,
+                                                                    module_maneuver, module_tracking, module['size'])
                         equip_drones_commands.append(module_number)
                     else:
                         equip_commands.append(module_number)
