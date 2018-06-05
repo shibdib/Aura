@@ -64,30 +64,71 @@ class Market:
             if content == '1':
                 frigates = ['__**Frigates**__']
                 destroyers = ['__**Destroyers**__']
+                cruisers = ['__**Cruisers**__']
                 tactical_destroyers = ['__**Tactical Destroyers**__']
                 interceptors = ['__**Interceptors**__']
                 mining_frigate = ['__**Mining Frigates**__']
                 mining_barges = ['__**Mining Barges**__']
                 exhumers = ['__**Exhumers**__']
                 ships = game_assets.ships
+                ship_number = 1
+                ship_assigned_number = {}
                 accepted_options = []
                 for key, ship in ships.items():
-                    accepted_options.append(ship['id'])
                     cost = '{0:,.2f}'.format(float(ship['isk']))
-                    if ship['class'] == 2:
+                    if ship['class'] == 1:
                         frigates.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
                     elif ship['class'] == 3:
                         destroyers.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
                     elif ship['class'] == 4:
                         tactical_destroyers.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
-                    elif ship['class'] == 5:
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
+                    elif ship['class'] == 2:
                         interceptors.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
-                    elif ship['class'] == 6:
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
+                    elif ship['class'] == 5:
+                        cruisers.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'],
+                                                                                                            ship[
+                                                                                                                'name'],
+                                                                                                            ship[
+                                                                                                                'attack'],
+                                                                                                            ship[
+                                                                                                                'defense'],
+                                                                                                            ship[
+                                                                                                                'maneuver'],
+                                                                                                            ship[
+                                                                                                                'tracking'],
+                                                                                                            ship[
+                                                                                                                'drone_bay'],
+                                                                                                            cost))
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
+                    elif ship['class'] == 21:
                         mining_frigate.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
-                    elif ship['class'] == 7:
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
+                    elif ship['class'] == 22:
                         mining_barges.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
-                    elif ship['class'] == 8:
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
+                    elif ship['class'] == 23:
                         exhumers.append('**{}.** {} ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
+                        ship_assigned_number[ship_number] = ship['id']
+                        accepted_options.append(ship_number)
+                        ship_number += 1
                 merged = frigates + interceptors
                 merged_two = destroyers + tactical_destroyers
                 merged_mining = mining_frigate + mining_barges + exhumers
@@ -113,7 +154,7 @@ class Market:
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
                 if int(content) in accepted_options:
-                    ship = await game_functions.get_ship(int(content))
+                    ship = await game_functions.get_ship(ship_assigned_number[int(content)])
                     cost = '{0:,.2f}'.format(float(ship['isk']))
                     if int(float(ship['isk'])) > int(float(player[0][5])):
                         return await ctx.author.send('**Not Enough Isk**')
@@ -196,22 +237,57 @@ class Market:
                 lights = ['__**Light Drones**__']
                 mining_drones = ['__**Mining Drones**__']
                 modules = game_assets.modules
+                accepted_modules = []
+                module_selection_dict = {}
+                module_number = 1
                 for key, module in modules.items():
                     cost = '{0:,.2f}'.format(float(module['isk']))
                     if module['class'] == 1:
                         attack.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 2:
                         defense.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 3:
                         maneuver.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 4:
                         tracking.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 5:
                         mining.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 10:
                         lights.append('**{}.** {} ({}/{}/{}/{}) - *Size: {}m3* - {} ISK'.format(module['id'], module['name'], module['attack'], module['defense'], module['maneuver'], module['tracking'], module['size'], cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
+                    elif module['class'] == 11:
+                        lights.append(
+                            '**{}.** {} ({}/{}/{}/{}) - *Size: {}m3* - {} ISK'.format(module['id'], module['name'],
+                                                                                      module['attack'],
+                                                                                      module['defense'],
+                                                                                      module['maneuver'],
+                                                                                      module['tracking'],
+                                                                                      module['size'], cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 14:
                         mining_drones.append('**{}.** {} ({}) - *Size: {}m3* - {} ISK'.format(module['id'], module['name'], module['special'], module['size'], cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                 merged = attack + defense
                 merged_two = maneuver + tracking
                 merged_three = mining
@@ -241,8 +317,8 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
-                module = await game_functions.get_module(int(content))
-                if module is not None:
+                if int(content) in accepted_modules:
+                    module = await game_functions.get_module(module_selection_dict[int(content)])
                     cost = '{0:,.2f}'.format(float(module['isk']))
                     if int(float(module['isk'])) > int(float(player[0][5])):
                         return await ctx.author.send('**Not Enough Isk**')

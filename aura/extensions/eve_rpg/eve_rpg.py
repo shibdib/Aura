@@ -159,7 +159,7 @@ class EveRpg:
                 isk = random.randint(8500, 19500)
                 survival = 225
                 npc = 350
-            if ship['class'] == 1:
+            if ship['class'] == 0:
                 survival = 175
                 if region_security == 'Low':
                     survival = 50
@@ -229,7 +229,7 @@ class EveRpg:
                 isk = random.randint(17500, 45500)
                 survival = 155
                 npc = 350
-            if ship['class'] == 1:
+            if ship['class'] == 0:
                 survival = 175
                 if region_security == 'Low':
                     survival = 25
@@ -301,7 +301,7 @@ class EveRpg:
                 ore = 300
                 possible_npc = 4
                 isk = random.randint(950, 3250)
-            if ship['class'] == 1:
+            if ship['class'] == 0:
                 survival = 175
                 if region_security == 'Low':
                     survival = 25
@@ -317,7 +317,7 @@ class EveRpg:
                 ship = await game_functions.get_ship(ship_id)
                 multiplier = 1
                 defense_multi = 1
-                if ship['class'] == 6:
+                if ship['class'] == 21:
                     multiplier = 1.75
                     defense_multi = 1.5
                 if ship['id'] == 80:
