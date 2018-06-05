@@ -577,6 +577,13 @@ class Market:
                     await ctx.author.send('**ERROR** - Not a valid choice.')
                 return await ctx.invoke(self.bot.get_command("me"), True)
             elif content == '2':
+                if player[0][13] is None:
+                    embed = make_embed(icon=ctx.bot.user.avatar)
+                    embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="{} Module Hangar".format(region_name),
+                                    value='No Modules Found In This Region')
+                    return await ctx.author.send(embed=embed)
                 module_hangar = ast.literal_eval(player[0][13])
                 if player[0][4] not in module_hangar:
                     embed = make_embed(icon=ctx.bot.user.avatar)
