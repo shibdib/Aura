@@ -88,14 +88,23 @@ class Market:
                         mining_barges.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                     elif ship['class'] == 8:
                         exhumers.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
-                merged = frigates + destroyers + interceptors + tactical_destroyers + mining_frigate + mining_barges + \
-                         exhumers
+                merged = frigates + interceptors
+                merged_two = destroyers + tactical_destroyers
+                merged_mining = mining_frigate + mining_barges + exhumers
                 ship_list = '\n'.join(merged)
+                ship_list_two = '\n'.join(merged_two)
+                ship_list_mining = '\n'.join(merged_mining)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
                 embed.add_field(name="Ship Market",
-                                value="Wallet - {} ISK \n\n {}".format(wallet_balance, ship_list))
+                                value="Wallet - {} ISK \n".format(wallet_balance))
+                embed.add_field(name="Frigates and Interceptors",
+                                value="{}\n".format(ship_list))
+                embed.add_field(name="Destroyers and Tactical Destroyers",
+                                value="{}\n".format(ship_list_two))
+                embed.add_field(name="Mining Ships",
+                                value="{}\n".format(ship_list_mining))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
