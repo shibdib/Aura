@@ -52,6 +52,7 @@ class ShipFitting:
         if 'kill_marks' in player_ship_obj:
             killmarks = '\n**{} Kill Marks**'
         module_count = 0
+        drone_count = 0
         if player[0][12] is not None:
             equipped_modules = ast.literal_eval(player[0][12])
             equipped_modules_array = []
@@ -72,6 +73,7 @@ class ShipFitting:
                     equipped_drones_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
                     remove_drones_commands.append(module_number)
                     module_number += 1
+                    drone_count += 1
                 else:
                     module_count += 1
                     remove_module_order[module_number] = int(item)
@@ -110,7 +112,7 @@ class ShipFitting:
                 stored_modules_array = []
                 for item in module_hangar[player[0][4]]:
                     module = await game_functions.get_module(int(item))
-                    if 10 >= module['class'] < 15 and ship['drone_bay'] == 0:
+                    if module['class'] > 9 and ship['drone_bay'] == 0:
                         continue
                     equip_module_order[module_number] = int(item)
                     module_attack = module['attack']

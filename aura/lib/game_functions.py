@@ -71,7 +71,9 @@ async def get_combat_attributes(player, ship_id):
                 defense = (defense * module['defense']) + defense
                 maneuver = (maneuver * module['maneuver']) + maneuver
                 tracking = (tracking * module['tracking']) + tracking
-            else:
+        for item in equipped_modules:
+            module = await get_module(int(item))
+            if module['class'] > 9:
                 attack = module['attack'] + attack
                 defense = module['defense'] + defense
                 maneuver = module['maneuver'] + maneuver
