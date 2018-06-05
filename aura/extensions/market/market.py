@@ -643,9 +643,9 @@ class Market:
                     module_hangar[player[0][4]].remove(sell_module_order[int(content)])
                     new_hangar = module_hangar
                     new_isk = float(player[0][5]) + float(module_info['isk'] * 0.95)
-                    self.logger.info(float(module_info['isk'] * 0.95))
-                    self.logger.info(float(module_info['isk']) * 0.95)
-                    return 
+                    self.logger.info(new_isk)
+                    self.logger.info(int(float(new_isk)))
+                    return
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
