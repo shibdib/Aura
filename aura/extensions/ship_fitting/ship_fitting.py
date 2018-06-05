@@ -118,8 +118,10 @@ class ShipFitting:
             if player[0][4] in module_hangar:
                 stored_modules_array = []
                 for item in module_hangar[player[0][4]]:
-                    equip_module_order[module_number] = int(item)
                     module = await game_functions.get_module(int(item))
+                    if 10 >= module['class'] < 15 and ship['drone_bay'] == 0:
+                        continue
+                    equip_module_order[module_number] = int(item)
                     module_attack = module['attack']
                     module_defense = module['defense']
                     module_maneuver = module['maneuver']
@@ -174,7 +176,7 @@ class ShipFitting:
                     remove_size += selected_module['size']
                     remove_drones_text.append('{}'.format(selected_module['name']))
                     remove_modules.append(int(equip_module_order[module]))
-            if ((int(drone_size) + len(equip_size)) - len(remove_size)) > ship['drone_bay']:
+            if ((int(drone_size) + int(equip_size)) - int(remove_size)) > ship['drone_bay']:
                 await ctx.author.send('**The current selection would overfill your drone bay**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
             if ((int(module_count) + len(equip_modules)) - len(remove_modules)) > ship['slots']:
