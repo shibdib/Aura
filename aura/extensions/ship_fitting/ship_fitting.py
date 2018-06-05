@@ -57,7 +57,7 @@ class ShipFitting:
             equipped_modules_array = []
             for item in equipped_modules:
                 module = await game_functions.get_module(int(item))
-                if 10 >= module['class'] < 15:
+                if module['class'] > 9:
                     continue
                 module_count += 1
                 remove_module_order[module_number] = int(item)
