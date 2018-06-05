@@ -465,8 +465,6 @@ class Market:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
             return await ctx.invoke(self.bot.get_command("me"), True)
         elif content == '2':
-            if ctx.author.id != 114428861990699012:
-                return await ctx.author.send('**Selling is currently disabled while I debug something -Shib**')
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -546,7 +544,8 @@ class Market:
                             break
                     ship_hangar[player[0][4]].remove(remove)
                     new_hangar = ship_hangar
-                    new_isk = float(player[0][5]) + float(ship_info['isk'] * 0.95)
+                    add_isk = int(float(ship['isk'] * 0.95))
+                    new_isk = player[0][5] + add_isk
                     if None is not None:
                         if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                             module_hangar = ast.literal_eval(player[0][13])
@@ -558,15 +557,15 @@ class Market:
                         else:
                             modules = ast.literal_eval(player[0][12])
                             module_hangar = {player[0][4]: modules}
-                        values = (str(new_hangar), str(module_hangar), int(float(new_isk)), ctx.author.id,)
+                        values = (str(new_hangar), str(module_hangar), new_isk, ctx.author.id,)
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
-                            values = (None, player[0][13], int(float(new_isk)), ctx.author.id,)
+                            values = (None, player[0][13], new_isk, ctx.author.id,)
                         else:
-                            values = (str(new_hangar), player[0][13], int(float(new_isk)), ctx.author.id,)
+                            values = (str(new_hangar), player[0][13], new_isk, ctx.author.id,)
                     else:
-                        values = (str(new_hangar), player[0][13], int(float(new_isk)), ctx.author.id,)
+                        values = (str(new_hangar), player[0][13], new_isk, ctx.author.id,)
                     sql = ''' UPDATE eve_rpg_players
                             SET ship_hangar = (?),
                                 module_hangar = (?),
@@ -642,18 +641,16 @@ class Market:
                         return await ctx.author.send('**Sale Canceled**')
                     module_hangar[player[0][4]].remove(sell_module_order[int(content)])
                     new_hangar = module_hangar
-                    new_isk = float(player[0][5]) + float(module_info['isk'] * 0.95)
-                    self.logger.info(new_isk)
-                    self.logger.info(int(float(new_isk)))
-                    return
+                    add_isk = int(float(module_info['isk'] * 0.95))
+                    new_isk = player[0][5] + add_isk
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
-                            values = (None, int(float(new_isk)), ctx.author.id,)
+                            values = (None, new_isk, ctx.author.id,)
                         else:
-                            values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
+                            values = (str(new_hangar), new_isk, ctx.author.id,)
                     else:
-                        values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
+                        values = (str(new_hangar), new_isk, ctx.author.id,)
                     sql = ''' UPDATE eve_rpg_players
                             SET module_hangar = (?),
                                 isk = (?)
@@ -729,15 +726,16 @@ class Market:
                             break
                     component_hangar[player[0][4]].remove(remove)
                     new_hangar = component_hangar
-                    new_isk = float(player[0][5]) + float((component_info['isk'] * 0.95) * component['amount'])
+                    add_isk = int(float(component_info['isk'] * 0.95))
+                    new_isk = player[0][5] + add_isk
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
-                            values = (None, int(float(new_isk)), ctx.author.id,)
+                            values = (None, new_isk, ctx.author.id,)
                         else:
-                            values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
+                            values = (str(new_hangar), new_isk, ctx.author.id,)
                     else:
-                        values = (str(new_hangar), int(float(new_isk)), ctx.author.id,)
+                        values = (str(new_hangar), new_isk, ctx.author.id,)
                     sql = ''' UPDATE eve_rpg_players
                             SET component_hangar = (?),
                                 isk = (?)
