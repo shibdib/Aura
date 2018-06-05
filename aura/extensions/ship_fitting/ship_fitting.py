@@ -36,7 +36,6 @@ class ShipFitting:
         region_name = await game_functions.get_region(region_id)
         player_ship_obj = ast.literal_eval(player[0][14])
         ship = await game_functions.get_ship(int(player_ship_obj['ship_type']))
-        module_count = 0
         drone_size = 0
         clean_equipped_modules = ''
         clean_equipped_drones = ''
@@ -52,17 +51,15 @@ class ShipFitting:
         killmarks = ''
         if 'kill_marks' in player_ship_obj:
             killmarks = '\n**{} Kill Marks**'
+        module_count = 0
         if player[0][12] is not None:
             equipped_modules = ast.literal_eval(player[0][12])
-            if equipped_modules is not None:
-                module_count = len(equipped_modules)
-            else:
-                module_count = 0
             equipped_modules_array = []
             for item in equipped_modules:
                 module = await game_functions.get_module(int(item))
                 if 10 >= module['class'] < 15:
                     continue
+                module_count += 1
                 remove_module_order[module_number] = int(item)
                 module_attack = module['attack']
                 module_defense = module['defense']
@@ -101,8 +98,8 @@ class ShipFitting:
         if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__\n{}'.format(value, clean_equipped_modules)
         if len(remove_drones_commands) > 0:
-            value = '{}\n\n{}m3/{}m3\n__Equipped Drones__\n{}'.format(value, drone_size, ship['drone_bay'],
-                                                                      clean_equipped_drones)
+            value = '{}\n\n**{}m3/{}m3 Drone Bay**\n__Equipped Drones__\n{}'.format(value, drone_size, ship['drone_bay'],
+                                                                                    clean_equipped_drones)
         embed = make_embed(icon=ctx.bot.user.avatar)
         ship_image = await game_functions.get_ship_image(int(player_ship_obj['ship_type']))
         embed.set_thumbnail(url="{}".format(ship_image))
