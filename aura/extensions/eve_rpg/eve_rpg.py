@@ -823,7 +823,13 @@ class EveRpg:
         await db.execute_sql(sql, values)
         return self.logger.info('eve_rpg - Bad Channel removed successfully')
 
+    async def refresh_player(self, player):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (player[2],)
+        return await db.select_var(sql, values)
+
     async def add_xp(self, player, xp_gained):
+        player = await self.refresh_player(player)
         if player[9] + xp_gained < 100 * player[8]:
             sql = ''' UPDATE eve_rpg_players
                     SET xp = (?)
@@ -840,6 +846,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_isk(self, player, isk):
+        player = await self.refresh_player(player)
         sql = ''' UPDATE eve_rpg_players
                 SET isk = (?)
                 WHERE
@@ -848,15 +855,13 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_kill(self, player, mods):
-        if player is None:
-            return
+        player = await self.refresh_player(player)
         sql = ''' UPDATE eve_rpg_players
                 SET kills=?,
                     ship=?
                 WHERE
                     player_id=?; '''
         killer_ship = ast.literal_eval(player[14])
-        self.logger.info('kill_marks - {}'.format(killer_ship))
         if 'kill_marks' not in killer_ship:
             killer_ship['kill_marks'] = 1
         else:
@@ -868,12 +873,10 @@ class EveRpg:
                 else:
                     killer_ship['module_cargo_bay'] = [mod]
         values = (int(player[10]) + 1, str(killer_ship), player[2],)
-        self.logger.info('kill_marks - {}'.format(values))
         return await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
-        if player is None:
-            return
+        player = await self.refresh_player(player)
         sql = ''' UPDATE eve_rpg_players
                 SET losses = (?)
                 WHERE
@@ -882,8 +885,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def destroy_ship(self, player):
-        if player is None:
-            return
+        player = await self.refresh_player(player)
         ship_id = 1
         if player[3] == 1:
             ship_id = 1
@@ -928,30 +930,23 @@ class EveRpg:
             return await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mods):
-        if player is None:
-            return
-        self.logger.info('give_mod - {}'.format(player))
-        self.logger.info('give_mod - {}'.format(mods))
-        self.logger.info('give_mod - {}'.format(player[14]))
+        player = await self.refresh_player(player)
         ship = ast.literal_eval(player[14])
-        self.logger.info('give_mod - {}'.format(ship))
         for mod in mods:
             if 'module_cargo_bay' in ship:
                 ship['module_cargo_bay'].append(mod)
             else:
                 ship['module_cargo_bay'] = [mod]
-        self.logger.info('give_mod - {}'.format(ship))
         new_ship = str(ship)
-        self.logger.info('give_mod - {}'.format(new_ship))
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?)
                 WHERE
                     player_id = (?); '''
         values = (new_ship, player[2],)
-        self.logger.info('give_mod - {}'.format(values))
         return await db.execute_sql(sql, values)
 
     async def give_pvp_loot(self, player):
+        player = await self.refresh_player(player)
         ship = ast.literal_eval(player[14])
         tier_1_amount = random.randint(1, 50)
         tier_1 = await self.weighted_choice([(True, 90), (False, 10)])

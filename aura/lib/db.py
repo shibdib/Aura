@@ -118,8 +118,6 @@ async def get_token(sql, single=False):
 
 
 async def execute_sql(sql, var=None):
-    print('Database: {}'.format(sql))
-    print('Database: {}'.format(var))
     db = sqlite3.connect('aura.sqlite')
     cursor = db.cursor()
     cursor.execute(sql, var)
