@@ -864,24 +864,24 @@ class EveRpg:
     async def add_kill(self, player):
         if player is None:
             return
-        self.logger.info('kill_marks - {}').format(player)
+        self.logger.info('kill_marks - {}'.format(player))
         sql = ''' UPDATE eve_rpg_players
                 SET kills = (?),
                     ship = (?)
                 WHERE
                     player_id = (?); '''
-        self.logger.info('kill_marks - {}').format(player[14])
+        self.logger.info('kill_marks - {}'.format(player[14]))
         killer_ship = ast.literal_eval(player[14])
-        self.logger.info('kill_marks - {}').format(killer_ship)
+        self.logger.info('kill_marks - {}'.format(killer_ship))
         if 'kill_marks' not in killer_ship:
             killer_ship['kill_marks'] = 1
         else:
             killer_ship['kill_marks'] += 1
-        self.logger.info('kill_marks - {}').format(killer_ship)
+        self.logger.info('kill_marks - {}'.format(killer_ship))
         new_ship = str(killer_ship)
-        self.logger.info('kill_marks - {}').format(new_ship)
+        self.logger.info('kill_marks - {}'.format(new_ship))
         values = (int(player[10]) + 1, new_ship, player[2],)
-        self.logger.info('kill_marks - {}').format(values)
+        self.logger.info('kill_marks - {}'.format(values))
         return await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
@@ -943,25 +943,25 @@ class EveRpg:
     async def give_mod(self, player, mods):
         if player is None:
             return
-        self.logger.info('give_mod - {}').format(player)
-        self.logger.info('give_mod - {}').format(mods)
-        self.logger.info('give_mod - {}').format(player[14])
+        self.logger.info('give_mod - {}'.format(player))
+        self.logger.info('give_mod - {}'.format(mods))
+        self.logger.info('give_mod - {}'.format(player[14]))
         ship = ast.literal_eval(player[14])
-        self.logger.info('give_mod - {}').format(ship)
+        self.logger.info('give_mod - {}'.format(ship))
         for mod in mods:
             if 'module_cargo_bay' in ship:
                 ship['module_cargo_bay'].append(mod)
             else:
                 ship['module_cargo_bay'] = [mod]
-        self.logger.info('give_mod - {}').format(ship)
+        self.logger.info('give_mod - {}'.format(ship))
         new_ship = str(ship)
-        self.logger.info('give_mod - {}').format(new_ship)
+        self.logger.info('give_mod - {}'.format(new_ship))
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?)
                 WHERE
                     player_id = (?); '''
         values = (new_ship, player[2],)
-        self.logger.info('give_mod - {}').format(values)
+        self.logger.info('give_mod - {}'.format(values))
         return await db.execute_sql(sql, values)
 
     async def give_pvp_loot(self, player):
