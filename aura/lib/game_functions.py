@@ -58,7 +58,7 @@ async def get_ship_image(ship_id):
 
 async def get_combat_attributes(player, ship_id):
     ship = game_assets.ships[ship_id]
-    player_ship_obj = ast.literal_eval(player[0][14])
+    player_ship_obj = ast.literal_eval(player[14])
     attack = int(ship['attack'])
     defense = int(ship['defense'])
     maneuver = int(ship['maneuver'])
