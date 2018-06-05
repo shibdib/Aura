@@ -189,24 +189,31 @@ class Market:
                 for key, module in modules.items():
                     cost = '{0:,.2f}'.format(float(module['isk']))
                     if module['class'] == 1:
-                        attack.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                        attack.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100,
+                                                    module['maneuver'] * 100, module['tracking'] * 100, cost))
                     elif module['class'] == 2:
-                        defense.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                        defense.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100,
+                                                    module['maneuver'] * 100, module['tracking'] * 100, cost))
                     elif module['class'] == 3:
-                        maneuver.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                        maneuver.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100,
+                                                    module['maneuver'] * 100, module['tracking'] * 100, cost))
                     elif module['class'] == 4:
-                        tracking.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                        tracking.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100,
+                                                    module['maneuver'] * 100, module['tracking'] * 100, cost))
                     elif module['class'] == 5:
-                        mining.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                        mining.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100,
+                                                    module['maneuver'] * 100, module['tracking'] * 100, cost))
                     elif module['class'] == 10:
-                        lights.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                        lights.append('**{}.** {} ({}/{}/{}/{}) Size: {}m3 - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100,
+                                                    module['maneuver'] * 100, module['tracking'] * 100, module['size'], cost))
                 merged = attack + defense + maneuver + tracking + mining + lights
                 module_list = '\n'.join(merged)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
                 embed.add_field(name="Module Market",
-                                value="Wallet - {} ISK \n\n {}".format(wallet_balance, module_list))
+                                value="Wallet - {} ISK \n\nBonuses (Attack/Defense/Maneuver/Tracking) \n\n {}".format(
+                                    wallet_balance, module_list))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
