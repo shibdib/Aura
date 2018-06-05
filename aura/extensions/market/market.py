@@ -465,7 +465,8 @@ class Market:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
             return await ctx.invoke(self.bot.get_command("me"), True)
         elif content == '2':
-            return await ctx.author.send('**Selling is currently disabled while I debug something -Shib**')
+            if ctx.author.id != 114428861990699012:
+                return await ctx.author.send('**Selling is currently disabled while I debug something -Shib**')
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -642,6 +643,9 @@ class Market:
                     module_hangar[player[0][4]].remove(sell_module_order[int(content)])
                     new_hangar = module_hangar
                     new_isk = float(player[0][5]) + float(module_info['isk'] * 0.95)
+                    self.logger.info(float(module_info['isk'] * 0.95))
+                    self.logger.info(float(module_info['isk']) * 0.95)
+                    return 
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
