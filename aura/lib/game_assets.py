@@ -107,13 +107,13 @@ ships = {  # Noob
          'image': 'https://image.eveonline.com/Type/35683_64.png', 'isk': 57665805, 'slots': 3, 'drone_bay': 0},
     # Cruisers
     22: {'id': 22, 'name': 'Omen', 'class': 5, 'attack': 11, 'defense': 10, 'maneuver': 4, 'tracking': 6,
-         'image': 'https://image.eveonline.com/Type/34317_64.png', 'isk': 48137462, 'slots': 3, 'drone_bay': 5},
+         'image': 'https://image.eveonline.com/Type/2006_64.png', 'isk': 9385386, 'slots': 3, 'drone_bay': 5},
     23: {'id': 23, 'name': 'Rupture', 'class': 5, 'attack': 10, 'defense': 11, 'maneuver': 3, 'tracking': 6,
-         'image': 'https://image.eveonline.com/Type/34562_64.png', 'isk': 40611697, 'slots': 3, 'drone_bay': 10},
+         'image': 'https://image.eveonline.com/Type/629_64.png', 'isk': 10143856, 'slots': 3, 'drone_bay': 10},
     24: {'id': 24, 'name': 'Caracal', 'class': 5, 'attack': 10, 'defense': 8, 'maneuver': 4, 'tracking': 15,
-         'image': 'https://image.eveonline.com/Type/34828_64.png', 'isk': 47903251, 'slots': 3, 'drone_bay': 10},
+         'image': 'https://image.eveonline.com/Type/621_64.png', 'isk': 10129608, 'slots': 3, 'drone_bay': 10},
     25: {'id': 25, 'name': 'Vexor', 'class': 5, 'attack': 4, 'defense': 9, 'maneuver': 4, 'tracking': 8,
-         'image': 'https://image.eveonline.com/Type/35683_64.png', 'isk': 57665805, 'slots': 3, 'drone_bay': 25},
+         'image': 'https://image.eveonline.com/Type/626_64.png', 'isk': 9514099, 'slots': 3, 'drone_bay': 25},
     # Faction Frigs
     50: {'id': 50, 'name': 'Republic Fleet Firetail', 'class': 1, 'attack': 4, 'defense': 5, 'maneuver': 8,
          'tracking': 5,
