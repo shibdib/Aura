@@ -199,7 +199,7 @@ class Market:
                     elif module['class'] == 5:
                         mining.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, cost))
                     elif module['class'] == 10:
-                        lights.append('**{}.** {} ({}/{}/{}/{}) Size: {}m3 - {} ISK'.format(module['id'], module['name'], module['attack'] * 100, module['defense'] * 100, module['maneuver'] * 100, module['tracking'] * 100, module['size'], cost))
+                        lights.append('**{}.** {} ({}/{}/{}/{}) Size: {}m3 - {} ISK'.format(module['id'], module['name'], module['attack'], module['defense'], module['maneuver'], module['tracking'], module['size'], cost))
                 merged = attack + defense
                 merged_two = maneuver + tracking
                 merged_three = mining
@@ -212,8 +212,8 @@ class Market:
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
                 embed.add_field(name="Module Market",
-                                value="Wallet - {} ISK \n\nBonuses (Attack/Defense/Maneuver/Tracking) \n\n {}".format(
-                                    wallet_balance, module_list))
+                                value="Wallet - {} ISK \n\nBonuses (Attack/Defense/Maneuver/Tracking)".format(
+                                    wallet_balance))
                 embed.add_field(name="Attack and Defense Mods",
                                 value="{}".format(module_list_two))
                 embed.add_field(name="Maneuver and Tracking Mods",
