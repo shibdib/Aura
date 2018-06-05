@@ -157,6 +157,8 @@ class ShipFitting:
             equip_drones_text = []
             remove_size = 0
             remove_drones_text = []
+            drone_equip_count = 0
+            drone_remove_count = 0
             for module in module_array:
                 if int(module) in remove_commands:
                     selected_module = await game_functions.get_module(int(remove_module_order[module]))
@@ -171,15 +173,18 @@ class ShipFitting:
                     equip_size += selected_module['size']
                     equip_drones_text.append('{}'.format(selected_module['name']))
                     equip_modules.append(int(equip_module_order[module]))
+                    drone_equip_count += 1
                 elif int(module) in remove_drones_commands:
                     selected_module = await game_functions.get_module(int(equip_module_order[module]))
                     remove_size += selected_module['size']
                     remove_drones_text.append('{}'.format(selected_module['name']))
                     remove_modules.append(int(equip_module_order[module]))
+                    drone_remove_count += 1
             if ((int(drone_size) + int(equip_size)) - int(remove_size)) > ship['drone_bay']:
                 await ctx.author.send('**The current selection would overfill your drone bay**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
-            if ((int(module_count) + len(equip_modules)) - len(remove_modules)) > ship['slots']:
+            if ((int(module_count) + (len(equip_modules) - drone_equip_count)) - (len(remove_modules) -
+                                                                                  drone_remove_count)) > ship['slots']:
                 await ctx.author.send('**The current selection would put you over the maximum modules for this '
                                       'ship**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
