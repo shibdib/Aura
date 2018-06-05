@@ -860,6 +860,8 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_kill(self, player):
+        if player is None:
+            return
         self.logger.info('kill_marks - {}').format(player)
         sql = ''' UPDATE eve_rpg_players
                 SET kills = (?),
@@ -881,6 +883,8 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
+        if player is None:
+            return
         sql = ''' UPDATE eve_rpg_players
                 SET losses = (?)
                 WHERE
@@ -889,6 +893,8 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def destroy_ship(self, player):
+        if player is None:
+            return
         ship_id = 1
         if player[3] == 1:
             ship_id = 1
@@ -933,6 +939,8 @@ class EveRpg:
             return await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mods):
+        if player is None:
+            return
         self.logger.info('give_mod - {}').format(player)
         self.logger.info('give_mod - {}').format(mods)
         self.logger.info('give_mod - {}').format(player[14])
