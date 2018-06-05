@@ -184,6 +184,7 @@ class Market:
                 maneuver = ['__**Maneuver**__']
                 tracking = ['__**Tracking**__']
                 mining = ['__**Mining**__']
+                lights = ['__**Light Drones**__']
                 modules = game_assets.modules
                 for key, module in modules.items():
                     cost = '{0:,.2f}'.format(float(module['isk']))
@@ -197,6 +198,8 @@ class Market:
                         tracking.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
                     elif module['class'] == 5:
                         mining.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
+                    elif module['class'] == 10:
+                        lights.append('**{}.** {} - {} ISK'.format(module['id'], module['name'], cost))
                 merged = attack + defense + maneuver + tracking + mining
                 module_list = '\n'.join(merged)
                 embed = make_embed(icon=ctx.bot.user.avatar)

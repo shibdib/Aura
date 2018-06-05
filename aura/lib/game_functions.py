@@ -58,6 +58,7 @@ async def get_ship_image(ship_id):
 
 async def get_combat_attributes(player, ship_id):
     ship = game_assets.ships[ship_id]
+    player_ship_obj = ast.literal_eval(player[0][14])
     attack = int(ship['attack'])
     defense = int(ship['defense'])
     maneuver = int(ship['maneuver'])
@@ -71,6 +72,14 @@ async def get_combat_attributes(player, ship_id):
                 defense = (defense * module['defense']) + defense
                 maneuver = (maneuver * module['maneuver']) + maneuver
                 tracking = (tracking * module['tracking']) + tracking
+    if 'drones' in player_ship_obj:
+        for item in player_ship_obj['drones']:
+            drone = await get_module(int(item))
+            attack = drone['attack'] + attack
+            defense = drone['defense'] + defense
+            maneuver = drone['maneuver'] + maneuver
+            tracking = drone['tracking'] + tracking
+
     return int(round(attack)), int(round(defense)), int(round(maneuver)), int(round(tracking))
 
 
