@@ -465,6 +465,7 @@ class Market:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
             return await ctx.invoke(self.bot.get_command("me"), True)
         elif content == '2':
+            return await ctx.author.send('**Selling is currently disabled while I debug something -Shib**')
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
