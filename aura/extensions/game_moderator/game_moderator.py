@@ -129,7 +129,7 @@ class GameModerator:
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Give ISK",
-                        value="How much ISK would you like to give them?")
+                        value="How much ISK would you like to set them at?")
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -160,8 +160,8 @@ class GameModerator:
                     player_id = (?); '''
         values = (int(float(isk)), result[0][2],)
         await db.execute_sql(sql, values)
-        self.logger.info('GM - {} sent {} {} ISK'.format(ctx.author.display_name, receiver, isk))
-        await receiver.send('A member of the GM team has added {} ISK to your wallet.'.format(cost))
+        self.logger.info('GM - {} set {} to {} ISK'.format(ctx.author.display_name, receiver, isk))
+        await receiver.send('A member of the GM team has reset your wallet to {} ISK.'.format(cost))
         return await ctx.author.send('**ISK Sent**')
 
     async def warn_player(self, ctx):
