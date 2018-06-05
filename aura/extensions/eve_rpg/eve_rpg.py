@@ -340,6 +340,12 @@ class EveRpg:
                             continue
                         if module == 18:
                             isk = (isk * .2) + isk
+                            continue
+                        if module == 121:
+                            isk = (isk * .05) + isk
+                            continue
+                        if module == 122:
+                            isk = (isk * .1) + isk
                 death = False
                 if possible_npc is not False:
                     death = await self.weighted_choice(

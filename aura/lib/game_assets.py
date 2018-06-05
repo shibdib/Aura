@@ -185,6 +185,11 @@ modules = {  # Attack
           'image': 'https://image.eveonline.com/Type/2464_64.png', 'isk': 4020, 'special': None, 'size': 5},
     104: {'id': 104, 'name': 'Acolyte I', 'class': 10, 'attack': 1, 'defense': 0, 'maneuver': 1.5, 'tracking': 1,
           'image': 'https://image.eveonline.com/Type/2203_64.png', 'isk': 2283, 'special': None, 'size': 5},
+    # Mining
+    121: {'id': 121, 'name': 'Mining Drone I', 'class': 14, 'attack': 0, 'defense': 0, 'maneuver': 0, 'tracking': 0,
+          'image': 'https://image.eveonline.com/Type/10246_64.png', 'isk': 18316, 'special': '5% Mining Bonus', 'size': 5},
+    122: {'id': 122, 'name': 'Mining Drone II', 'class': 14, 'attack': 0, 'defense': 0, 'maneuver': 0, 'tracking': 0,
+          'image': 'https://image.eveonline.com/Type/10250_64.png', 'isk': 831869, 'special': '10% Mining Bonus', 'size': 5},
 }
 
 components = {
