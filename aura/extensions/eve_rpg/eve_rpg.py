@@ -860,11 +860,13 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_kill(self, player):
+        self.logger.info('kill_marks - {}').format(player)
         sql = ''' UPDATE eve_rpg_players
                 SET kills = (?),
                     ship = (?)
                 WHERE
                     player_id = (?); '''
+        self.logger.info('kill_marks - {}').format(player[14])
         killer_ship = ast.literal_eval(player[14])
         self.logger.info('kill_marks - {}').format(killer_ship)
         if 'kill_marks' not in killer_ship:
@@ -931,7 +933,9 @@ class EveRpg:
             return await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mods):
+        self.logger.info('give_mod - {}').format(player)
         self.logger.info('give_mod - {}').format(mods)
+        self.logger.info('give_mod - {}').format(player[14])
         ship = ast.literal_eval(player[14])
         self.logger.info('give_mod - {}').format(ship)
         for mod in mods:
