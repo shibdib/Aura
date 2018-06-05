@@ -55,42 +55,38 @@ class ShipFitting:
         if player[0][12] is not None:
             equipped_modules = ast.literal_eval(player[0][12])
             equipped_modules_array = []
+            equipped_drones_array = []
             for item in equipped_modules:
                 module = await game_functions.get_module(int(item))
                 if module['class'] > 9:
-                    continue
-                module_count += 1
-                remove_module_order[module_number] = int(item)
-                module_attack = module['attack']
-                module_defense = module['defense']
-                module_maneuver = module['maneuver']
-                module_tracking = module['tracking']
-                stats = '({}%/{}%/{}%/{}%)'.format(module_attack * 100, module_defense * 100,
-                                                   module_maneuver * 100, module_tracking * 100)
-                if module['special'] is not None:
-                    stats = '{} {}'.format(stats, module['special'])
-                equipped_modules_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
-                remove_commands.append(module_number)
-                module_number += 1
+                    drone_size += module['size']
+                    remove_module_order[module_number] = int(item)
+                    drone_attack = module['attack']
+                    drone_defense = module['defense']
+                    drone_maneuver = module['maneuver']
+                    drone_tracking = module['tracking']
+                    stats = '({}/{}/{}/{})'.format(drone_attack, drone_defense,
+                                                   drone_maneuver, drone_tracking)
+                    if module['special'] is not None:
+                        stats = '{} {}'.format(stats, module['special'])
+                    equipped_drones_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
+                    remove_drones_commands.append(module_number)
+                    module_number += 1
+                else:
+                    module_count += 1
+                    remove_module_order[module_number] = int(item)
+                    module_attack = module['attack']
+                    module_defense = module['defense']
+                    module_maneuver = module['maneuver']
+                    module_tracking = module['tracking']
+                    stats = '({}%/{}%/{}%/{}%)'.format(module_attack * 100, module_defense * 100,
+                                                       module_maneuver * 100, module_tracking * 100)
+                    if module['special'] is not None:
+                        stats = '{} {}'.format(stats, module['special'])
+                    equipped_modules_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
+                    remove_commands.append(module_number)
+                    module_number += 1
             clean_equipped_modules = '\n'.join(equipped_modules_array)
-            equipped_drones_array = []
-            for item in equipped_modules:
-                drone = await game_functions.get_module(int(item))
-                if drone['class'] < 10:
-                    continue
-                drone_size += drone['size']
-                remove_module_order[module_number] = int(item)
-                drone_attack = drone['attack']
-                drone_defense = drone['defense']
-                drone_maneuver = drone['maneuver']
-                drone_tracking = drone['tracking']
-                stats = '({}/{}/{}/{})'.format(drone_attack, drone_defense,
-                                               drone_maneuver, drone_tracking)
-                if drone['special'] is not None:
-                    stats = '{} {}'.format(stats, drone['special'])
-                equipped_drones_array.append('**{}.** {} - {}'.format(module_number, drone['name'], stats))
-                remove_drones_commands.append(module_number)
-                module_number += 1
             clean_equipped_drones = '\n'.join(equipped_drones_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(player[0], int(player_ship_obj['ship_type']))
