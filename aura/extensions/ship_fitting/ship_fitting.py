@@ -50,7 +50,7 @@ class ShipFitting:
         #  check if killmark
         killmarks = ''
         if 'kill_marks' in player_ship_obj:
-            killmarks = '\n**{} Kill Marks**'
+            killmarks = '\n**{} Kill Marks**'.format(player_ship_obj['kill_marks'])
         module_count = 0
         drone_count = 0
         if player[0][12] is not None:
