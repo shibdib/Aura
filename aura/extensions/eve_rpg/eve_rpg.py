@@ -165,6 +165,12 @@ class EveRpg:
                     survival = 50
                 elif region_security == 'Null':
                     survival = -10
+            if ship['class'] == 5:
+                survival = 550
+                if region_security == 'Low':
+                    survival = 400
+                elif region_security == 'Null':
+                    survival = 300
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
@@ -235,6 +241,12 @@ class EveRpg:
                     survival = 25
                 elif region_security == 'Null':
                     survival = -25
+            if ship['class'] == 5:
+                survival = 550
+                if region_security == 'Low':
+                    survival = 400
+                elif region_security == 'Null':
+                    survival = 300
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
