@@ -75,19 +75,19 @@ class Market:
                     accepted_options.append(ship['id'])
                     cost = '{0:,.2f}'.format(float(ship['isk']))
                     if ship['class'] == 2:
-                        frigates.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['size'], cost))
+                        frigates.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                     elif ship['class'] == 3:
-                        destroyers.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['size'], cost))
+                        destroyers.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                     elif ship['class'] == 4:
-                        tactical_destroyers.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['size'], cost))
+                        tactical_destroyers.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                     elif ship['class'] == 5:
-                        interceptors.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['size'], cost))
+                        interceptors.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                     elif ship['class'] == 6:
-                        mining_frigate.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['size'], cost))
+                        mining_frigate.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                     elif ship['class'] == 7:
-                        mining_barges.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['size'], cost))
+                        mining_barges.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                     elif ship['class'] == 8:
-                        exhumers.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['size'], cost))
+                        exhumers.append('**{}.** {} ({}/{}/{}/{}) - Drone Bay Size: {}m3 - {} ISK'.format(ship['id'], ship['name'], ship['attack'], ship['defense'], ship['maneuver'], ship['tracking'], ship['drone_bay'], cost))
                 merged = frigates + destroyers + interceptors + tactical_destroyers + mining_frigate + mining_barges + \
                          exhumers
                 ship_list = '\n'.join(merged)
