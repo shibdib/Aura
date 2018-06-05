@@ -215,13 +215,13 @@ class Market:
                                 value="Wallet - {} ISK \n\nBonuses (Attack/Defense/Maneuver/Tracking)".format(
                                     wallet_balance))
                 embed.add_field(name="Attack and Defense Mods",
-                                value="{}".format(module_list_two))
+                                value="{}\n".format(module_list_two))
                 embed.add_field(name="Maneuver and Tracking Mods",
-                                value="{}".format(module_list_three))
+                                value="{}\n".format(module_list_three))
                 embed.add_field(name="Mining Mods",
-                                value="{}".format(module_list))
+                                value="{}\n".format(module_list))
                 embed.add_field(name="Drones",
-                                value="{}".format(drone_list))
+                                value="{}\n".format(drone_list))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
