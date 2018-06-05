@@ -181,10 +181,15 @@ modules = {  # Attack
          'image': 'https://image.eveonline.com/Type/440_64.png', 'isk': 758662, 'special': None},
     16: {'id': 16, 'name': 'AB II', 'class': 3, 'attack': 0, 'defense': 0, 'maneuver': .35, 'tracking': 0,
          'image': 'https://image.eveonline.com/Type/12058_64.png', 'isk': 712445, 'special': None},
+    # Mining
     17: {'id': 17, 'name': 'Mining Laser Upgrade I', 'class': 5, 'attack': 0, 'defense': 0, 'maneuver': 0,
          'tracking': 0, 'image': 'https://image.eveonline.com/Type/22542_64.png', 'isk': 29554, 'special': '10% Mining Bonus'},
     18: {'id': 18, 'name': 'Mining Laser Upgrade II', 'class': 5, 'attack': 0, 'defense': 0, 'maneuver': 0,
          'tracking': 0, 'image': 'https://image.eveonline.com/Type/28576_64.png', 'isk': 287445, 'special': '20% Mining Bonus'},
+    # Special
+    40: {'id': 40, 'name': 'Prototype Cloaking Device I', 'class': 6, 'attack': 0, 'defense': 0, 'maneuver': 0,
+         'tracking': 0, 'image': 'https://image.eveonline.com/Type/11370_64.png', 'isk': 1469873,
+         'special': '50% PVP Escape Bonus'},
     # Light
     101: {'id': 101, 'name': 'Warrior I', 'class': 10, 'attack': 0.75, 'defense': 0, 'maneuver': 2, 'tracking': 2,
           'image': 'https://image.eveonline.com/Type/2486_64.png', 'isk': 7111, 'special': None, 'size': 5},

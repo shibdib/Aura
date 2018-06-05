@@ -485,6 +485,8 @@ class EveRpg:
         if loser[12] is not None:
             modules = ast.literal_eval(loser[12])
             for module in modules:
+                if module['id'] == 40 and escape is False:
+                    escape = await self.weighted_choice([(True, 50), (False, 50)])
                 module_item = await game_functions.get_module(module)
                 dropped = await self.weighted_choice([(True, 50), (False, 50)])
                 module_drop = ''

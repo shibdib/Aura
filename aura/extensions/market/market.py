@@ -304,6 +304,7 @@ class Market:
                 maneuver = ['__**Maneuver**__']
                 tracking = ['__**Tracking**__']
                 mining = ['__**Mining**__']
+                other = ['__**Other**__']
                 lights = ['__**Light Drones**__']
                 mining_drones = ['__**Mining Drones**__']
                 modules = game_assets.modules
@@ -357,6 +358,12 @@ class Market:
                         module_selection_dict[module_number] = module['id']
                         accepted_modules.append(module_number)
                         module_number += 1
+                    elif module['class'] == 6:
+                        other.append('**{}.** {} ({}) - {} ISK'.format(module_number, module['name'],
+                                                                       module['special'], cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 10:
                         lights.append(
                             '**{}.** {} ({}/{}/{}/{}) - *Size: {}m3* - {} ISK'.format(module_number, module['name'],
@@ -389,10 +396,12 @@ class Market:
                 merged = attack + defense
                 merged_two = maneuver + tracking
                 merged_three = mining
+                merged_four = other
                 merged_drones = lights + mining_drones
                 module_list = '\n'.join(merged)
                 module_list_two = '\n'.join(merged_two)
                 module_list_three = '\n'.join(merged_three)
+                module_list_four = '\n'.join(merged_four)
                 drone_list = '\n'.join(merged_drones)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -406,6 +415,8 @@ class Market:
                                 value="{}\n".format(module_list_two))
                 embed.add_field(name="Mining Mods",
                                 value="{}\n".format(module_list_three))
+                embed.add_field(name="Other Mods",
+                                value="{}\n".format(module_list_four))
                 embed.add_field(name="Drones",
                                 value="{}\n".format(drone_list))
                 await ctx.author.send(embed=embed)
