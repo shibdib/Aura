@@ -531,10 +531,10 @@ class Market:
                     await ctx.author.send('**Sold {} {} for {} ISK**'.format(component['amount'],
                                                                              selected_component['name'],
                                                                              sale_price))
-                else:
+                elif '!!' not in content:
                     await ctx.author.send('**ERROR** - Not a valid choice.')
-            else:
+            elif '!!' not in content:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-        else:
+        elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
         return await ctx.invoke(self.bot.get_command("me"), True)

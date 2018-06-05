@@ -112,7 +112,7 @@ class ManageSelf:
                 await self.change_clone(ctx, player)
             elif content == '11':
                 await ctx.invoke(self.bot.get_command("local"))
-            else:
+            elif '!!' not in content:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
     async def insure_ship(self, ctx, player):
