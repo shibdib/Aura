@@ -171,7 +171,7 @@ class ShipFitting:
                     selected_module = await game_functions.get_module(int(remove_module_order[module]))
                     remove_size += selected_module['size']
                     remove_drones_text.append('{}'.format(selected_module['name']))
-                    remove_modules.append(int(equip_module_order[module]))
+                    remove_modules.append(int(remove_module_order[module]))
                     drone_remove_count += 1
             if ((int(drone_size) + int(equip_size)) - int(remove_size)) > ship['drone_bay']:
                 await ctx.author.send('**The current selection would overfill your drone bay**')
