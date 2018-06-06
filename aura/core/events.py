@@ -1,13 +1,14 @@
 import datetime
 import logging
-import traceback
-import aiohttp
 import re
+import traceback
 
+import aiohttp
+import discord
 from discord.ext import commands
-from aura.lib import db
 
 import aura
+from aura.lib import db
 
 INTRO = ("====================================\n"
          "aura - An EVE Online Discord Bot\n"
@@ -30,10 +31,14 @@ def init_events(bot, launcher=None):
             print(INTRO)
         print("We're on!\n")
         await db.create_tables()
+        await db.update_tables()
         guilds = len(bot.guilds)
         users = len(list(bot.get_all_members()))
         print("Version: {}\n".format(aura.__version__))
         if guilds:
+            game = discord.Game(name='!!join to get started')
+            await bot.change_presence(game=game)
+            print("Game Set")
             print("Servers: {}".format(guilds))
             print("Members: {}".format(users))
         else:

@@ -65,11 +65,28 @@ async def create_tables():
                                         fleet INTEGER DEFAULT 0,
                                         destination INTEGER DEFAULT 0,
                                         home INTEGER DEFAULT 1,
-                                        component_hangar TEXT DEFAULT NULL
+                                        component_hangar TEXT DEFAULT NULL,
+                                        wallet_journal TEXT DEFAULT NULL
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:
         print('Database: Unable to connect to the database')
+
+
+async def update_tables():
+    db = sqlite3.connect('aura.sqlite')
+    sql = ''' SELECT int FROM data WHERE `entry` = 'db_version' '''
+    version = await select(sql)
+    if version is None:
+        version = 0
+    if db is not None:
+        if version < 1:
+            sql = ''' ALTER TABLE eve_rpg_players ADD wallet_journal TEXT DEFAULT NULL; '''
+            await execute_sql(sql)
+        sql = ''' REPLACE INTO data(entry,int)
+                  VALUES(?,?) '''
+        values = ('db_version', 1)
+        await execute_sql(sql, values)
 
 
 async def select(sql, single=False):
