@@ -530,10 +530,10 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
-                module_array = ast.literal_eval('[{}]'.format(msg.content))
+                module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
                 if type(module_array) is list and len(module_array) > 1:
                     sell_ships = []
-                    sell_modules_text = []
+                    sell_ships_text = []
                     total_isk = 0
                     count = 0
                     embed = make_embed(icon=self.bot.user.avatar)
@@ -545,24 +545,24 @@ class Market:
                                 sell_ships.append(ship['id'])
                                 selected_ship = await game_functions.get_ship(int(ship['ship_type']))
                                 total_isk += int(float(selected_ship['isk']) * 0.95)
-                                sell_modules_text.append('{}'.format(selected_ship['name']))
+                                sell_ships_text.append('{}'.format(selected_ship['name']))
                                 count += 1
                                 if count >= 10:
                                     count = 0
-                                    stored_modules = '\n'.join(sell_modules_text)
+                                    stored_ships = '\n'.join(sell_ships_text)
                                     embed.add_field(name="Sell",
-                                                    value="__**Sell**__\n{}".format(stored_modules))
-                                    sell_modules_text = []
-                    if len(sell_modules_text) > 0:
-                        stored_modules = '\n'.join(sell_modules_text)
+                                                    value="__**Sell**__\n{}".format(stored_ships), inline=False)
+                                    sell_ships_text = []
+                    if len(sell_ships_text) > 0:
+                        stored_ships = '\n'.join(sell_ships_text)
                         embed.add_field(name="Sell",
-                                        value="__**Sell**__\n{}".format(stored_modules))
+                                        value="__**Sell**__\n{}".format(stored_ships), inline=False)
                     await ctx.author.send(embed=embed)
                     sale_price = '{0:,.2f}'.format(float(total_isk))
                     embed.add_field(name="Confirm Sale",
                                     value="For {} ISK \n\n"
                                           "**1.** Yes.\n"
-                                          "**2.** No.\n".format(sale_price))
+                                          "**2.** No.\n".format(sale_price), inline=False)
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -710,7 +710,7 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
-                module_array = ast.literal_eval('[{}]'.format(msg.content))
+                module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
                 if type(module_array) is list and len(module_array) > 1:
                     sell_modules_text = []
                     total_isk = 0
@@ -728,18 +728,18 @@ class Market:
                             count = 0
                             stored_modules = '\n'.join(sell_modules_text)
                             embed.add_field(name="Sell",
-                                            value="__**Sell**__\n{}".format(stored_modules))
+                                            value="__**Sell**__\n{}".format(stored_modules), inline=False)
                             sell_modules_text = []
                     if len(sell_modules_text) > 0:
                         stored_modules = '\n'.join(sell_modules_text)
                         embed.add_field(name="Sell",
-                                        value="__**Sell**__\n{}".format(stored_modules))
+                                        value="__**Sell**__\n{}".format(stored_modules), inline=False)
                     await ctx.author.send(embed=embed)
                     sale_price = '{0:,.2f}'.format(float(total_isk))
                     embed.add_field(name="Confirm Sale",
                                     value="For {} ISK \n\n"
                                           "**1.** Yes.\n"
-                                          "**2.** No.\n".format(sale_price))
+                                          "**2.** No.\n".format(sale_price), inline=False)
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -852,7 +852,7 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
-                module_array = ast.literal_eval('[{}]'.format(msg.content))
+                module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
                 if type(module_array) is list and len(module_array) > 1:
                     sell_components = []
                     sell_components_text = []
@@ -872,18 +872,18 @@ class Market:
                                 count = 0
                                 stored_modules = '\n'.join(sell_components_text)
                                 embed.add_field(name="Sell",
-                                                value="__**Sell**__\n{}".format(stored_modules))
+                                                value="__**Sell**__\n{}".format(stored_modules), inline=False)
                                 sell_components_text = []
                     if len(sell_components_text) > 0:
                         stored_modules = '\n'.join(sell_components_text)
                         embed.add_field(name="Sell",
-                                        value="__**Sell**__\n{}".format(stored_modules))
+                                        value="__**Sell**__\n{}".format(stored_modules), inline=False)
                     await ctx.author.send(embed=embed)
                     sale_price = '{0:,.2f}'.format(float(total_isk))
                     embed.add_field(name="Confirm Sale",
                                     value="For {} ISK \n\n"
                                           "**1.** Yes.\n"
-                                          "**2.** No.\n".format(sale_price))
+                                          "**2.** No.\n".format(sale_price), inline=False)
                     await ctx.author.send(embed=embed)
 
                     def check(m):

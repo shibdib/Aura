@@ -150,7 +150,7 @@ class ShipFitting:
             return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-        module_array = ast.literal_eval('[{}]'.format(msg.content))
+        module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
         if type(module_array) is list:
             equip_modules = []
             equip_modules_text = []
