@@ -219,8 +219,12 @@ modules = {  # Attack
     18: {'id': 18, 'name': 'Mining Laser Upgrade II', 'class': 5, 'attack': 0, 'defense': 0, 'maneuver': 0,
          'tracking': 0, 'image': 'https://image.eveonline.com/Type/28576_64.png', 'isk': 287445, 'special': '20% Mining Bonus'},
     # Special
-    40: {'id': 40, 'name': 'Prototype Cloaking Device I', 'class': 6, 'attack': 0, 'defense': 0, 'maneuver': 0,
-         'tracking': 0, 'image': 'https://image.eveonline.com/Type/11370_64.png', 'isk': 1469873,
+    40: {'id': 40, 'name': 'Prototype Cloaking Device I', 'class': 6, 'attack': -0.1, 'defense': -0.1, 'maneuver': -0.1,
+         'tracking': -0.1, 'image': 'https://image.eveonline.com/Type/11370_64.png', 'isk': 1469873,
+         'special': '50% PVP Escape Bonus'},
+    41: {'id': 41, 'name': 'Improved Cloaking Device II', 'class': 6, 'attack': -0.05, 'defense': -0.05,
+         'maneuver': -0.05,
+         'tracking': -0.05, 'image': 'https://image.eveonline.com/Type/11577_64.png', 'isk': 2696168,
          'special': '50% PVP Escape Bonus'},
     # Light
     101: {'id': 101, 'name': 'Warrior I', 'class': 10, 'attack': 0.75, 'defense': 0, 'maneuver': 2, 'tracking': 2,
