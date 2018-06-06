@@ -512,6 +512,11 @@ class Market:
                     ship['sale_price'] = sale_price
                     stored_ships_array.append('{}. {} *({} ISK)*'.format(ship_number, ship_info['name'], sale_price))
                     ship_number += 1
+                    if ship_number >= 10:
+                        stored_modules = '\n'.join(stored_ships_array)
+                        embed.add_field(name="{} Module Hangar".format(region_name),
+                                        value=stored_modules)
+                        stored_ships_array = []
                 stored_ships = '\n'.join(stored_ships_array)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -616,6 +621,11 @@ class Market:
                     stored_module_array.append(
                         '{}. {} *({} ISK)*'.format(module_number, module_info['name'], sale_price))
                     module_number += 1
+                    if module_number >= 10:
+                        stored_modules = '\n'.join(stored_module_array)
+                        embed.add_field(name="{} Module Hangar".format(region_name),
+                                        value=stored_modules)
+                        stored_module_array = []
                 stored_modules = '\n'.join(stored_module_array)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -693,6 +703,11 @@ class Market:
                     stored_ships_array.append('{}. {}x {} *({} ISK)*'.format(component_number, component['amount'],
                                                                              component_info['name'], sale_price))
                     component_number += 1
+                    if component_number >= 10:
+                        stored_modules = '\n'.join(stored_ships_array)
+                        embed.add_field(name="{} Module Hangar".format(region_name),
+                                        value=stored_modules)
+                        stored_ships_array = []
                 stored_components = '\n'.join(stored_ships_array)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
