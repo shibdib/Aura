@@ -92,7 +92,7 @@ class ManageSelf:
             await ctx.author.send(embed=embed)
 
             def check(m):
-                return m.author == ctx.author and m.channel == ctx.author.dm_channel 
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
             msg = await self.bot.wait_for('message', check=check, timeout=timeout)
             content = msg.content
@@ -168,6 +168,7 @@ class ManageSelf:
         values = (str(ship), remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
         await ctx.author.send('**Insurance purchased for a {}**'.format(current_ship['name']))
+        await self.update_journal(player[0], raw_cost, 'Buy Insurance')
         return await ctx.invoke(self.bot.get_command("me"), True)
 
     async def empty_module_cargo(self, ctx):
@@ -263,4 +264,23 @@ class ManageSelf:
         values = (player[0][4], remaining_isk, ctx.author.id,)
         await db.execute_sql(sql, values)
         await ctx.author.send('**Clone Location Changed**')
+        await self.update_journal(player[0], 10000, 'Clone Location')
         return await ctx.invoke(self.bot.get_command("me"), True)
+
+    async def update_journal(self, player, isk, entry):
+        player = await game_functions.refresh_player(player)
+        if player[20] is not None:
+            journal = ast.literal_eval(player[20])
+            if len(journal) == 10:
+                journal.pop(0)
+            transaction = {'isk': isk, 'type': entry}
+            journal.append(transaction)
+        else:
+            transaction = {'isk': isk, 'type': entry}
+            journal = [transaction]
+        sql = ''' UPDATE eve_rpg_players
+                SET wallet_journal = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (str(journal), player[2],)
+        return await db.execute_sql(sql, values)

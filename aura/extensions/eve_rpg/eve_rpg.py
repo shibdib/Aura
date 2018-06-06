@@ -925,6 +925,7 @@ class EveRpg:
                         player_id = (?); '''
             new_isk = float(player[5]) + float(lost_ship['insurance_payout'])
             values = (int(float(new_isk)), player[2],)
+            await self.update_journal(player[0], lost_ship['insurance_payout'], 'Buy Insurance')
             return await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mods):

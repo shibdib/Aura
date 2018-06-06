@@ -537,7 +537,7 @@ class Market:
                                 current_hangar[player[4]] = [module['id']]
                             else:
                                 current_hangar[player[4]].append(module['id'])
-                        await self.update_journal(player[0], int(float(module['isk'])) * -1)
+                        await self.update_journal(player, int(float(module['isk'])) * -1)
                         sql = ''' UPDATE eve_rpg_players
                                 SET module_hangar = (?),
                                     isk = (?)
@@ -1070,7 +1070,7 @@ class Market:
 
     async def update_journal(self, player, isk):
         entry = 'Market Transaction'
-        player = await game_functions.refresh_player(player[0])
+        player = await game_functions.refresh_player(player)
         if player[20] is not None:
             journal = ast.literal_eval(player[20])
             if len(journal) == 10:
