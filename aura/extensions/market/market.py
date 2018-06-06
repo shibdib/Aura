@@ -613,6 +613,7 @@ class Market:
                 stored_module_array = []
                 owned_module_ids = []
                 module_number = 1
+                module_count = 0
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -624,7 +625,9 @@ class Market:
                     stored_module_array.append(
                         '{}. {} *({} ISK)*'.format(module_number, module_info['name'], sale_price))
                     module_number += 1
-                    if module_number >= 10:
+                    module_count += 1
+                    if module_count >= 10:
+                        module_count = 0
                         stored_modules = '\n'.join(stored_module_array)
                         embed.add_field(name="{} Module Hangar".format(region_name),
                                         value=stored_modules)
@@ -640,6 +643,54 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
+                module_array = ast.literal_eval('[{}]'.format(msg.content))
+                if type(module_array) is list and len(module_array) > 1:
+                    sell_modules_text = []
+                    total_isk = 0
+                    for modules in module_array:
+                        module = sell_module_order[modules]
+                        module_info = await game_functions.get_module(int(module))
+                        total_isk += int(float(module_info['isk']) * 0.95)
+                        sell_modules_text.append('{}'.format(module_info['name']))
+                    sale_price = '{0:,.2f}'.format(float(total_isk))
+                    sell_list = '\n'.join(sell_modules_text)
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="Confirm Sale",
+                                    value="__**Sell**__\n{}\nFor {} ISK \n\n"
+                                          "**1.** Yes.\n"
+                                          "**2.** No.\n".format(sell_list, sale_price))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    response = msg.content
+                    if response != '1':
+                        await ctx.author.send('**Sale Canceled**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    else:
+                        module_hangar = ast.literal_eval(player[0][13])
+                        for remove in module_array:
+                            module_hangar[player[0][4]].remove(sell_module_order[remove])
+                        if len(module_hangar[player[0][4]]) == 0:
+                            module_hangar.pop(player[0][4], None)
+                        if len(module_hangar) > 0:
+                            hangar = str(module_hangar)
+                        else:
+                            hangar = None
+                        sql = ''' UPDATE eve_rpg_players
+                                SET module_hangar = (?),
+                                    isk = (?)
+                                WHERE
+                                    player_id = (?); '''
+                        values = (hangar, int(player[5]) + total_isk, ctx.author.id,)
+                        await db.execute_sql(sql, values)
+                        await ctx.author.send('**Sale Complete**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+
                 if int(content) in owned_module_ids:
                     module = sell_module_order[int(content)]
                     module_info = await game_functions.get_module(int(module))
