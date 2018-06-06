@@ -425,6 +425,58 @@ class Market:
                     return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
+                if type(module_array) is list:
+                    purchase_text_array = []
+                    purchase_items = []
+                    total_isk = 0
+                    for item in module_array:
+                        module = await game_functions.get_module(module_selection_dict[int(item)])
+                        total_isk += module['isk']
+                        purchase_items.append(module['id'])
+                        purchase_text_array.append('{}'.format(module['name']))
+                    cost = '{0:,.2f}'.format(float(total_isk))
+                    purchase_text = '\n'.join(purchase_text_array)
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="Confirm Purchase",
+                                    value="__**Buy**__\n{}\n*For {} ISK*\n\n"
+                                          "**1.** Yes.\n"
+                                          "**2.** No.\n".format(purchase_text, cost))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    content = msg.content
+                    if content != '1':
+                        await ctx.author.send('**Purchase Canceled**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    player = await game_functions.refresh_player(player[0])
+                    for item in purchase_items:
+                        module = await game_functions.get_module(module_selection_dict[int(item)])
+                        player = await game_functions.refresh_player(player)
+                        if player[13] is None:
+                            current_hangar = {player[4]: [item]}
+                        else:
+                            current_hangar = ast.literal_eval(player[13])
+                            if player[4] not in current_hangar:
+                                current_hangar[player[4]] = [item]
+                            else:
+                                current_hangar[player[4]].append(item)
+                        sql = ''' UPDATE eve_rpg_players
+                                SET module_hangar = (?),
+                                    isk = (?)
+                                WHERE
+                                    player_id = (?); '''
+                        remaining_isk = int(float(player[5])) - int(float(module['isk']))
+                        values = (str(current_hangar), remaining_isk, ctx.author.id,)
+                        await db.execute_sql(sql, values)
+                    await ctx.author.send(
+                        '**Purchase Complete, Items Are Now Stored In Your Module Hangar For This Region**')
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 item = msg.content
                 if int(item) in accepted_modules:
                     module = await game_functions.get_module(module_selection_dict[int(item)])
