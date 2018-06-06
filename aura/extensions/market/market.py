@@ -647,18 +647,31 @@ class Market:
                 if type(module_array) is list and len(module_array) > 1:
                     sell_modules_text = []
                     total_isk = 0
+                    count = 0
                     for modules in module_array:
                         module = sell_module_order[modules]
                         module_info = await game_functions.get_module(int(module))
                         total_isk += int(float(module_info['isk']) * 0.95)
                         sell_modules_text.append('{}'.format(module_info['name']))
+                        count += 1
+                        if count >= 10:
+                            count = 0
+                            stored_modules = '\n'.join(sell_modules_text)
+                            embed.add_field(name="Sell",
+                                            value="__**Sell**__\n{}".format(stored_modules))
+                            sell_modules_text = []
+                    if len(sell_modules_text) > 0:
+                        stored_modules = '\n'.join(sell_modules_text)
+                        embed.add_field(name="Sell",
+                                        value="__**Sell**__\n{}".format(stored_modules))
+                    await ctx.author.send(embed=embed)
                     sale_price = '{0:,.2f}'.format(float(total_isk))
                     sell_list = '\n'.join(sell_modules_text)
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
                     embed.add_field(name="Confirm Sale",
-                                    value="__**Sell**__\n{}\nFor {} ISK \n\n"
+                                    value="For {} ISK \n\n"
                                           "**1.** Yes.\n"
                                           "**2.** No.\n".format(sell_list, sale_price))
                     await ctx.author.send(embed=embed)
