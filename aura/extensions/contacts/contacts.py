@@ -33,7 +33,10 @@ class Contacts:
             blue_array = []
             if player[0][21] is not None:
                 for user in ast.literal_eval(player[0][21]):
-                    blue_name = self.bot.get_user(int(user)).display_name
+                    sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+                    values = (user,)
+                    blue = await db.select_var(sql, values)
+                    blue_name = self.bot.get_user(int(blue[0][2])).display_name
                     blue_array.append(blue_name)
                 blue_text = '\n'.join(blue_array)
             else:
