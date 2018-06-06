@@ -85,9 +85,9 @@ async def update_tables():
         result = 'DB Up To Date'
         if current_version < 1:
             result = 'Updated to DB version 1'
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN wallet_journal TEXT DEFAULT NULL; '''
+            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `wallet_journal` TEXT DEFAULT NULL; '''
             await execute_sql(sql)
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN blue_players TEXT DEFAULT NULL; '''
+            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `blue_players` TEXT DEFAULT NULL; '''
             await execute_sql(sql)
         sql = ''' REPLACE INTO data(entry,int)
                   VALUES(?,?) '''
@@ -144,6 +144,9 @@ async def get_token(sql, single=False):
 async def execute_sql(sql, var=None):
     db = sqlite3.connect('aura.sqlite')
     cursor = db.cursor()
-    cursor.execute(sql, var)
+    if var is not None:
+        cursor.execute(sql, var)
+    else:
+        cursor.execute(sql)
     db.commit()
     db.close()
