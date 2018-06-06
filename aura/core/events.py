@@ -31,6 +31,8 @@ def init_events(bot, launcher=None):
             print(INTRO)
         print("We're on!\n")
         await db.create_tables()
+        update = await db.update_tables()
+        print('{}'.format(update))
         guilds = len(bot.guilds)
         users = len(list(bot.get_all_members()))
         print("Version: {}\n".format(aura.__version__))

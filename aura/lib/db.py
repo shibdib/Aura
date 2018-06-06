@@ -72,6 +72,30 @@ async def create_tables():
     else:
         print('Database: Unable to connect to the database')
 
+
+async def update_tables():
+    db = sqlite3.connect('aura.sqlite')
+    sql = ''' SELECT int FROM data WHERE `entry` = 'db_version' '''
+    version = await select(sql)
+    if len(version) == 0:
+        current_version = 0
+    else:
+        current_version = version[0]
+    if db is not None:
+        result = 'DB Up To Date'
+        if current_version < 1:
+            result = 'Updated to DB version 1'
+            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN wallet_journal TEXT DEFAULT NULL; '''
+            await execute_sql(sql)
+            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN blue_players TEXT DEFAULT NULL; '''
+            await execute_sql(sql)
+        sql = ''' REPLACE INTO data(entry,int)
+                  VALUES(?,?) '''
+        values = ('db_version', 1)
+        await execute_sql(sql, values)
+        return result
+
+
 async def select(sql, single=False):
     db = sqlite3.connect('aura.sqlite')
     cursor = db.cursor()
