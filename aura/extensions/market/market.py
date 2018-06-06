@@ -530,6 +530,73 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 content = msg.content
+                module_array = ast.literal_eval('[{}]'.format(msg.content))
+                if type(module_array) is list and len(module_array) > 1:
+                    sell_ships = []
+                    sell_modules_text = []
+                    total_isk = 0
+                    count = 0
+                    for ship in ship_hangar[player[0][4]]:
+                        if ship['selection'] == int(content):
+                            sell_ships.append(ship['id'])
+                            selected_ship = await game_functions.get_ship(int(ship['ship_type']))
+                            total_isk += int(float(selected_ship['isk']) * 0.95)
+                            sell_modules_text.append('{}'.format(selected_ship['name']))
+                            count += 1
+                            if count >= 10:
+                                count = 0
+                                stored_modules = '\n'.join(sell_modules_text)
+                                embed.add_field(name="Sell",
+                                                value="__**Sell**__\n{}".format(stored_modules))
+                                sell_modules_text = []
+                    if len(sell_modules_text) > 0:
+                        stored_modules = '\n'.join(sell_modules_text)
+                        embed.add_field(name="Sell",
+                                        value="__**Sell**__\n{}".format(stored_modules))
+                    await ctx.author.send(embed=embed)
+                    sale_price = '{0:,.2f}'.format(float(total_isk))
+                    sell_list = '\n'.join(sell_modules_text)
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="Confirm Sale",
+                                    value="For {} ISK \n\n"
+                                          "**1.** Yes.\n"
+                                          "**2.** No.\n".format(sell_list, sale_price))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    response = msg.content
+                    if response != '1':
+                        await ctx.author.send('**Sale Canceled**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    else:
+                        for sale in sell_ships:
+                            for ship in ship_hangar[player[0][4]]:
+                                if ship['id'] == sale:
+                                    remove = ship
+                                    ship_hangar[player[0][4]].remove(remove)
+                                    break
+                        new_hangar = ship_hangar
+                        if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
+                            new_hangar.pop(player[0][4], None)
+                            if len(new_hangar) == 0:
+                                values = (None, int(player[0][5]) + total_isk, ctx.author.id,)
+                            else:
+                                values = (str(new_hangar), int(player[0][5]) + total_isk, ctx.author.id,)
+                        else:
+                            values = (str(new_hangar), int(player[0][5]) + total_isk, ctx.author.id,)
+                        sql = ''' UPDATE eve_rpg_players
+                                SET ship_hangar = (?),
+                                    isk = (?)
+                                WHERE
+                                    player_id = (?); '''
+                        await db.execute_sql(sql, values)
+                        await ctx.author.send('**Sale Completed**')
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 if int(content) in owned_ship_ids:
                     for ship in ship_hangar[player[0][4]]:
                         if ship['selection'] == int(content):
