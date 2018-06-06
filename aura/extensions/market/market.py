@@ -539,19 +539,20 @@ class Market:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
-                    for ship in ship_hangar[player[0][4]]:
-                        if ship['selection'] == int(content):
-                            sell_ships.append(ship['id'])
-                            selected_ship = await game_functions.get_ship(int(ship['ship_type']))
-                            total_isk += int(float(selected_ship['isk']) * 0.95)
-                            sell_modules_text.append('{}'.format(selected_ship['name']))
-                            count += 1
-                            if count >= 10:
-                                count = 0
-                                stored_modules = '\n'.join(sell_modules_text)
-                                embed.add_field(name="Sell",
-                                                value="__**Sell**__\n{}".format(stored_modules))
-                                sell_modules_text = []
+                    for content in module_array:
+                        for ship in ship_hangar[player[0][4]]:
+                            if ship['selection'] == int(content):
+                                sell_ships.append(ship['id'])
+                                selected_ship = await game_functions.get_ship(int(ship['ship_type']))
+                                total_isk += int(float(selected_ship['isk']) * 0.95)
+                                sell_modules_text.append('{}'.format(selected_ship['name']))
+                                count += 1
+                                if count >= 10:
+                                    count = 0
+                                    stored_modules = '\n'.join(sell_modules_text)
+                                    embed.add_field(name="Sell",
+                                                    value="__**Sell**__\n{}".format(stored_modules))
+                                    sell_modules_text = []
                     if len(sell_modules_text) > 0:
                         stored_modules = '\n'.join(sell_modules_text)
                         embed.add_field(name="Sell",
