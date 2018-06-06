@@ -472,7 +472,7 @@ class Market:
                         await ctx.author.send('**Purchase Canceled**')
                         return await ctx.invoke(self.bot.get_command("me"), True)
                     player = await game_functions.refresh_player(player[0])
-                    for x in range(amount + 1):
+                    for x in range(amount):
                         player = await game_functions.refresh_player(player)
                         if player[13] is None:
                             current_hangar = {player[4]: [module['id']]}
