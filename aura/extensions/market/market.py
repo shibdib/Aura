@@ -735,7 +735,7 @@ class Market:
                             break
                     ship_hangar[player[0][4]].remove(remove)
                     new_hangar = ship_hangar
-                    add_isk = int(float(ship['isk'] * 0.95))
+                    add_isk = int(float(selected_ship['isk'] * 0.95))
                     new_isk = player[0][5] + add_isk
                     if None is not None:
                         if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
