@@ -77,8 +77,10 @@ async def update_tables():
     db = sqlite3.connect('aura.sqlite')
     sql = ''' SELECT int FROM data WHERE `entry` = 'db_version' '''
     version = await select(sql)
-    if version is None:
+    if len(version) == 0:
         version = 0
+    else:
+        current_version = version[0]
     if db is not None:
         if version < 1:
             sql = ''' ALTER TABLE eve_rpg_players ADD wallet_journal TEXT DEFAULT NULL; '''
