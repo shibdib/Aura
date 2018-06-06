@@ -4,6 +4,12 @@ from aura.lib import db
 from aura.lib import game_assets
 
 
+async def refresh_player(player):
+    sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+    values = (player[2],)
+    new_player = await db.select_var(sql, values)
+    return new_player[0]
+
 async def get_region(region_id):
     return game_assets.regions[region_id]
 

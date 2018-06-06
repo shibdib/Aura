@@ -425,20 +425,42 @@ class Market:
                     return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-                content = msg.content
-                if int(content) in accepted_modules:
-                    module = await game_functions.get_module(module_selection_dict[int(content)])
-                    cost = '{0:,.2f}'.format(float(module['isk']))
-                    if int(float(module['isk'])) > int(float(player[0][5])):
+                item = msg.content
+                if int(item) in accepted_modules:
+                    module = await game_functions.get_module(module_selection_dict[int(item)])
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.set_thumbnail(url="{}".format(module['image']))
+                    embed.add_field(name="Confirm Purchase",
+                                    value="How many **{}** do you want to purchase?".format(module['name']))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    content = msg.content
+                    if content == '0':
+                        await ctx.author.send('**Purchase Canceled**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    try:
+                        int(content)
+                    except ValueError:
+                        await ctx.author.send('**Invalid Amount, Purchase Canceled**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    amount = int(content)
+                    cost = '{0:,.2f}'.format(float(module['isk']) * amount)
+                    if int(float(module['isk']) * amount) > int(float(player[0][5])):
                         return await ctx.author.send('**Not Enough Isk**')
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
                     embed.set_thumbnail(url="{}".format(module['image']))
                     embed.add_field(name="Confirm Purchase",
-                                    value="Are you sure you want to buy a **{}** for {} ISK\n\n"
+                                    value="Are you sure you want to buy {} **{}** for {} ISK\n\n"
                                           "**1.** Yes.\n"
-                                          "**2.** No.\n".format(module['name'], cost))
+                                          "**2.** No.\n".format(amount, module['name'], cost))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -449,22 +471,24 @@ class Market:
                     if content != '1':
                         await ctx.author.send('**Purchase Canceled**')
                         return await ctx.invoke(self.bot.get_command("me"), True)
-                    if player[0][13] is None:
-                        current_hangar = {player[0][4]: [module['id']]}
-                    else:
-                        current_hangar = ast.literal_eval(player[0][13])
-                        if player[0][4] not in current_hangar:
-                            current_hangar[player[0][4]] = [module['id']]
+                    for x in range(amount + 1):
+                        player = await game_functions.refresh_player(player)
+                        if player[13] is None:
+                            current_hangar = {player[4]: [module['id']]}
                         else:
-                            current_hangar[player[0][4]].append(module['id'])
-                    sql = ''' UPDATE eve_rpg_players
-                            SET module_hangar = (?),
-                                isk = (?)
-                            WHERE
-                                player_id = (?); '''
-                    remaining_isk = int(float(player[0][5])) - int(float(module['isk']))
-                    values = (str(current_hangar), remaining_isk, ctx.author.id,)
-                    await db.execute_sql(sql, values)
+                            current_hangar = ast.literal_eval(player[13])
+                            if player[4] not in current_hangar:
+                                current_hangar[player[4]] = [module['id']]
+                            else:
+                                current_hangar[player[4]].append(module['id'])
+                        sql = ''' UPDATE eve_rpg_players
+                                SET module_hangar = (?),
+                                    isk = (?)
+                                WHERE
+                                    player_id = (?); '''
+                        remaining_isk = int(float(player[5])) - int(float(module['isk']))
+                        values = (str(current_hangar), remaining_isk, ctx.author.id,)
+                        await db.execute_sql(sql, values)
                     await ctx.author.send(
                         '**{} Purchase Complete, It Is Now Stored In Your Module Hangar For This '
                         'Region**'.format(module['name']))
