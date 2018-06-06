@@ -606,6 +606,9 @@ class Market:
                     embed.add_field(name="{} Ship Hangar".format(region_name),
                                     value='No Ships Found In This Region')
                     return await ctx.author.send(embed=embed)
+                embed = make_embed(icon=ctx.bot.user.avatar)
+                embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
                 stored_ships_array = []
                 owned_ship_ids = []
                 ship_number = 1
@@ -622,12 +625,10 @@ class Market:
                         embed.add_field(name="{} Module Hangar".format(region_name),
                                         value=stored_modules)
                         stored_ships_array = []
-                stored_ships = '\n'.join(stored_ships_array)
-                embed = make_embed(icon=ctx.bot.user.avatar)
-                embed.set_footer(icon_url=ctx.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                embed.add_field(name="{} Ship Hangar".format(region_name),
-                                value=stored_ships)
+                if len(stored_ships_array) > 0:
+                    stored_ships = '\n'.join(stored_ships_array)
+                    embed.add_field(name="{} Ship Hangar".format(region_name),
+                                    value=stored_ships)
                 await ctx.author.send(embed=embed)
 
                 def check(m):
