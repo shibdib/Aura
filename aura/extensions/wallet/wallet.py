@@ -46,6 +46,8 @@ class Wallet:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
+            embed.add_field(name="Wallet",
+                            value='__Current ISK:__ {}'.format(wallet_balance))
             embed.add_field(name="Transactions",
                             value='__**Type**__ - __**Amount**__\n{}'.format(journal_text))
             await ctx.author.send(embed=embed)
