@@ -613,6 +613,9 @@ class Market:
                 stored_module_array = []
                 owned_module_ids = []
                 module_number = 1
+                embed = make_embed(icon=ctx.bot.user.avatar)
+                embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
                 for module in module_hangar[player[0][4]]:
                     sell_module_order[module_number] = int(module)
                     owned_module_ids.append(module_number)
@@ -626,12 +629,10 @@ class Market:
                         embed.add_field(name="{} Module Hangar".format(region_name),
                                         value=stored_modules)
                         stored_module_array = []
-                stored_modules = '\n'.join(stored_module_array)
-                embed = make_embed(icon=ctx.bot.user.avatar)
-                embed.set_footer(icon_url=ctx.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                embed.add_field(name="{} Module Hangar".format(region_name),
-                                value=stored_modules)
+                if len(stored_module_array) > 0:
+                    stored_modules = '\n'.join(stored_module_array)
+                    embed.add_field(name="{} Module Hangar".format(region_name),
+                                    value=stored_modules)
                 await ctx.author.send(embed=embed)
 
                 def check(m):
