@@ -179,6 +179,7 @@ class ManageSelf:
             current_hangar = ast.literal_eval(player[0][13])
             for component in new_modules:
                 current_hangar[player[0][4]].append(component)
+        player_ship_obj.pop('module_cargo_bay', None)
         sql = ''' UPDATE eve_rpg_players
                 SET ship = (?),
                     module_hangar = (?)
