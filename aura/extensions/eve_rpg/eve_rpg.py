@@ -184,6 +184,7 @@ class EveRpg:
                 xp_gained = await self.weighted_choice([(1, 35), (3, 15), (0, 15)])
                 await self.add_xp(ratter, xp_gained)
                 await self.add_isk(ratter, isk)
+                await self.update_journal(ratter, isk, 'Belt Ratting')
 
     async def process_anomaly_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 '''
@@ -247,6 +248,7 @@ class EveRpg:
                 xp_gained = await self.weighted_choice([(2, 35), (3, 15), (0, 15)])
                 await self.add_xp(ratter, xp_gained)
                 await self.add_isk(ratter, isk)
+                await self.update_journal(ratter, isk, 'Anomaly Ratting')
 
     async def process_belt_mining(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 '''
@@ -348,6 +350,7 @@ class EveRpg:
                 xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
+                await self.update_journal(miner, isk, 'Belt Mining')
 
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
@@ -829,6 +832,24 @@ class EveRpg:
                 WHERE
                     player_id = (?); '''
         values = (int(player[5]) + isk, player[2],)
+        return await db.execute_sql(sql, values)
+
+    async def update_journal(self, player, isk, entry):
+        player = await game_functions.refresh_player(player)
+        if player[20] is not None:
+            journal = ast.literal_eval(player[13])
+            if len(journal) == 10:
+                journal.pop(0)
+            transaction = {'isk': isk, 'type': entry}
+            journal.append(transaction)
+        else:
+            transaction = {'isk': isk, 'type': entry}
+            journal = [transaction]
+        sql = ''' UPDATE eve_rpg_players
+                SET wallet_journal = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (str(journal), player[2],)
         return await db.execute_sql(sql, values)
 
     async def add_kill(self, player, mods):

@@ -66,7 +66,8 @@ async def create_tables():
                                         destination INTEGER DEFAULT 0,
                                         home INTEGER DEFAULT 1,
                                         component_hangar TEXT DEFAULT NULL,
-                                        wallet_journal TEXT DEFAULT NULL
+                                        wallet_journal TEXT DEFAULT NULL,
+                                        blue_players TEXT DEFAULT NULL
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:

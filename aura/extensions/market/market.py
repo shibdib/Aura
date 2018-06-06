@@ -263,6 +263,7 @@ class Market:
                                 WHERE
                                     player_id = (?); '''
                         remaining_isk = int(float(player[0][5])) - int(float(ship['isk']))
+                        await self.update_journal(player[0], int(float(ship['isk'])) * -1)
                         values = (str(current_hangar), remaining_isk, ctx.author.id,)
                         await db.execute_sql(sql, values)
                         await ctx.author.send(
@@ -282,6 +283,7 @@ class Market:
                         else:
                             current_hangar = ast.literal_eval(player[0][15])
                             current_hangar[player[0][4]].append(player_ship_obj)
+                        await self.update_journal(player[0], int(float(ship['isk'])) * -1)
                         sql = ''' UPDATE eve_rpg_players
                                 SET ship = (?),
                                     modules = (?),
@@ -450,6 +452,7 @@ class Market:
                         return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
                     msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    await self.update_journal(player[0], float(total_isk) * -1)
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Purchase Canceled**')
@@ -534,6 +537,7 @@ class Market:
                                 current_hangar[player[4]] = [module['id']]
                             else:
                                 current_hangar[player[4]].append(module['id'])
+                        await self.update_journal(player[0], int(float(module['isk'])) * -1)
                         sql = ''' UPDATE eve_rpg_players
                                 SET module_hangar = (?),
                                     isk = (?)
@@ -666,6 +670,7 @@ class Market:
                                 values = (str(new_hangar), int(player[0][5]) + total_isk, ctx.author.id,)
                         else:
                             values = (str(new_hangar), int(player[0][5]) + total_isk, ctx.author.id,)
+                        await self.update_journal(player[0], total_isk)
                         sql = ''' UPDATE eve_rpg_players
                                 SET ship_hangar = (?),
                                     isk = (?)
@@ -728,6 +733,7 @@ class Market:
                             values = (str(new_hangar), player[0][13], new_isk, ctx.author.id,)
                     else:
                         values = (str(new_hangar), player[0][13], new_isk, ctx.author.id,)
+                    await self.update_journal(player[0], add_isk)
                     sql = ''' UPDATE eve_rpg_players
                             SET ship_hangar = (?),
                                 module_hangar = (?),
@@ -839,6 +845,7 @@ class Market:
                             hangar = str(module_hangar)
                         else:
                             hangar = None
+                        await self.update_journal(player[0], total_isk)
                         sql = ''' UPDATE eve_rpg_players
                                 SET module_hangar = (?),
                                     isk = (?)
@@ -884,6 +891,7 @@ class Market:
                             values = (str(new_hangar), new_isk, ctx.author.id,)
                     else:
                         values = (str(new_hangar), new_isk, ctx.author.id,)
+                    await self.update_journal(player[0], add_isk)
                     sql = ''' UPDATE eve_rpg_players
                             SET module_hangar = (?),
                                 isk = (?)
@@ -990,6 +998,7 @@ class Market:
                                 values = (str(new_hangar), int(player[0][5]) + total_isk, ctx.author.id,)
                         else:
                             values = (str(new_hangar), int(player[0][5]) + total_isk, ctx.author.id,)
+                        await self.update_journal(player[0], total_isk)
                         sql = ''' UPDATE eve_rpg_players
                                 SET component_hangar = (?),
                                     isk = (?)
@@ -1033,6 +1042,7 @@ class Market:
                     new_hangar = component_hangar
                     add_isk = int(float(component_info['isk'] * 0.95))
                     new_isk = player[0][5] + add_isk
+                    await self.update_journal(player[0], add_isk)
                     if new_hangar[player[0][4]] is None or len(new_hangar[player[0][4]]) < 1:
                         new_hangar.pop(player[0][4], None)
                         if len(new_hangar) == 0:
@@ -1057,3 +1067,22 @@ class Market:
         elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
         return await ctx.invoke(self.bot.get_command("me"), True)
+
+    async def update_journal(self, player, isk):
+        entry = 'Market Transaction'
+        player = await game_functions.refresh_player(player)
+        if player[20] is not None:
+            journal = ast.literal_eval(player[13])
+            if len(journal) == 10:
+                journal.pop(0)
+            transaction = {'isk': isk, 'type': entry}
+            journal.append(transaction)
+        else:
+            transaction = {'isk': isk, 'type': entry}
+            journal = [transaction]
+        sql = ''' UPDATE eve_rpg_players
+                SET wallet_journal = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (str(journal), player[2],)
+        return await db.execute_sql(sql, values)

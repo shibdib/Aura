@@ -66,13 +66,16 @@ class ManageSelf:
                                       "{}"
                                       "{}"
                                       "**10.** Change your clone to here.\n"
-                                      "**11.** View Local.\n".format(
+                                      "**11.** View Local.\n"
+                                      "**12.** View Your Wallet.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     module_cargo_option, component_cargo_option))
             if redirect is True:
                 timeout = None
                 embed.add_field(name="Welcome {}".format(player_name),
-                                value="**1.** Change task.\n"
+                                value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
+                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
+                                      "**1.** Change task.\n"
                                       "**2.** Travel to a new region.\n"
                                       "**3.** Modify current ship.\n"
                                       "**4.** Change into another ship.\n"
@@ -82,7 +85,10 @@ class ManageSelf:
                                       "{}"
                                       "{}"
                                       "**10.** Change your clone to here.\n"
-                                      "**11.** View Local.\n".format(module_cargo_option, component_cargo_option))
+                                      "**11.** View Local.\n"
+                                      "**12.** View Your Wallet.\n".format(
+                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
+                                    module_cargo_option, component_cargo_option))
             await ctx.author.send(embed=embed)
 
             def check(m):
@@ -112,6 +118,8 @@ class ManageSelf:
                 await self.change_clone(ctx, player)
             elif content == '11':
                 await ctx.invoke(self.bot.get_command("local"))
+            elif content == '12':
+                await ctx.invoke(self.bot.get_command("wallet"))
             elif '!!' not in content:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
