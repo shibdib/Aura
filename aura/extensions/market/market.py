@@ -1072,7 +1072,7 @@ class Market:
         entry = 'Market Transaction'
         player = await game_functions.refresh_player(player)
         if player[20] is not None:
-            journal = ast.literal_eval(player[13])
+            journal = ast.literal_eval(player[20])
             if len(journal) == 10:
                 journal.pop(0)
             transaction = {'isk': isk, 'type': entry}
