@@ -60,7 +60,7 @@ class Contacts:
                 await ctx.invoke(self.bot.get_command("me"), True)
 
     async def add_blue(self, ctx, player):
-        player_name = self.bot.get_user(int(player[0][2])).display_name
+        player_name = self.bot.get_user(int(player[2])).display_name
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
@@ -100,8 +100,8 @@ class Contacts:
         if int(content) != 1:
             await ctx.author.send('**New Contact Canceled**')
             return await ctx.invoke(self.bot.get_command("me"), True)
-        if player[0][21] is not None:
-            blue_array = ast.literal_eval(player[0][21])
+        if player[21] is not None:
+            blue_array = ast.literal_eval(player[21])
             blue_array.append(new_blue[0][0])
         else:
             blue_array = [new_blue[0][0]]
