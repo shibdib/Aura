@@ -8,14 +8,14 @@ from aura.lib import game_functions
 from aura.utils import make_embed
 
 
-class ManageSelf:
+class Contacts:
     def __init__(self, bot):
         self.bot = bot
         self.session = bot.session
         self.config = bot.config
         self.logger = bot.logger
 
-    @commands.command(name='me', case_insensitive=True)
+    @commands.command(name='contacts', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -47,52 +47,23 @@ class ManageSelf:
             current_ship_raw = await game_functions.get_ship_name(int(player_ship_obj['ship_type']))
             current_ship = current_ship_raw
             wallet_balance = '{0:,.2f}'.format(float(player[0][5]))
+            blue_array = []
+            if player[0][21] is not None:
+                for user in ast.literal_eval(player[0][13]):
+                    player_name = self.bot.get_user(int(user)).display_name
+                    blue_array.append(player_name)
+                blue_text = '\n'.join(blue_array)
+            else:
+
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
-            timeout = 60
-            if redirect is False:
-                embed.add_field(name="Welcome {}".format(player_name),
-                                value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
-                                      "*User interface initiated.... Select desired action below......*\n\n"
-                                      "**1.** Change task.\n"
-                                      "**2.** Travel to a new region.\n"
-                                      "**3.** Modify current ship.\n"
-                                      "**4.** Change into another ship.\n"
-                                      "**5.** Visit the regional market.\n"
-                                      "**6.** View your asset list.\n"
-                                      "**7.** Insure your ship.\n"
-                                      "{}"
-                                      "{}"
-                                      "**10.** Change your clone to here.\n"
-                                      "**11.** View Local.\n"
-                                      "**12.** View Your Wallet.\n".format(
-                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    module_cargo_option, component_cargo_option))
-            if redirect is True:
-                timeout = None
-                embed.add_field(name="Welcome {}".format(player_name),
-                                value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
-                                      "**1.** Change task.\n"
-                                      "**2.** Travel to a new region.\n"
-                                      "**3.** Modify current ship.\n"
-                                      "**4.** Change into another ship.\n"
-                                      "**5.** Visit the regional market.\n"
-                                      "**6.** View your asset list.\n"
-                                      "**7.** Insure your ship.\n"
-                                      "{}"
-                                      "{}"
-                                      "**10.** Change your clone to here.\n"
-                                      "**11.** View Local.\n"
-                                      "**12.** View Your Wallet.\n".format(
-                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    module_cargo_option, component_cargo_option))
+            embed.add_field(name="{}'s Contacts".format(player_name),
+                            value="__**Blues**__\n{}".format(blue_text))
             await ctx.author.send(embed=embed)
 
             def check(m):
-                return m.author == ctx.author and m.channel == ctx.author.dm_channel 
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
             msg = await self.bot.wait_for('message', check=check, timeout=timeout)
             content = msg.content
@@ -118,8 +89,6 @@ class ManageSelf:
                 await self.change_clone(ctx, player)
             elif content == '11':
                 await ctx.invoke(self.bot.get_command("local"))
-            elif content == '12':
-                await ctx.invoke(self.bot.get_command("wallet"))
             elif '!!' not in content:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 
