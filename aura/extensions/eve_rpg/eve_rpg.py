@@ -141,11 +141,11 @@ class EveRpg:
             survival = 200 * ship['pve_multi']
             npc = 125
             if region_security == 'Low':
-                isk = random.randint(5500, 9500)
+                isk = random.randint(2500, 6500)
                 survival = 175 * ship['pve_multi']
                 npc = 225
             elif region_security == 'Null':
-                isk = random.randint(8500, 19500)
+                isk = random.randint(5500, 10500)
                 survival = 125 * ship['pve_multi']
                 npc = 350
             #  PVE Rolls
@@ -205,11 +205,11 @@ class EveRpg:
             survival = 175 * ship['pve_multi']
             npc = 125
             if region_security == 'Low':
-                isk = random.randint(5500, 9500)
+                isk = random.randint(4500, 7500)
                 survival = 150 * ship['pve_multi']
                 npc = 225
             elif region_security == 'Null':
-                isk = random.randint(8500, 19500)
+                isk = random.randint(6500, 17500)
                 survival = 100 * ship['pve_multi']
                 npc = 350
             #  PVE Rolls
@@ -261,7 +261,7 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 AND `region` = (?) '''
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
-            isk = random.randint(100, 550)
+            isk = random.randint(100, 750)
             miner_ship = ast.literal_eval(miner[14])
             ship_id = miner_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
@@ -272,12 +272,12 @@ class EveRpg:
                 survival = 350
                 ore = 150
                 possible_npc = 2
-                isk = random.randint(800, 1700)
+                isk = random.randint(2000, 3750)
             elif region_security == 'Null':
                 survival = 275
                 ore = 300
                 possible_npc = 4
-                isk = random.randint(950, 3250)
+                isk = random.randint(4750, 10550)
             if ship['class'] == 0:
                 survival = 175
                 if region_security == 'Low':
