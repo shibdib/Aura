@@ -793,7 +793,8 @@ class Market:
                     msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                     content = msg.content
                     if content != '1':
-                        return await ctx.author.send('**Sale Canceled**')
+                        await ctx.author.send('**Sale Canceled**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
                     module_hangar[player[0][4]].remove(sell_module_order[int(content)])
                     new_hangar = module_hangar
                     add_isk = int(float(module_info['isk'] * 0.95))
@@ -868,7 +869,7 @@ class Market:
                         if component['selection'] == int(content):
                             sell_components.append(component['id'])
                             selected_component = await game_functions.get_component(int(component['type_id']))
-                            total_isk += int(float(component['sale_price']) * 0.95)
+                            total_isk += int(float(component['sale_price']))
                             sell_components_text.append('{}'.format(selected_component['name']))
                             count += 1
                             if count >= 10:
