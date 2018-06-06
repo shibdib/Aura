@@ -891,7 +891,7 @@ class Market:
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
                     for component in module_array:
-                        if component['selection'] == int(content):
+                        if component['selection'] == int(component):
                             sell_components.append(component['id'])
                             selected_component = await game_functions.get_component(int(component['type_id']))
                             total_isk += int(float(component['sale_price']))
