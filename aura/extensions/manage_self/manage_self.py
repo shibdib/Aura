@@ -52,7 +52,7 @@ class ManageSelf:
                              text="Aura - EVE Text RPG")
             timeout = 60
             if redirect is False:
-                embed.add_field(name="Welcome {}".format(player_name),
+                embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][1]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
                                       "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
                                       "*User interface initiated.... Select desired action below......*\n\n"
@@ -67,12 +67,13 @@ class ManageSelf:
                                       "{}"
                                       "**10.** Change your clone to here.\n"
                                       "**11.** View Local.\n"
-                                      "**12.** View Your Wallet.\n".format(
+                                      "**12.** View Your Wallet.\n"
+                                      "**13.** Manage your contacts.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     module_cargo_option, component_cargo_option))
             if redirect is True:
                 timeout = None
-                embed.add_field(name="Welcome {}".format(player_name),
+                embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][1]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
                                       "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
                                       "**1.** Change task.\n"
@@ -86,7 +87,8 @@ class ManageSelf:
                                       "{}"
                                       "**10.** Change your clone to here.\n"
                                       "**11.** View Local.\n"
-                                      "**12.** View Your Wallet.\n".format(
+                                      "**12.** View Your Wallet.\n"
+                                      "**13.** Manage your contacts.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     module_cargo_option, component_cargo_option))
             await ctx.author.send(embed=embed)
@@ -120,6 +122,8 @@ class ManageSelf:
                 await ctx.invoke(self.bot.get_command("local"))
             elif content == '12':
                 await ctx.invoke(self.bot.get_command("wallet"))
+            elif content == '13':
+                await ctx.invoke(self.bot.get_command("contacts"))
             elif '!!' not in content:
                 return await ctx.author.send('**ERROR** - Not a valid choice.')
 

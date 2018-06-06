@@ -37,6 +37,14 @@ async def create_tables():
                                         role_id INTEGER NOT NULL
                                     ); """
         await create_table(db, whitelist_table)
+        # create fleets tables
+        eve_rpg_channels_table = """ CREATE TABLE IF NOT EXISTS fleets (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        fleet_id INTEGER NOT NULL UNIQUE,
+                                        fleet_fc STRING NOT NULL,
+                                        fleet_members INTEGER NOT NULL
+                                    ); """
+        await create_table(db, eve_rpg_channels_table)
         # create eve_rpg tables
         eve_rpg_channels_table = """ CREATE TABLE IF NOT EXISTS eve_rpg_channels (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,10 +89,10 @@ async def update_tables():
     if len(version) == 0:
         current_version = 0
     else:
-        current_version = version[0]
+        current_version = version
     if db is not None:
         result = 'DB Up To Date'
-        if 2 < 1:
+        if int(current_version) < 1:
             result = 'Updated to DB version 1'
             sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `wallet_journal` TEXT DEFAULT NULL; '''
             await execute_sql(sql)
