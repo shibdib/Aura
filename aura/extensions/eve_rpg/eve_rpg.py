@@ -138,28 +138,16 @@ class EveRpg:
             ship_id = ratter_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
-            survival = 400
+            survival = 200 * ship['pve_multi']
             npc = 125
             if region_security == 'Low':
                 isk = random.randint(5500, 9500)
-                survival = 275
+                survival = 175 * ship['pve_multi']
                 npc = 225
             elif region_security == 'Null':
                 isk = random.randint(8500, 19500)
-                survival = 225
+                survival = 125 * ship['pve_multi']
                 npc = 350
-            if ship['class'] == 0:
-                survival = 175
-                if region_security == 'Low':
-                    survival = 50
-                elif region_security == 'Null':
-                    survival = -10
-            if ship['class'] == 5:
-                survival = 550
-                if region_security == 'Low':
-                    survival = 400
-                elif region_security == 'Null':
-                    survival = 300
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
@@ -214,28 +202,16 @@ class EveRpg:
             ship_id = ratter_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
-            survival = 300
+            survival = 175 * ship['pve_multi']
             npc = 125
             if region_security == 'Low':
-                isk = random.randint(7500, 25500)
-                survival = 200
+                isk = random.randint(5500, 9500)
+                survival = 150 * ship['pve_multi']
                 npc = 225
             elif region_security == 'Null':
-                isk = random.randint(17500, 45500)
-                survival = 155
+                isk = random.randint(8500, 19500)
+                survival = 100 * ship['pve_multi']
                 npc = 350
-            if ship['class'] == 0:
-                survival = 175
-                if region_security == 'Low':
-                    survival = 25
-                elif region_security == 'Null':
-                    survival = -25
-            if ship['class'] == 5:
-                survival = 550
-                if region_security == 'Low':
-                    survival = 400
-                elif region_security == 'Null':
-                    survival = 300
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
