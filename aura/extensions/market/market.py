@@ -597,6 +597,8 @@ class Market:
                         await db.execute_sql(sql, values)
                         await ctx.author.send('**Sale Completed**')
                     return await ctx.invoke(self.bot.get_command("me"), True)
+                if type(module_array) is list:
+                    content = module_array[0]
                 if int(content) in owned_ship_ids:
                     for ship in ship_hangar[player[0][4]]:
                         if ship['selection'] == int(content):
@@ -769,7 +771,8 @@ class Market:
                         await db.execute_sql(sql, values)
                         await ctx.author.send('**Sale Complete**')
                         return await ctx.invoke(self.bot.get_command("me"), True)
-
+                if type(module_array) is list:
+                    content = module_array[0]
                 if int(content) in owned_module_ids:
                     module = sell_module_order[int(content)]
                     module_info = await game_functions.get_module(int(module))
@@ -917,6 +920,8 @@ class Market:
                         await db.execute_sql(sql, values)
                         await ctx.author.send('**Sale Completed**')
                     return await ctx.invoke(self.bot.get_command("me"), True)
+                if type(module_array) is list:
+                    content = module_array[0]
                 if int(content) in owned_ship_ids:
                     for component in component_hangar[player[0][4]]:
                         if component['selection'] == int(content):
