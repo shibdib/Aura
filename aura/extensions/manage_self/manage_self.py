@@ -186,7 +186,8 @@ class ManageSelf:
                     player_id = (?); '''
         values = (str(player_ship_obj), str(current_hangar), ctx.author.id,)
         await db.execute_sql(sql, values)
-        return await ctx.author.send('**Module Cargo Bay Emptied Into Your Regional Hangar**')
+        await ctx.author.send('**Module Cargo Bay Emptied Into Your Regional Hangar**')
+        return await ctx.invoke(self.bot.get_command("me"), True)
 
     async def empty_component_cargo(self, ctx):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''

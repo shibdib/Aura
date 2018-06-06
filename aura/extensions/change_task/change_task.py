@@ -28,7 +28,8 @@ class ChangeTask:
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
         if player[0][6] == 20:
-            return await ctx.author.send('**ERROR** - You need to finish traveling first.')
+            await ctx.author.send('**ERROR** - You need to finish traveling first.')
+            return await ctx.invoke(self.bot.get_command("me"), True)
         region_id = int(player[0][4])
         region_security = await game_functions.get_region_security(region_id)
         current_task = await game_functions.get_task(int(player[0][6]))
