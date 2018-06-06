@@ -686,7 +686,7 @@ class Market:
                                     isk = (?)
                                 WHERE
                                     player_id = (?); '''
-                        values = (hangar, int(player[5]) + total_isk, ctx.author.id,)
+                        values = (hangar, int(player[0][5]) + total_isk, ctx.author.id,)
                         await db.execute_sql(sql, values)
                         await ctx.author.send('**Sale Complete**')
                         return await ctx.invoke(self.bot.get_command("me"), True)
