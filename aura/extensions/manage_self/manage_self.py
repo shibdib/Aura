@@ -52,7 +52,7 @@ class ManageSelf:
                              text="Aura - EVE Text RPG")
             timeout = 60
             if redirect is False:
-                embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][1]),
+                embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
                                       "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
                                       "*User interface initiated.... Select desired action below......*\n\n"
@@ -73,7 +73,7 @@ class ManageSelf:
                                     module_cargo_option, component_cargo_option))
             if redirect is True:
                 timeout = None
-                embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][1]),
+                embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
                                       "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
                                       "**1.** Change task.\n"
