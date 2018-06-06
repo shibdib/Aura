@@ -1070,7 +1070,7 @@ class Market:
 
     async def update_journal(self, player, isk):
         entry = 'Market Transaction'
-        player = await game_functions.refresh_player(player)
+        player = await game_functions.refresh_player(player[0])
         if player[20] is not None:
             journal = ast.literal_eval(player[20])
             if len(journal) == 10:
