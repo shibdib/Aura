@@ -426,7 +426,7 @@ class Market:
 
                 msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                 module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
-                if type(module_array) is list:
+                if type(module_array) is list and len(module_array) > 1:
                     purchase_text_array = []
                     purchase_items = []
                     total_isk = 0
