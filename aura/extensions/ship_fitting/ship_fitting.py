@@ -106,6 +106,7 @@ class ShipFitting:
         equip_module_order = {}
         equip_commands = []
         equip_drones_commands = []
+        counter = 0
         if player[0][13] is not None:
             module_hangar = ast.literal_eval(player[0][13])
             if player[0][4] in module_hangar:
@@ -131,9 +132,18 @@ class ShipFitting:
                         stats = '{} {}'.format(stats, module['special'])
                     stored_modules_array.append('**{}.** {} - {}'.format(module_number, module['name'], stats))
                     module_number += 1
+                    counter += 1
+                    if counter >= 10:
+                        counter = 0
+                        stored_modules = '\n'.join(stored_modules_array)
+                        embed.add_field(name="{} Module/Drone Hangar".format(region_name),
+                                        value=stored_modules)
+                        stored_modules_array = []
                 if len(stored_modules_array) > 0:
                     stored_modules = '\n'.join(stored_modules_array)
-                    embed.add_field(name="Module/Drone Hangar", value='{}'.format(stored_modules), inline=False)
+                    embed.add_field(name="{} Module/Drone Hangar".format(region_name),
+                                    value=stored_modules)
+                await ctx.author.send(embed=embed)
         await ctx.author.send(embed=embed)
 
         def check(m):
