@@ -34,7 +34,7 @@ class Wallet:
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
             embed.add_field(name="Wallet",
-                            value='__Current ISK:__ {}'.format(wallet_balance))
+                            value='__Current ISK:__ {}'.format(wallet_balance), inline=False)
             await ctx.author.send(embed=embed)
         else:
             wallet_journal = ast.literal_eval(player[0][20])
@@ -47,8 +47,8 @@ class Wallet:
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
             embed.add_field(name="Wallet",
-                            value='__Current ISK:__ {}'.format(wallet_balance))
+                            value='__Current ISK:__ {}'.format(wallet_balance), inline=False)
             embed.add_field(name="Transactions",
-                            value='__**Type**__ - __**Amount**__\n{}'.format(journal_text))
+                            value='__**Type**__ - __**Amount**__\n{}'.format(journal_text), inline=False)
             await ctx.author.send(embed=embed)
         return await ctx.invoke(self.bot.get_command("me"), True)
