@@ -102,7 +102,7 @@ class EveRpg:
                 await game_functions.get_combat_attributes(traveler, defender_ship_id)
             if len(campers) is not 0:
                 for camper in campers:
-                    conflict = await self.weighted_choice([(True, 35 - defender_maneuver), (False, 65), (None, 45)])
+                    conflict = await self.weighted_choice([(True, 55 - defender_maneuver), (False, 55)])
                     if conflict is True:
                         await self.solo_combat(camper, traveler)
                         return self.process_travel()
