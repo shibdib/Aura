@@ -22,10 +22,11 @@ class EveRpg:
         await self.initial_checks()
         while not self.bot.is_closed():
             try:
+                print('tick')
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
-                await self.process_exploration()
+                # await self.process_exploration()
                 await self.process_belt_mining()
                 await self.process_anomaly_ratting()
                 await self.process_roams()
@@ -526,7 +527,7 @@ class EveRpg:
 
                     msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                     response = msg.content
-                    if response != '1' or response != '2' or response != '3':
+                    if int(response) != 1 and int(response) != 2 and int(response) != 3:
                         last_action = '**Last Action:** Incorrect Response\n'
                         ai_score += 1
                         continue
