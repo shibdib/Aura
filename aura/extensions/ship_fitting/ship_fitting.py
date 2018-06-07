@@ -56,7 +56,7 @@ class ShipFitting:
             equipped_drones_array = []
             for item in equipped_modules:
                 module = await game_functions.get_module(int(item))
-                if module['class'] > 9:
+                if 'size' in module:
                     drone_size += module['size']
                     remove_module_order[module_number] = int(item)
                     drone_attack = module['attack']

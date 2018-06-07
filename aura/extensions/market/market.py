@@ -332,6 +332,7 @@ class Market:
                 mining = ['__**Mining**__']
                 other = ['__**Other**__']
                 lights = ['__**Light Drones**__']
+                mediums = ['__**Medium Drones**__']
                 mining_drones = ['__**Mining Drones**__']
                 modules = game_assets.modules
                 accepted_modules = []
@@ -402,7 +403,7 @@ class Market:
                         accepted_modules.append(module_number)
                         module_number += 1
                     elif module['class'] == 11:
-                        lights.append(
+                        mediums.append(
                             '**{}.** {} ({}/{}/{}/{}) - *Size: {}m3* - {} ISK'.format(module_number, module['name'],
                                                                                       module['attack'],
                                                                                       module['defense'],
@@ -423,12 +424,16 @@ class Market:
                 merged_two = maneuver + tracking
                 merged_three = mining
                 merged_four = other
-                merged_drones = lights + mining_drones
+                merged_drones = lights
+                merged_mediums = mediums
+                merged_utility_drones = mining_drones
                 module_list = '\n'.join(merged)
                 module_list_two = '\n'.join(merged_two)
                 module_list_three = '\n'.join(merged_three)
                 module_list_four = '\n'.join(merged_four)
                 drone_list = '\n'.join(merged_drones)
+                medium_drone_list = '\n'.join(merged_mediums)
+                utility_drone_list = '\n'.join(merged_utility_drones)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -443,8 +448,12 @@ class Market:
                                 value="{}\n".format(module_list_three))
                 embed.add_field(name="Other Mods",
                                 value="{}\n".format(module_list_four))
-                embed.add_field(name="Drones",
+                embed.add_field(name="Light Drones",
                                 value="{}\n".format(drone_list))
+                embed.add_field(name="Medium Drones",
+                                value="{}\n".format(medium_drone_list))
+                embed.add_field(name="Utility Drones",
+                                value="{}\n".format(utility_drone_list))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
