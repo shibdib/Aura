@@ -63,7 +63,7 @@ class Contacts:
                 await ctx.invoke(self.bot.get_command("me"), True)
             elif '!!' not in content:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-                if content.find('!!') != -1:
+                if content.find('!!') == -1:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 else:
                     return
@@ -108,7 +108,7 @@ class Contacts:
         content = msg.content
         if int(content) != 1:
             await ctx.author.send('**New Contact Canceled**')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
@@ -157,7 +157,7 @@ class Contacts:
         content = msg.content
         if int(content) not in remove_blue:
             await ctx.author.send('**ERROR** - Incorrect Selection.')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
@@ -182,7 +182,7 @@ class Contacts:
         confirm = msg.content
         if int(confirm) != 1:
             await ctx.author.send('**Removal Canceled**')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return

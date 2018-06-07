@@ -323,7 +323,7 @@ class Market:
                             '**{} Purchase Complete, It Is Now Your Active Ship**'.format(ship['name']))
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-                if content.find('!!') != -1:
+                if content.find('!!') == -1:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 else:
                     return
@@ -492,7 +492,7 @@ class Market:
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Purchase Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -537,7 +537,7 @@ class Market:
                     content = msg.content
                     if content == '0':
                         await ctx.author.send('**Purchase Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -545,7 +545,7 @@ class Market:
                         int(content)
                     except ValueError:
                         await ctx.author.send('**Invalid Amount, Purchase Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -570,7 +570,7 @@ class Market:
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Purchase Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -603,7 +603,7 @@ class Market:
                 await ctx.author.send('**Not Yet Implemented**')
             else:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
@@ -705,7 +705,7 @@ class Market:
                     response = msg.content
                     if response != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -799,7 +799,7 @@ class Market:
                     await ctx.author.send('**Sold a {} for {} ISK**'.format(selected_ship['name'], sale_price))
                 else:
                     await ctx.author.send('**ERROR** - Not a valid choice.')
-                if content.find('!!') != -1:
+                if content.find('!!') == -1:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 else:
                     return
@@ -892,7 +892,7 @@ class Market:
                     response = msg.content
                     if response != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -939,7 +939,7 @@ class Market:
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -965,7 +965,7 @@ class Market:
                     await ctx.author.send('**Sold a {} for {} ISK**'.format(module_info['name'], sale_price))
                 else:
                     await ctx.author.send('**ERROR** - Not a valid choice.')
-                if content.find('!!') != -1:
+                if content.find('!!') == -1:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 else:
                     return
@@ -1051,7 +1051,7 @@ class Market:
                     response = msg.content
                     if response != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        if content.find('!!') != -1:
+                        if content.find('!!') == -1:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
@@ -1138,7 +1138,7 @@ class Market:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
         elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
-        if content.find('!!') != -1:
+        if content.find('!!') == -1:
             return await ctx.invoke(self.bot.get_command("me"), True)
         else:
             return

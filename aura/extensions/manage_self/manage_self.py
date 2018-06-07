@@ -124,7 +124,7 @@ class ManageSelf:
                 await ctx.invoke(self.bot.get_command("wallet"))
             elif content == '13':
                 await ctx.invoke(self.bot.get_command("contacts"))
-            elif content.find('!!') != -1:
+            elif content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
@@ -159,7 +159,7 @@ class ManageSelf:
         content = int(msg.content)
         if content != 1:
             await ctx.author.send('**Insurance Contract Canceled**')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
@@ -260,7 +260,7 @@ class ManageSelf:
         content = int(msg.content)
         if content != 1:
             await ctx.author.send('**Clone Location Not Changed**')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return

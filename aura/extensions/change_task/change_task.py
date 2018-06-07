@@ -93,7 +93,7 @@ class ChangeTask:
         content = msg.content
         if content == '5' or content == '11' or content == '8':
             await ctx.author.send('**Not Yet Implemented**')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
@@ -113,7 +113,7 @@ class ChangeTask:
             await ctx.author.send('**Task Updated** - You are now {}.'.format(new_task))
         elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
-            if content.find('!!') != -1:
+            if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
@@ -151,7 +151,7 @@ class ChangeTask:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 elif content != '1':
                     await ctx.author.send('**Invalid Choice**')
-                    if content.find('!!') != -1:
+                    if content.find('!!') == -1:
                         return await ctx.invoke(self.bot.get_command("me"), True)
                     else:
                         return
@@ -214,7 +214,7 @@ class ChangeTask:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             elif content != '1':
                 await ctx.author.send('**Invalid Choice**')
-                if content.find('!!') != -1:
+                if content.find('!!') == -1:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 else:
                     return

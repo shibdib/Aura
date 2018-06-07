@@ -217,7 +217,7 @@ class ShipFitting:
             response = msg.content
             if response != '1':
                 await ctx.author.send('**Changes Canceled**')
-                if response.find('!!') != -1:
+                if response.find('!!') == -1:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 else:
                     return
@@ -297,7 +297,7 @@ class ShipFitting:
                 response = msg.content
                 if response != '1':
                     await ctx.author.send('**Removal Canceled**')
-                    if response.find('!!') != -1:
+                    if response.find('!!') == -1:
                         return await ctx.invoke(self.bot.get_command("me"), True)
                     else:
                         return
@@ -352,7 +352,7 @@ class ShipFitting:
                     equipped_modules = [equip_module_order[content]]
                 if response != '1':
                     await ctx.author.send('**Equipping Module Canceled**')
-                    if response.find('!!') != -1:
+                    if response.find('!!') == -1:
                         return await ctx.invoke(self.bot.get_command("me"), True)
                     else:
                         return
@@ -375,7 +375,7 @@ class ShipFitting:
                 await ctx.author.send('**{} Has Been Equipped**'.format(selected_module['name']))
             else:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-            if msg.content.find('!!') != -1:
+            if msg.content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
