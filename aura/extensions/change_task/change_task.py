@@ -108,10 +108,17 @@ class ChangeTask:
         return await ctx.invoke(self.bot.get_command("me"), True)
 
     async def process_mission(self, ctx, player):
-        if player[0][22] is not None:
-            mission_details = ast.literal_eval(player[0][22])
-            if int(player[0][4]) == int(mission_details['region']):
-                mission_task = '**9.** Warp to mission site.\n'
+        if player[22] is not None:
+            mission_details = ast.literal_eval(player[22])
+            if int(player[4]) == int(mission_details['region']):
+                sql = ''' UPDATE eve_rpg_players
+                        SET task = (?)
+                        WHERE
+                            player_id = (?); '''
+                values = (11, ctx.author.id,)
+                await db.execute_sql(sql, values)
+                await ctx.author.send('**Entering Mission Site**')
+                return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -120,7 +127,7 @@ class ChangeTask:
                                 value="Are you sure you want to abandon this mission?\n\n"
                                       "It will cost you {} ISK\n\n"
                                       "**1.** Yes\n"
-                                      "**2.** Non").format('{0:,.2f}'.format(float(mission_details['penalty'])))
+                                      "**2.** Non".format('{0:,.2f}'.format(float(mission_details['failure']))))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
@@ -139,7 +146,7 @@ class ChangeTask:
                             isk = (?)
                         WHERE
                             player_id = (?); '''
-                values = (None, player[0][5] + int(float(mission_details['penalty'])), ctx.author.id,)
+                values = (None, player[5] + int(float(mission_details['failure'])), ctx.author.id,)
                 await db.execute_sql(sql, values)
                 await ctx.author.send('**Mission Abandoned**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
@@ -163,7 +170,7 @@ class ChangeTask:
                 await ctx.author.send('**No mission found for the requested level**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
             reward = random.randint(5000 * int(content), 25000 * int(content))
-            failure = random.randint(reward * 0.20, reward * 0.60)
+            failure = random.randint(int(float(reward * 0.20)), int(float(reward * 0.60)))
             region_id = random.randint(5, 20)
             region_name = await game_functions.get_region(region_id)
             embed = make_embed(icon=ctx.bot.user.avatar)
@@ -173,13 +180,12 @@ class ChangeTask:
                             value="{}\n\n"
                                   "Mission Region: {}\n"
                                   "Reward: {} ISK\n"
-                                  "Failure Penalty: {}\n"
+                                  "Failure Penalty: {} ISK\n"
                                   "**1.** Accept\n"
                                   "**2.** Deny\n"
-                                  "**3.** Request another mission\n".format(mission['initial'],
+                                  "**3.** Request another mission\n".format(mission['initial'], region_name,
                                                                             '{0:,.2f}'.format(float(reward)),
-                                                                            '{0:,.2f}'.format(float(failure)),
-                                                                            region_name))
+                                                                            '{0:,.2f}'.format(float(failure))))
             await ctx.author.send(embed=embed)
 
             def check(m):
@@ -188,7 +194,7 @@ class ChangeTask:
             msg = await self.bot.wait_for('message', check=check, timeout=120)
             content = msg.content
             if content == '3':
-                return self.process_mission(ctx, player)
+                return await self.process_mission(ctx, player)
             elif content == '2':
                 await ctx.author.send('**Canceled**')
                 return await ctx.invoke(self.bot.get_command("me"), True)

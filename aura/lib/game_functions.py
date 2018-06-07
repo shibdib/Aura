@@ -91,7 +91,7 @@ async def get_combat_attributes(player, ship_id):
 
 async def get_mission(level):
     possible_missions = []
-    for mission in game_assets.missions:
+    for key, mission in game_assets.missions.items():
         if mission['level'] == int(level):
             possible_missions.append(mission)
     if len(possible_missions) > 0:

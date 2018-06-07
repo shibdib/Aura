@@ -24,6 +24,7 @@ class EveRpg:
             try:
                 await self.process_travel()
                 await self.process_belt_ratting()
+                await self.process_missions()
                 await self.process_belt_mining()
                 await self.process_anomaly_ratting()
                 await self.process_roams()
@@ -119,7 +120,7 @@ class EveRpg:
             values = (destination_id,)
             local_players = await db.select_var(sql, values)
             await player.send('You have arrived in {}\n\nLocal Count - {}'.format(destination_name,
-                                                                                         len(local_players)))
+                                                                                  len(local_players)))
 
     async def process_belt_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 '''
@@ -369,6 +370,77 @@ class EveRpg:
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
                 await self.update_journal(miner, isk, 'Belt Mining')
+
+    async def process_missions(self):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 11 '''
+        mission_runners = await db.select(sql)
+        if mission_runners is None or len(mission_runners) is 0:
+            return
+        for mission_runner in mission_runners:
+            mission_details = ast.literal_eval(mission_runner[22])
+            region_id = int(mission_runner[4])
+            region_name = await game_functions.get_region(int(region_id))
+            user = self.bot.get_user(mission_runner[2])
+            ratter_ship = ast.literal_eval(mission_runner[14])
+            ship_id = ratter_ship['ship_type']
+            ship = await game_functions.get_ship(ship_id)
+            isk = mission_details['reward']
+            survival = 200 * ship['pve_multi']
+            max_damage = 10
+            level_multi = int(float(mission_details['level'] * 1.5))
+            #  PVE Rolls
+            ship_name = await game_functions.get_ship_name(ship_id)
+            ship_attack, ship_defense, ship_maneuver, ship_tracking = \
+                await game_functions.get_combat_attributes(mission_runner, ship_id)
+            death = await self.weighted_choice(
+                [(True, 2 * level_multi), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
+                                                              (ship_attack * 8)))])
+            flee = await self.weighted_choice(
+                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
+            complete_mission = await self.weighted_choice([(True, 60), (False, 40)])
+            if complete_mission is False:
+                continue
+            if death is True and flee is False:
+                damage_done = random.randint(1, max_damage)
+                if damage_done < ship['hit_points']:
+                    return
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(ship_id)
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "**Loser**\n"
+                                      "**{}** flying a {} was killed while running a mission.".format(region_name,
+                                                                                                      user.display_name,
+                                                                                                      ship_name))
+                await self.add_loss(mission_runner)
+                player = self.bot.get_user(mission_runner[2])
+                await player.send(embed=embed)
+                await self.send_global(embed, True)
+                return await self.destroy_ship(mission_runner)
+            elif flee is True:
+                ratter_user = self.bot.get_user(mission_runner[2])
+                # await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
+            else:
+                xp_gained = await self.weighted_choice([(1 * mission_details['level'], 35),
+                                                        (3 * mission_details['level'], 15),
+                                                        (0, 15)])
+                await self.add_xp(mission_runner, xp_gained)
+                await self.add_isk(mission_runner, isk)
+                loot_chance = 4 * mission_details['level']
+                await self.pve_loot(mission_runner, loot_chance)
+                await self.update_journal(mission_runner, isk, 'Mission Reward')
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="Mission Completed",
+                                value="{}\n\n"
+                                      "Reward: {} ISK\n".format(mission_details['success'],
+                                                                '{0:,.2f}'.format(float(mission_details['reward']))))
+                player = self.bot.get_user(mission_runner[2])
+                await player.send(embed=embed)
 
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
@@ -840,6 +912,31 @@ class EveRpg:
                                ' cargo bay. Dock and do !!me to see an option to empty it*'.format(tier_1_text,
                                                                                                    tier_2_text,
                                                                                                    tier_3_text))
+            ship['component_cargo_bay'] = loot
+            sql = ''' UPDATE eve_rpg_players
+                    SET ship = (?)
+                    WHERE
+                        player_id = (?); '''
+            values = (str(ship), player[2],)
+            return await db.execute_sql(sql, values)
+
+    async def pve_loot(self, player, chance):
+        false = 100 - int(chance)
+        loot_drop = await self.weighted_choice([(True, chance), (False, false)])
+        if loot_drop is False:
+            return
+        player = await self.refresh_player(player)
+        ship = ast.literal_eval(player[14])
+        loot_type = await self.weighted_choice([(200, 25), (201, 25), (202, 25), (203, 25), (204, 25)])
+        item = await game_functions.get_module(loot_type)
+        if 'module_cargo_bay' in ship:
+            loot = ship['module_cargo_bay']
+            loot.append(loot_type)
+        else:
+            loot = [loot_type]
+            channel = self.bot.get_user(player[2])
+            await channel.send('**PVE Loot Received**\n\n**{}**\n\n*Get to a station and empty your module '
+                               'bay to get it*'.format(item['name']))
             ship['component_cargo_bay'] = loot
             sql = ''' UPDATE eve_rpg_players
                     SET ship = (?)
