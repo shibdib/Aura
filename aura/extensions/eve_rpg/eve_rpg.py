@@ -439,6 +439,7 @@ class EveRpg:
                                 value="{}\n\n"
                                       "Reward: {} ISK\n".format(mission_details['completion'],
                                                                 '{0:,.2f}'.format(float(mission_details['reward']))))
+                mission_runner = await self.refresh_player(mission_runner)
                 player = self.bot.get_user(mission_runner[2])
                 await player.send(embed=embed)
                 sql = ''' UPDATE eve_rpg_players
@@ -944,7 +945,7 @@ class EveRpg:
             channel = self.bot.get_user(player[2])
             await channel.send('**PVE Loot Received**\n\n**{}**\n\n*Get to a station and empty your module '
                                'bay to get it*'.format(item['name']))
-            ship['component_cargo_bay'] = loot
+            ship['module_cargo_bay'] = loot
             sql = ''' UPDATE eve_rpg_players
                     SET ship = (?)
                     WHERE
