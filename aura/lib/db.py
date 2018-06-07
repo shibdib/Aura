@@ -89,7 +89,7 @@ async def update_tables():
     if len(version) == 0:
         current_version = 0
     else:
-        current_version = version
+        current_version = version[0][0]
     if db is not None:
         result = 'DB Up To Date'
         if int(current_version) < 1:
