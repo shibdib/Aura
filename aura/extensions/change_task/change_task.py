@@ -108,9 +108,9 @@ class ChangeTask:
             player = await db.select_var(sql, values)
             new_task = await game_functions.get_task(int(player[0][6]))
             await ctx.author.send('**Task Updated** - You are now {}.'.format(new_task))
-        else:
+        elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
-        return await ctx.invoke(self.bot.get_command("me"), True)
+            return await ctx.invoke(self.bot.get_command("me"), True)
 
     async def process_mission(self, ctx, player):
         if player[22] is not None:
@@ -203,7 +203,7 @@ class ChangeTask:
             elif content == '2':
                 await ctx.author.send('**Canceled**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
-            elif content != '1':
+            elif content != '1' and '!!' not in content:
                 await ctx.author.send('**Invalid Choice**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
             details = mission
