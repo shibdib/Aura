@@ -124,8 +124,10 @@ class ManageSelf:
                 await ctx.invoke(self.bot.get_command("wallet"))
             elif content == '13':
                 await ctx.invoke(self.bot.get_command("contacts"))
-            elif '!!' not in content:
-                return await ctx.author.send('**ERROR** - Not a valid choice.')
+            elif content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
 
     async def insure_ship(self, ctx, player):
         """Insure your current ship."""
@@ -157,7 +159,10 @@ class ManageSelf:
         content = int(msg.content)
         if content != 1:
             await ctx.author.send('**Insurance Contract Canceled**')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
         if int(float(player[0][5])) < int(float(raw_cost)):
             await ctx.author.send('**Not enough ISK**')
             return await ctx.invoke(self.bot.get_command("me"), True)
@@ -255,7 +260,10 @@ class ManageSelf:
         content = int(msg.content)
         if content != 1:
             await ctx.author.send('**Clone Location Not Changed**')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
         if int(float(player[0][5])) < int(float(10000)):
             await ctx.author.send('**Not enough ISK**')
             return await ctx.invoke(self.bot.get_command("me"), True)

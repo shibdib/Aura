@@ -93,7 +93,10 @@ class ChangeTask:
         content = msg.content
         if content == '5' or content == '11' or content == '8':
             await ctx.author.send('**Not Yet Implemented**')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
         elif content == '9':
             await self.process_mission(ctx, player[0])
         elif int(content) in accepted:
@@ -110,7 +113,10 @@ class ChangeTask:
             await ctx.author.send('**Task Updated** - You are now {}.'.format(new_task))
         elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
 
     async def process_mission(self, ctx, player):
         if player[22] is not None:
@@ -145,7 +151,10 @@ class ChangeTask:
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 elif content != '1':
                     await ctx.author.send('**Invalid Choice**')
-                    return await ctx.invoke(self.bot.get_command("me"), True)
+                    if content.find('!!') != -1:
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    else:
+                        return
                 sql = ''' UPDATE eve_rpg_players
                         SET mission_details = (?),
                             isk = (?)
@@ -203,9 +212,12 @@ class ChangeTask:
             elif content == '2':
                 await ctx.author.send('**Canceled**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
-            elif content != '1' and '!!' not in content:
+            elif content != '1':
                 await ctx.author.send('**Invalid Choice**')
-                return await ctx.invoke(self.bot.get_command("me"), True)
+                if content.find('!!') != -1:
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                else:
+                    return
             details = mission
             mission['region'] = region_id
             mission['reward'] = reward

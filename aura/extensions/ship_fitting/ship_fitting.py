@@ -217,7 +217,10 @@ class ShipFitting:
             response = msg.content
             if response != '1':
                 await ctx.author.send('**Changes Canceled**')
-                return await ctx.invoke(self.bot.get_command("me"), True)
+                if response.find('!!') != -1:
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                else:
+                    return
             hangar = None
             equipped = None
             module_hangar = None
@@ -294,7 +297,10 @@ class ShipFitting:
                 response = msg.content
                 if response != '1':
                     await ctx.author.send('**Removal Canceled**')
-                    return await ctx.invoke(self.bot.get_command("me"), True)
+                    if response.find('!!') != -1:
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    else:
+                        return
                 if player[0][13] is not None and player[0][4] in ast.literal_eval(player[0][13]):
                     module_hangar = ast.literal_eval(player[0][13])
                     module_hangar[player[0][4]].append(remove_module_order[content])
@@ -346,7 +352,10 @@ class ShipFitting:
                     equipped_modules = [equip_module_order[content]]
                 if response != '1':
                     await ctx.author.send('**Equipping Module Canceled**')
-                    return await ctx.invoke(self.bot.get_command("me"), True)
+                    if response.find('!!') != -1:
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    else:
+                        return
                 module_hangar = ast.literal_eval(player[0][13])
                 module_hangar[player[0][4]].remove(equip_module_order[content])
                 sql = ''' UPDATE eve_rpg_players
@@ -366,4 +375,7 @@ class ShipFitting:
                 await ctx.author.send('**{} Has Been Equipped**'.format(selected_module['name']))
             else:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if msg.content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return

@@ -69,4 +69,7 @@ class Travel:
             await ctx.author.send('**Not Yet Implemented**')
         else:
             await ctx.author.send('**ERROR** - Not a valid choice.')
-        return await ctx.invoke(self.bot.get_command("me"), True)
+        if content.find('!!') != -1:
+            return await ctx.invoke(self.bot.get_command("me"), True)
+        else:
+            return

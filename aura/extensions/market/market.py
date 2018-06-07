@@ -323,7 +323,10 @@ class Market:
                             '**{} Purchase Complete, It Is Now Your Active Ship**'.format(ship['name']))
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-                return await ctx.invoke(self.bot.get_command("me"), True)
+                if content.find('!!') != -1:
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                else:
+                    return
             elif content == '2':
                 attack = ['__**Attack**__']
                 defense = ['__**Defense**__']
@@ -489,7 +492,10 @@ class Market:
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Purchase Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     player = await game_functions.refresh_player(player[0])
                     for item in purchase_items:
                         module = await game_functions.get_module(item)
@@ -531,12 +537,18 @@ class Market:
                     content = msg.content
                     if content == '0':
                         await ctx.author.send('**Purchase Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     try:
                         int(content)
                     except ValueError:
                         await ctx.author.send('**Invalid Amount, Purchase Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     amount = int(content)
                     cost = '{0:,.2f}'.format(float(module['isk']) * amount)
                     if int(float(module['isk']) * amount) > int(float(player[0][5])):
@@ -558,7 +570,10 @@ class Market:
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Purchase Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     player = await game_functions.refresh_player(player[0])
                     for x in range(amount):
                         player = await game_functions.refresh_player(player)
@@ -588,7 +603,10 @@ class Market:
                 await ctx.author.send('**Not Yet Implemented**')
             else:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
         elif content == '2':
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -687,7 +705,10 @@ class Market:
                     response = msg.content
                     if response != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     else:
                         for sale in sell_ships:
                             for ship in ship_hangar[player[0][4]]:
@@ -778,7 +799,10 @@ class Market:
                     await ctx.author.send('**Sold a {} for {} ISK**'.format(selected_ship['name'], sale_price))
                 else:
                     await ctx.author.send('**ERROR** - Not a valid choice.')
-                return await ctx.invoke(self.bot.get_command("me"), True)
+                if content.find('!!') != -1:
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                else:
+                    return
             elif content == '2':
                 if player[0][13] is None:
                     embed = make_embed(icon=ctx.bot.user.avatar)
@@ -868,7 +892,10 @@ class Market:
                     response = msg.content
                     if response != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     else:
                         module_hangar = ast.literal_eval(player[0][13])
                         for remove in module_array:
@@ -912,7 +939,10 @@ class Market:
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     module_hangar[player[0][4]].remove(sell_module_order[int(content)])
                     new_hangar = module_hangar
                     add_isk = int(float(module_info['isk'] * 0.95))
@@ -935,7 +965,10 @@ class Market:
                     await ctx.author.send('**Sold a {} for {} ISK**'.format(module_info['name'], sale_price))
                 else:
                     await ctx.author.send('**ERROR** - Not a valid choice.')
-                return await ctx.invoke(self.bot.get_command("me"), True)
+                if content.find('!!') != -1:
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                else:
+                    return
             elif content == '3':
                 if player[0][19] is None or player[0][4] not in ast.literal_eval(player[0][19]):
                     embed = make_embed(icon=ctx.bot.user.avatar)
@@ -1018,7 +1051,10 @@ class Market:
                     response = msg.content
                     if response != '1':
                         await ctx.author.send('**Sale Canceled**')
-                        return await ctx.invoke(self.bot.get_command("me"), True)
+                        if content.find('!!') != -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
                     else:
                         for sell_this in sell_components:
                             for component in component_hangar[player[0][4]]:
@@ -1102,7 +1138,10 @@ class Market:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
         elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
-        return await ctx.invoke(self.bot.get_command("me"), True)
+        if content.find('!!') != -1:
+            return await ctx.invoke(self.bot.get_command("me"), True)
+        else:
+            return
 
     async def update_journal(self, player, isk):
         entry = 'Market Transaction'

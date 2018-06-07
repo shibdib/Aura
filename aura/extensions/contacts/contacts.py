@@ -63,7 +63,10 @@ class Contacts:
                 await ctx.invoke(self.bot.get_command("me"), True)
             elif '!!' not in content:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-                await ctx.invoke(self.bot.get_command("me"), True)
+                if content.find('!!') != -1:
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                else:
+                    return
 
     async def add_blue(self, ctx, player):
         player_name = self.bot.get_user(int(player[2])).display_name
@@ -105,7 +108,10 @@ class Contacts:
         content = msg.content
         if int(content) != 1:
             await ctx.author.send('**New Contact Canceled**')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
         if player[21] is not None:
             blue_array = ast.literal_eval(player[21])
             blue_array.append(new_blue[0][0])
@@ -151,7 +157,10 @@ class Contacts:
         content = msg.content
         if int(content) not in remove_blue:
             await ctx.author.send('**ERROR** - Incorrect Selection.')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
         sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
         values = (remove_blue[int(content)]['id'],)
         blue = await db.select_var(sql, values)
@@ -173,7 +182,10 @@ class Contacts:
         confirm = msg.content
         if int(confirm) != 1:
             await ctx.author.send('**Removal Canceled**')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+            if content.find('!!') != -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
         blue_array = ast.literal_eval(player[21])
         blue_array.remove(remove_blue[int(content)]['id'])
         sql = ''' UPDATE eve_rpg_players
