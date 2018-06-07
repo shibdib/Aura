@@ -151,7 +151,7 @@ class ChangeTask:
                             isk = (?)
                         WHERE
                             player_id = (?); '''
-                values = (None, player[5] + int(float(mission_details['failure'])), ctx.author.id,)
+                values = (None, player[5] - int(float(mission_details['failure'])), ctx.author.id,)
                 await db.execute_sql(sql, values)
                 await ctx.author.send('**Mission Abandoned**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
