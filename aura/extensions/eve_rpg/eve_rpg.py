@@ -150,7 +150,7 @@ class EveRpg:
                 isk = random.randint(5500, 10500)
                 survival = 125 * ship['pve_multi']
                 npc = 350
-            max_damage = 14
+                max_damage = 14
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \

@@ -370,33 +370,39 @@ components = {
 
 missions = {
     1: {'id': 1, 'name': 'Investigate The Transmission', 'level': 1,
-        'description': "While performing some maintenance on a communications relay, one of our techs noticed the logs "
+        'initial': "While performing some maintenance on a communications relay, one of our techs noticed the logs "
                        "were showing a strange transmission coming from a deadspace pocket in this particular system. "
                        "We'd like you to travel to the system and figure out who or what sent out these transmissions.",
+        'completion': "Interesting, well we look forward to working with you again in the future.",
         'special': None},
     2: {'id': 2, 'name': 'Put Down The Rebellion 1', 'level': 1,
-        'description': "Local security forces request your assistance. We have a small group of ships that need to be "
+        'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
                        "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
-                       "fight.",
+                   "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
+                                           "any loot you might have found.",
         'special': None},
     3: {'id': 3, 'name': 'Put Down The Rebellion 2', 'level': 2,
-        'description': "Local security forces request your assistance. We have a small group of ships that need to be "
+        'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
                        "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
-                       "fight.",
+                   "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
+                                           "any loot you might have found.",
         'special': None},
     4: {'id': 4, 'name': 'Put Down The Rebellion 3', 'level': 3,
-        'description': "Local security forces request your assistance. We have a small group of ships that need to be "
+        'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
                        "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
-                       "fight.",
+                   "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
+                                           "any loot you might have found.",
         'special': None},
     5: {'id': 5, 'name': 'Put Down The Rebellion 4', 'level': 4,
-        'description': "Local security forces request your assistance. We have a small group of ships that need to be "
+        'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
                        "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
-                       "fight.",
+                   "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
+                                           "any loot you might have found.",
         'special': None},
     6: {'id': 6, 'name': 'Put Down The Rebellion 5', 'level': 5,
-        'description': "Local security forces request your assistance. We have a small group of ships that need to be "
+        'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
                        "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
-                       "fight.",
+                   "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
+                                           "any loot you might have found.",
         'special': None},
 }

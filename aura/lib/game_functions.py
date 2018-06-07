@@ -1,4 +1,5 @@
 import ast
+import random
 
 from aura.lib import db
 from aura.lib import game_assets
@@ -86,6 +87,16 @@ async def get_combat_attributes(player, ship_id):
                 tracking = module['tracking'] + tracking
 
     return int(round(attack)), int(round(defense)), int(round(maneuver)), int(round(tracking))
+
+
+async def get_mission(level):
+    possible_missions = []
+    for mission in game_assets.missions:
+        if mission['level'] == int(level):
+            possible_missions.append(mission)
+    if len(possible_missions) > 0:
+        return random.choice(possible_missions)
+    return None
 
 
 async def create_unique_id():
