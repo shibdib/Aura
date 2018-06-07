@@ -466,7 +466,7 @@ class EveRpg:
         for explorer in explorers:
             region_id = int(explorer[4])
             region_security = await game_functions.get_region_security(region_id)
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 AND `region` = (?) '''
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 8 AND `region` = (?) '''
             values = (region_id,)
             system_explorers = await db.select_var(sql, values)
             ratter_ship = ast.literal_eval(explorer[14])
@@ -484,7 +484,6 @@ class EveRpg:
                 best_of = 5
                 loot_chance = 7
             #  PVE Rolls
-            ship_name = await game_functions.get_ship_name(ship_id)
             find_sites = await self.weighted_choice([(True, sites / len(system_explorers)), (False, 40)])
             if find_sites is False:
                 continue
