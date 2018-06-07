@@ -474,7 +474,7 @@ missions = {
          'initial': "Greetings Capsuleer. After many days of interrogation we finally managed to find the place of his Production Site. We need to destroy it fast. However we don’t have the capabilities to do this, so we are asking you to help us once again. The NDC will be very happy if you could destroy the Site and its defenders and thus stop Onoki Medicals of producing any more illegal substances.",
          'completion': "Finally Onoki Medicals has been eliminated. Thank you for helping the NDC save many lives from drug addictions. We hope we will meet again.",
          'special': None},
-    14: {'id': 14, 'name': 'Drug Production Site', 'level': 4,
+    14: {'id': 14, 'name': 'Drug Production Site', 'level': 2,
          'initial': "Greetings Capsuleer. After many days of interrogation we finally managed to find the place of his Production Site. We need to destroy it fast. However we don’t have the capabilities to do this, so we are asking you to help us once again. The NDC will be very happy if you could destroy the Site and its defenders and thus stop Onoki Medicals of producing any more illegal substances.",
          'completion': "Finally Onoki Medicals has been eliminated. Thank you for helping the NDC save many lives from drug addictions. We hope we will meet again.",
          'special': None},
