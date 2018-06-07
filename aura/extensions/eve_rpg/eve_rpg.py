@@ -401,11 +401,11 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(mission_runner, ship_id)
             death = await self.weighted_choice(
-                [(True, 3 * level_multi), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
+                [(True, 5 * level_multi), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
                                                               (ship_attack * 8)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            complete_mission = await self.weighted_choice([(True, 20), (False, 35 * mission_details['level'])])
+            complete_mission = await self.weighted_choice([(True, 20), (False, 30 * mission_details['level'])])
             if complete_mission is False:
                 continue
             if death is True and flee is False:

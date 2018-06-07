@@ -319,9 +319,11 @@ modules = {  # Attack
          'image': 'https://image.eveonline.com/Type/12058_64.png', 'isk': 712445, 'special': None},
     # Mining
     17: {'id': 17, 'name': 'Mining Laser Upgrade I', 'class': 5, 'attack': 0, 'defense': 0, 'maneuver': 0,
-         'tracking': 0, 'image': 'https://image.eveonline.com/Type/22542_64.png', 'isk': 29554, 'special': '10% Mining Bonus'},
+         'tracking': 0, 'image': 'https://image.eveonline.com/Type/22542_64.png', 'isk': 29554,
+         'special': '10% Mining Bonus'},
     18: {'id': 18, 'name': 'Mining Laser Upgrade II', 'class': 5, 'attack': 0, 'defense': 0, 'maneuver': 0,
-         'tracking': 0, 'image': 'https://image.eveonline.com/Type/28576_64.png', 'isk': 287445, 'special': '20% Mining Bonus'},
+         'tracking': 0, 'image': 'https://image.eveonline.com/Type/28576_64.png', 'isk': 287445,
+         'special': '20% Mining Bonus'},
     # Special
     40: {'id': 40, 'name': 'Prototype Cloaking Device I', 'class': 6, 'attack': -0.1, 'defense': -0.1, 'maneuver': -0.1,
          'tracking': -0.1, 'image': 'https://image.eveonline.com/Type/11370_64.png', 'isk': 1469873,
@@ -350,9 +352,11 @@ modules = {  # Attack
           'image': 'https://image.eveonline.com/Type/2205_64.png', 'isk': 448662, 'special': None, 'size': 5},
     # Mining
     121: {'id': 121, 'name': 'Mining Drone I', 'class': 14, 'attack': 0, 'defense': 0, 'maneuver': 0, 'tracking': 0,
-          'image': 'https://image.eveonline.com/Type/10246_64.png', 'isk': 18316, 'special': '5% Mining Bonus', 'size': 5},
+          'image': 'https://image.eveonline.com/Type/10246_64.png', 'isk': 18316, 'special': '5% Mining Bonus',
+          'size': 5},
     122: {'id': 122, 'name': 'Mining Drone II', 'class': 14, 'attack': 0, 'defense': 0, 'maneuver': 0, 'tracking': 0,
-          'image': 'https://image.eveonline.com/Type/10250_64.png', 'isk': 831869, 'special': '10% Mining Bonus', 'size': 5},
+          'image': 'https://image.eveonline.com/Type/10250_64.png', 'isk': 831869, 'special': '10% Mining Bonus',
+          'size': 5},
     # PVE Loot
     200: {'id': 200, 'name': 'Republic Fleet Shield Extender', 'class': 20, 'attack': 0, 'defense': 0.35, 'maneuver': 0,
           'tracking': 0,
@@ -388,37 +392,37 @@ components = {
 missions = {
     1: {'id': 1, 'name': 'Investigate The Transmission', 'level': 1,
         'initial': "While performing some maintenance on a communications relay, one of our techs noticed the logs "
-                       "were showing a strange transmission coming from a deadspace pocket in this particular system. "
-                       "We'd like you to travel to the system and figure out who or what sent out these transmissions.",
+                   "were showing a strange transmission coming from a deadspace pocket in this particular system. "
+                   "We'd like you to travel to the system and figure out who or what sent out these transmissions.",
         'completion': "Interesting, well we look forward to working with you again in the future.",
         'special': None},
     2: {'id': 2, 'name': 'Put Down The Rebellion 1', 'level': 1,
         'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
-                       "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
+                   "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
                    "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
                                            "any loot you might have found.",
         'special': None},
     3: {'id': 3, 'name': 'Put Down The Rebellion 2', 'level': 2,
         'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
-                       "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
+                   "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
                    "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
                                            "any loot you might have found.",
         'special': None},
     4: {'id': 4, 'name': 'Put Down The Rebellion 3', 'level': 3,
         'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
-                       "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
+                   "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
                    "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
                                            "any loot you might have found.",
         'special': None},
     5: {'id': 5, 'name': 'Put Down The Rebellion 4', 'level': 4,
         'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
-                       "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
+                   "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
                    "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
                                            "any loot you might have found.",
         'special': None},
     6: {'id': 6, 'name': 'Put Down The Rebellion 5', 'level': 5,
         'initial': "Local security forces request your assistance. We have a small group of ships that need to be "
-                       "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
+                   "dealt as soon as possible. These ships are members of the Serpentis faction and will put up a "
                    "fight.", 'completion': "Thanks for taking care of those guys, here's some ISK and you can keep "
                                            "any loot you might have found.",
         'special': None},
