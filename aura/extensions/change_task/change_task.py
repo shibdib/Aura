@@ -42,7 +42,8 @@ class ChangeTask:
         mission_destination = ''
         if player[0][22] is not None:
             mission_details = ast.literal_eval(player[0][22])
-            mission_destination = '\nMission Location: {}'.format(mission_details['region'])
+            region_name = await game_functions.get_region(mission_details['region'])
+            mission_destination = '\nMission Location: {}'.format(region_name)
             if int(player[0][4]) == int(mission_details['region']):
                 mission_task = '**9.** Warp to mission site.\n'
             else:
