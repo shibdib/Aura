@@ -472,7 +472,7 @@ class EveRpg:
             ratter_ship = ast.literal_eval(explorer[14])
             ship_id = ratter_ship['ship_type']
             isk = random.randint(3000, 7500)
-            sites = 125
+            sites = 50
             best_of = 3
             loot_chance = 2
             if region_security == 'Low':
@@ -516,13 +516,13 @@ class EveRpg:
                                           "Your Hack Score: {}\n"
                                           "Hostile Hack Score: {}\n\n"
                                           "__Choose an action__\n"
-                                          "**1.** Brute Attack"
-                                          "**2.** Firewall"
-                                          "**3.** Trojan Attack".format(last_action, your_score, ai_score))
+                                          "**1.** Brute Attack\n"
+                                          "**2.** Firewall\n"
+                                          "**3.** Trojan Attack\n".format(last_action, your_score, ai_score))
                     await player.send(embed=embed)
 
                     def check(m):
-                        return m.author == player.author and m.channel == player.author.dm_channel
+                        return m.author == player and m.channel == player.dm_channel
 
                     msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                     response = msg.content
