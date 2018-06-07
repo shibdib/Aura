@@ -438,7 +438,7 @@ class EveRpg:
                 await self.add_xp(mission_runner, xp_gained)
                 await self.add_isk(mission_runner, isk)
                 loot_chance = 4 * mission_details['level']
-                await self.pve_loot(mission_runner, loot_chance)
+                await self.pve_loot(mission_runner, loot_chance, True)
                 await self.update_journal(mission_runner, isk, 'Mission Reward')
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -1044,19 +1044,17 @@ class EveRpg:
             values = (str(ship), player[2],)
             return await db.execute_sql(sql, values)
 
-    async def pve_loot(self, player, chance):
-        false = 100 - int(chance)
+    async def pve_loot(self, player, chance, overseer=False):
+        false = 200 - int(chance)
         loot_drop = await self.weighted_choice([(True, chance), (False, false)])
-        if loot_drop is False:
-            return
-        player = await self.refresh_player(player)
-        ship = ast.literal_eval(player[14])
-        loot_type = await self.weighted_choice([(200, 25), (201, 25), (202, 25), (203, 25), (204, 25)])
-        item = await game_functions.get_module(loot_type)
-        if 'module_cargo_bay' in ship:
-            loot = ship['module_cargo_bay']
-            loot.append(loot_type)
-        else:
+        if loot_drop is True:
+            player = await self.refresh_player(player)
+            ship = ast.literal_eval(player[14])
+            loot_type = await self.weighted_choice([(200, 25), (201, 25), (202, 25), (203, 25), (204, 25)])
+            item = await game_functions.get_module(loot_type)
+            if 'module_cargo_bay' in ship:
+                loot = ship['module_cargo_bay']
+                loot.append(loot_type)
             loot = [loot_type]
             channel = self.bot.get_user(player[2])
             await channel.send('**PVE Loot Received**\n\n**{}**\n\n*Get to a station and empty your module '
@@ -1067,4 +1065,23 @@ class EveRpg:
                     WHERE
                         player_id = (?); '''
             values = (str(ship), player[2],)
-            return await db.execute_sql(sql, values)
+            await db.execute_sql(sql, values)
+        if overseer is True:
+            player = await self.refresh_player(player)
+            ship = ast.literal_eval(player[14])
+            loot_type = await self.weighted_choice([(205, 70), (206, 25), (207, 10), (208, 5)])
+            item = await game_functions.get_module(loot_type)
+            if 'module_cargo_bay' in ship:
+                loot = ship['module_cargo_bay']
+                loot.append(loot_type)
+            loot = [loot_type]
+            channel = self.bot.get_user(player[2])
+            await channel.send('**PVE Loot Received**\n\n**{}**\n\n*Get to a station and empty your module '
+                               'bay to get it*'.format(item['name']))
+            ship['module_cargo_bay'] = loot
+            sql = ''' UPDATE eve_rpg_players
+                    SET ship = (?)
+                    WHERE
+                        player_id = (?); '''
+            values = (str(ship), player[2],)
+            await db.execute_sql(sql, values)

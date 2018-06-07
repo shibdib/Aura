@@ -373,6 +373,22 @@ modules = {  # Attack
     204: {'id': 204, 'name': 'Republic Fleet Gyrostabilizer', 'class': 20, 'attack': .30, 'defense': 0, 'maneuver': 0,
           'tracking': .20,
           'image': 'https://image.eveonline.com/Type/15806_64.png', 'isk': 26722971, 'special': None},
+    205: {'id': 205, 'name': "3rd Tier Overseer's Personal Effects", 'class': 20, 'attack': 0, 'defense': 0,
+          'maneuver': 0,
+          'tracking': 0,
+          'image': 'https://image.eveonline.com/Type/19406_64.png', 'isk': 20001, 'special': None, 'no_fit': True},
+    206: {'id': 206, 'name': "5th Tier Overseer's Personal Effects", 'class': 20, 'attack': 0, 'defense': 0,
+          'maneuver': 0,
+          'tracking': 0,
+          'image': 'https://image.eveonline.com/Type/19406_64.png', 'isk': 65163, 'special': None, 'no_fit': True},
+    207: {'id': 207, 'name': "7th Tier Overseer's Personal Effects", 'class': 20, 'attack': 0, 'defense': 0,
+          'maneuver': 0,
+          'tracking': 0,
+          'image': 'https://image.eveonline.com/Type/19406_64.png', 'isk': 484113, 'special': None, 'no_fit': True},
+    208: {'id': 208, 'name': "8th Tier Overseer's Personal Effects", 'class': 20, 'attack': 0, 'defense': 0,
+          'maneuver': 0,
+          'tracking': 0,
+          'image': 'https://image.eveonline.com/Type/19406_64.png', 'isk': 700515, 'special': None, 'no_fit': True},
 }
 
 components = {

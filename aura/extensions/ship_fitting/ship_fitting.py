@@ -110,6 +110,8 @@ class ShipFitting:
                 stored_modules_array = []
                 for item in module_hangar[player[0][4]]:
                     module = await game_functions.get_module(int(item))
+                    if 'no_fit' in module:
+                        continue
                     if 9 > module['class'] < 20 and ship['drone_bay'] == 0:
                         continue
                     equip_module_order[module_number] = int(item)
