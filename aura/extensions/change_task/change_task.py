@@ -68,7 +68,7 @@ class ChangeTask:
                                   "**10.** Mine an asteroid belt.\n"
                                   "**11.** Mine a mining anomaly.\n".format(current_task, mission_destination,
                                                                             mission_task))
-            accepted = [1, 2, 3, 5, 6, 7, 8, 9, 10]
+            accepted = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11]
         else:
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}{}\n\n"
@@ -83,7 +83,7 @@ class ChangeTask:
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination,
                                                                             mission_task))
-            accepted = [1, 4, 6, 8, 9]
+            accepted = [1, 4, 6, 8, 9, 10]
         await ctx.author.send(embed=embed)
 
         def check(m):
