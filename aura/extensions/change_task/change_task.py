@@ -91,7 +91,7 @@ class ChangeTask:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '5' or content == '8' or content == '8' or content == '11':
+        if content == '5' or content == '11':
             await ctx.author.send('**Not Yet Implemented**')
             return await ctx.invoke(self.bot.get_command("me"), True)
         elif content == '9':

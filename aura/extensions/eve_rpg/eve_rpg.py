@@ -25,6 +25,7 @@ class EveRpg:
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
+                await self.process_exploration()
                 await self.process_belt_mining()
                 await self.process_anomaly_ratting()
                 await self.process_roams()
@@ -400,11 +401,11 @@ class EveRpg:
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(mission_runner, ship_id)
             death = await self.weighted_choice(
-                [(True, 2 * level_multi), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
+                [(True, 3 * level_multi), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
                                                               (ship_attack * 8)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            complete_mission = await self.weighted_choice([(True, 20), (False, 60 * mission_details['level'])])
+            complete_mission = await self.weighted_choice([(True, 20), (False, 35 * mission_details['level'])])
             if complete_mission is False:
                 continue
             if death is True and flee is False:
@@ -456,6 +457,115 @@ class EveRpg:
                             player_id = (?); '''
                 values = (None, mission_runner[2],)
                 await db.execute_sql(sql, values)
+
+    async def process_exploration(self):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 8 '''
+        explorers = await db.select(sql)
+        if explorers is None or len(explorers) is 0:
+            return
+        for explorer in explorers:
+            region_id = int(explorer[4])
+            region_security = await game_functions.get_region_security(region_id)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 AND `region` = (?) '''
+            values = (region_id,)
+            system_explorers = await db.select_var(sql, values)
+            ratter_ship = ast.literal_eval(explorer[14])
+            ship_id = ratter_ship['ship_type']
+            isk = random.randint(3000, 7500)
+            sites = 125
+            best_of = 3
+            loot_chance = 2
+            if region_security == 'Low':
+                isk = random.randint(6500, 12500)
+                best_of = 5
+                loot_chance = 4
+            elif region_security == 'Null':
+                isk = random.randint(10500, 20500)
+                best_of = 5
+                loot_chance = 7
+            #  PVE Rolls
+            ship_name = await game_functions.get_ship_name(ship_id)
+            find_sites = await self.weighted_choice([(True, sites / len(system_explorers)), (False, 40)])
+            if find_sites is False:
+                continue
+            else:
+                player = self.bot.get_user(explorer[2])
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="Site Found",
+                                value="You've located an empty site and begin trying to hack the storage containers in "
+                                      "the area.")
+                await player.send(embed=embed)
+                your_score = 0
+                ai_score = 0
+                last_action = ''
+                win = False
+                for x in range(11):
+                    if your_score >= best_of:
+                        win = True
+                        break
+                    if ai_score >= best_of:
+                        win = False
+                        break
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="Hacking",
+                                    value="Someone is countering your hack...\n\n"
+                                          "{}"
+                                          "Your Hack Score: {}\n"
+                                          "Hostile Hack Score: {}\n\n"
+                                          "__Choose an action__\n"
+                                          "**1.** Brute Attack"
+                                          "**2.** Firewall"
+                                          "**3.** Trojan Attack".format(last_action, your_score, ai_score))
+                    await player.send(embed=embed)
+
+                    def check(m):
+                        return m.author == player.author and m.channel == player.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                    response = msg.content
+                    if response != '1' or response != '2' or response != '3':
+                        last_action = '**Last Action:** Incorrect Response\n'
+                        ai_score += 1
+                        continue
+                    ai_action = await self.weighted_choice([('1', 33), ('2', 33), ('3', 33)])
+                    if response == '1' and ai_action != '2' and ai_action != response:
+                        last_action = '**Last Action:** Brute Attack Successful\n'
+                        your_score += 1
+                        continue
+                    if response == '1' and ai_action == '2':
+                        last_action = '**Last Action:** Brute Attack Stopped By Firewall\n'
+                        ai_score += 1
+                        continue
+                    if response == '2' and ai_action != '3' and ai_action != response:
+                        last_action = '**Last Action:** Firewall Successful\n'
+                        your_score += 1
+                        continue
+                    if response == '2' and ai_action == '3':
+                        last_action = '**Last Action:** Trojan Attack Countered Your Firewall\n'
+                        ai_score += 1
+                        continue
+                    if response == '3' and ai_action != '1' and ai_action != response:
+                        last_action = '**Last Action:** Trojan Attack Successful\n'
+                        your_score += 1
+                        continue
+                    if response == '3' and ai_action == '1':
+                        last_action = '**Last Action:** Brute Attack Overwhelmed Your Trojan Attack Attempt\n'
+                        ai_score += 1
+                        continue
+                if win is True:
+                    xp_gained = await self.weighted_choice([(2, 35), (3, 15), (0, 15)])
+                    await self.add_xp(explorer, xp_gained)
+                    await self.add_isk(explorer, isk)
+                    await self.update_journal(explorer, isk, 'Exploration')
+                    await player.send(
+                        '**Success** Site succesfully hacked for {} ISK, hunting for a new site.'.format(isk))
+                    await self.pve_loot(explorer, loot_chance)
+                else:
+                    await player.send('**Failure** The AI defeated you, looking for a new site.')
 
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
