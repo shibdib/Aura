@@ -389,6 +389,10 @@ modules = {  # Attack
           'maneuver': 0,
           'tracking': 0,
           'image': 'https://image.eveonline.com/Type/19406_64.png', 'isk': 700515, 'special': None, 'no_fit': True},
+    500: {'id': 500, 'name': "tEVE PLEX", 'class': 20, 'attack': 0, 'defense': 0,
+          'maneuver': 0,
+          'tracking': 0,
+          'image': 'https://image.eveonline.com/Type/44992_64.png', 'isk': 250000, 'special': None, 'no_fit': True},
 }
 
 components = {
