@@ -377,6 +377,13 @@ class EveRpg:
         if mission_runners is None or len(mission_runners) is 0:
             return
         for mission_runner in mission_runners:
+            if mission_runner[22] is None:
+                sql = ''' UPDATE eve_rpg_players
+                        SET task = 10
+                        WHERE
+                            player_id = (?); '''
+                values = (mission_runner[2],)
+                return await db.execute_sql(sql, values)
             mission_details = ast.literal_eval(mission_runner[22])
             region_id = int(mission_runner[4])
             region_name = await game_functions.get_region(int(region_id))
