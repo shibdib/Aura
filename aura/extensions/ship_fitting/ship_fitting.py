@@ -112,7 +112,7 @@ class ShipFitting:
                     module = await game_functions.get_module(int(item))
                     if 'no_fit' in module:
                         continue
-                    if 9 > module['class'] < 20 and ship['drone_bay'] == 0:
+                    if 'size' in module and ship['drone_bay'] == 0:
                         continue
                     equip_module_order[module_number] = int(item)
                     module_attack = module['attack']
@@ -121,7 +121,7 @@ class ShipFitting:
                     module_tracking = module['tracking']
                     stats = '({}%/{}%/{}%/{}%)'.format(module_attack * 100, module_defense * 100,
                                                        module_maneuver * 100, module_tracking * 100)
-                    if 9 > module['class'] < 20 and ship['drone_bay'] > 0 and 'size' in module:
+                    if 'size' in module and ship['drone_bay'] > 0:
                         stats = '({}/{}/{}/{}) - Size: {}m3'.format(module_attack, module_defense,
                                                                     module_maneuver, module_tracking, module['size'])
                         equip_drones_commands.append(module_number)
