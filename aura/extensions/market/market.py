@@ -975,19 +975,20 @@ class Market:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
-                    for component in module_array:
-                        if component['selection'] == int(component):
-                            sell_components.append(component['id'])
-                            selected_component = await game_functions.get_component(int(component['type_id']))
-                            total_isk += int(float(component['sale_price']))
-                            sell_components_text.append('{}'.format(selected_component['name']))
-                            count += 1
-                            if count >= 10:
-                                count = 0
-                                stored_modules = '\n'.join(sell_components_text)
-                                embed.add_field(name="Sell",
-                                                value="__**Sell**__\n{}".format(stored_modules), inline=False)
-                                sell_components_text = []
+                    for component in component_hangar[player[0][4]]:
+                        for selling in module_array:
+                            if component['selection'] == int(selling):
+                                sell_components.append(component['id'])
+                                selected_component = await game_functions.get_component(int(component['type_id']))
+                                total_isk += int(float(component['sale_price']))
+                                sell_components_text.append('{}'.format(selected_component['name']))
+                                count += 1
+                                if count >= 10:
+                                    count = 0
+                                    stored_modules = '\n'.join(sell_components_text)
+                                    embed.add_field(name="Sell",
+                                                    value="__**Sell**__\n{}".format(stored_modules), inline=False)
+                                    sell_components_text = []
                     if len(sell_components_text) > 0:
                         stored_modules = '\n'.join(sell_components_text)
                         embed.add_field(name="Sell",
