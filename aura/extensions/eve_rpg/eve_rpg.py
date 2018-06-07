@@ -406,8 +406,6 @@ class EveRpg:
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             complete_mission = await self.weighted_choice([(True, 20), (False, 30 * mission_details['level'])])
-            if complete_mission is False:
-                continue
             if death is True and flee is False:
                 damage_done = random.randint(1, max_damage)
                 if damage_done < ship['hit_points']:
@@ -432,6 +430,8 @@ class EveRpg:
                 ratter_user = self.bot.get_user(mission_runner[2])
                 # await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
             else:
+                if complete_mission is False:
+                    continue
                 xp_gained = await self.weighted_choice([(1 * mission_details['level'], 35),
                                                         (3 * mission_details['level'], 15),
                                                         (0, 15)])
