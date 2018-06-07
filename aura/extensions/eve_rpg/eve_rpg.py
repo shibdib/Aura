@@ -397,7 +397,7 @@ class EveRpg:
                                                               (ship_attack * 8)))])
             flee = await self.weighted_choice(
                 [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            complete_mission = await self.weighted_choice([(True, 60), (False, 40)])
+            complete_mission = await self.weighted_choice([(True, 20), (False, 60 * mission_details['level'])])
             if complete_mission is False:
                 continue
             if death is True and flee is False:
