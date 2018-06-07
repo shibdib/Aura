@@ -980,10 +980,7 @@ class Market:
                             if component['selection'] == int(selling):
                                 sell_components.append(component['id'])
                                 selected_component = await game_functions.get_component(int(component['type_id']))
-                                try:
-                                    total_isk += int(float(component['sale_price']))
-                                except ValueError:
-                                    total_isk += int(component['sale_price'])
+                                total_isk += int(float(selected_component['isk']))
                                 sell_components_text.append('{}'.format(selected_component['name']))
                                 count += 1
                                 if count >= 10:
