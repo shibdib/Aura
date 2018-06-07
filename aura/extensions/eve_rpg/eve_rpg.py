@@ -1069,7 +1069,7 @@ class EveRpg:
         if overseer is True:
             player = await self.refresh_player(player)
             ship = ast.literal_eval(player[14])
-            loot_type = await self.weighted_choice([(205, 70), (206, 25), (207, 10), (208, 5)])
+            loot_type = await self.weighted_choice([(205, 50), (206, 25), (207, 10), (208, 5)])
             item = await game_functions.get_module(loot_type)
             if 'module_cargo_bay' in ship:
                 loot = ship['module_cargo_bay']
