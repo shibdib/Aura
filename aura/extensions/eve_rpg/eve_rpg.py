@@ -22,7 +22,6 @@ class EveRpg:
         await self.initial_checks()
         while not self.bot.is_closed():
             try:
-                print('tick')
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
