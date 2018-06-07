@@ -483,7 +483,7 @@ class Market:
                         return await ctx.invoke(self.bot.get_command("me"), True)
                     player = await game_functions.refresh_player(player[0])
                     for item in purchase_items:
-                        module = await game_functions.get_module(module_selection_dict[int(item)])
+                        module = await game_functions.get_module(item)
                         player = await game_functions.refresh_player(player)
                         if player[13] is None:
                             current_hangar = {player[4]: [item]}
