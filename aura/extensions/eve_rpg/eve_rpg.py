@@ -1055,7 +1055,8 @@ class EveRpg:
             if 'module_cargo_bay' in ship:
                 loot = ship['module_cargo_bay']
                 loot.append(loot_type)
-            loot = [loot_type]
+            else:
+                loot = [loot_type]
             channel = self.bot.get_user(player[2])
             await channel.send('**PVE Loot Received**\n\n**{}**\n\n*Get to a station and empty your module '
                                'bay to get it*'.format(item['name']))
@@ -1074,7 +1075,8 @@ class EveRpg:
             if 'module_cargo_bay' in ship:
                 loot = ship['module_cargo_bay']
                 loot.append(loot_type)
-            loot = [loot_type]
+            else:
+                loot = [loot_type]
             channel = self.bot.get_user(player[2])
             await channel.send('**PVE Loot Received**\n\n**{}**\n\n*Get to a station and empty your module '
                                'bay to get it*'.format(item['name']))
