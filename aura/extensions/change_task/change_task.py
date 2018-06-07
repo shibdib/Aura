@@ -113,10 +113,10 @@ class ChangeTask:
             await ctx.author.send('**Task Updated** - You are now {}.'.format(new_task))
         elif '!!' not in content:
             await ctx.author.send('**ERROR** - Not a valid choice.')
-            if content.find('!!') == -1:
-                return await ctx.invoke(self.bot.get_command("me"), True)
-            else:
-                return
+        if content.find('!!') == -1:
+            return await ctx.invoke(self.bot.get_command("me"), True)
+        else:
+            return
 
     async def process_mission(self, ctx, player):
         if player[22] is not None:
