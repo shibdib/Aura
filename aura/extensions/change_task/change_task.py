@@ -79,7 +79,7 @@ class ChangeTask:
                                   "**PVE Tasks**\n"
                                   "**6.** Kill belt rats.\n"
                                   "**8.** Do some exploration and run sites in the system.\n"
-                                  "{}.\n"
+                                  "{}\n"
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination,
                                                                             mission_task))
