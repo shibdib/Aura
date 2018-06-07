@@ -437,7 +437,7 @@ class EveRpg:
                                  text="Aura - EVE Text RPG")
                 embed.add_field(name="Mission Completed",
                                 value="{}\n\n"
-                                      "Reward: {} ISK\n".format(mission_details['success'],
+                                      "Reward: {} ISK\n".format(mission_details['completion'],
                                                                 '{0:,.2f}'.format(float(mission_details['reward']))))
                 player = self.bot.get_user(mission_runner[2])
                 await player.send(embed=embed)
