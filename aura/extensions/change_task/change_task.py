@@ -91,7 +91,7 @@ class ChangeTask:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '5' or content == '8' or content == '11':
+        if content == '5' or content == '8' or content == '8' or content == '11':
             await ctx.author.send('**Not Yet Implemented**')
             return await ctx.invoke(self.bot.get_command("me"), True)
         elif content == '9':
@@ -120,7 +120,7 @@ class ChangeTask:
                         SET task = (?)
                         WHERE
                             player_id = (?); '''
-                values = (11, ctx.author.id,)
+                values = (9, ctx.author.id,)
                 await db.execute_sql(sql, values)
                 await ctx.author.send('**Entering Mission Site**')
                 return await ctx.invoke(self.bot.get_command("me"), True)

@@ -75,10 +75,10 @@ tasks = {1: 'Docked',
          6: 'Killing Belt Rats',
          7: 'Running Anomalies',
          8: 'Exploring',
-         11: 'Running a Mission Site',
+         9: 'Running a Mission Site',
          # MINING
-         9: 'Belt Mining',
-         10: 'Anomaly Mining',
+         10: 'Belt Mining',
+         11: 'Anomaly Mining',
          # GENERIC
          20: 'Traveling',
          21: 'In Space'}

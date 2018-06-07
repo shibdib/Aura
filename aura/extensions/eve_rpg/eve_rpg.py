@@ -264,7 +264,7 @@ class EveRpg:
                 await self.update_journal(ratter, isk, 'Anomaly Ratting')
 
     async def process_belt_mining(self):
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 '''
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 10 '''
         miners = await db.select(sql)
         if miners is None or len(miners) is 0:
             return
@@ -273,7 +273,7 @@ class EveRpg:
             region_security = await game_functions.get_region_security(region_id)
             region_name = await game_functions.get_region(int(region_id))
             user = self.bot.get_user(miner[2])
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 AND `region` = (?) '''
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 10 AND `region` = (?) '''
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
             isk = random.randint(100, 750)
@@ -372,7 +372,7 @@ class EveRpg:
                 await self.update_journal(miner, isk, 'Belt Mining')
 
     async def process_missions(self):
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 11 '''
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 '''
         mission_runners = await db.select(sql)
         if mission_runners is None or len(mission_runners) is 0:
             return
