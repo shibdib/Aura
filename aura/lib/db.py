@@ -92,15 +92,13 @@ async def update_tables():
         current_version = version[0][0]
     if db is not None:
         result = 'DB Up To Date'
-        if int(current_version) < 1:
+        if int(current_version) < 2:
             result = 'Updated to DB version 1'
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `wallet_journal` TEXT DEFAULT NULL; '''
-            await execute_sql(sql)
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `blue_players` TEXT DEFAULT NULL; '''
+            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `mission_details` TEXT DEFAULT NULL; '''
             await execute_sql(sql)
         sql = ''' REPLACE INTO data(entry,int)
                   VALUES(?,?) '''
-        values = ('db_version', 1)
+        values = ('db_version', 2)
         await execute_sql(sql, values)
         return result
 
