@@ -62,7 +62,7 @@ class Travel:
                         player_id = (?); '''
             target = connected_regions_detail[int(content)]
             values = (int(target), ctx.author.id,)
-            destination = await game_functions.get_region(int(content))
+            destination = await game_functions.get_region(int(target))
             await db.execute_sql(sql, values)
             await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
         elif content == '5':
