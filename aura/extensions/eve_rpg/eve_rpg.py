@@ -441,6 +441,13 @@ class EveRpg:
                                                                 '{0:,.2f}'.format(float(mission_details['reward']))))
                 player = self.bot.get_user(mission_runner[2])
                 await player.send(embed=embed)
+                sql = ''' UPDATE eve_rpg_players
+                        SET task = 21,
+                            mission_details = (?)
+                        WHERE
+                            player_id = (?); '''
+                values = (None, player[2],)
+                await db.execute_sql(sql, values)
 
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
