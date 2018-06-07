@@ -140,14 +140,17 @@ class EveRpg:
             isk = random.randint(1000, 3500)
             survival = 200 * ship['pve_multi']
             npc = 125
+            max_damage = 8
             if region_security == 'Low':
                 isk = random.randint(2500, 6500)
                 survival = 175 * ship['pve_multi']
                 npc = 225
+                max_damage = 12
             elif region_security == 'Null':
                 isk = random.randint(5500, 10500)
                 survival = 125 * ship['pve_multi']
                 npc = 350
+            max_damage = 14
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
@@ -161,6 +164,9 @@ class EveRpg:
             if find_rats is False:
                 continue
             if death is True and flee is False:
+                damage_done = random.randint(1, max_damage)
+                if damage_done < ship['hit_points']:
+                    return
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -205,14 +211,17 @@ class EveRpg:
             isk = random.randint(1000, 3500)
             survival = 175 * ship['pve_multi']
             npc = 125
+            max_damage = 8
             if region_security == 'Low':
                 isk = random.randint(4500, 7500)
                 survival = 150 * ship['pve_multi']
                 npc = 225
+                max_damage = 11
             elif region_security == 'Null':
                 isk = random.randint(6500, 17500)
                 survival = 100 * ship['pve_multi']
                 npc = 350
+                max_damage = 13
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
@@ -226,6 +235,9 @@ class EveRpg:
             if find_rats is False:
                 continue
             if death is True and flee is False:
+                damage_done = random.randint(1, max_damage)
+                if damage_done < ship['hit_points']:
+                    return
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -270,15 +282,18 @@ class EveRpg:
             possible_npc = False
             survival = 500
             ore = 100
+            max_damage = 8
             if region_security == 'Low':
                 survival = 350
                 ore = 150
                 possible_npc = 2
+                max_damage = 11
                 isk = random.randint(2000, 3750)
             elif region_security == 'Null':
                 survival = 275
                 ore = 300
                 possible_npc = 4
+                max_damage = 13
                 isk = random.randint(4750, 10550)
             if ship['class'] == 0:
                 survival = 175
@@ -331,6 +346,9 @@ class EveRpg:
                         [(True, possible_npc), (False, survival + ((ship['defense'] * 11) + (ship['maneuver'] * 6) +
                                                                    (ship['attack'] * 8)) * defense_multi)])
                 if death is True:
+                    damage_done = random.randint(1, max_damage)
+                    if damage_done < ship['hit_points']:
+                        return
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
@@ -424,7 +442,23 @@ class EveRpg:
         player_one_weight = (((attacker[8] + 1) * 0.5) + (attacker_attack - (defender_defense / 2))) * tracking_one
         player_two_weight = ((((defender[8] + 1) * 0.5) + (defender_attack -
                                                            (attacker_defense / 2))) * tracking_two) - pve_disadvantage
-        winner = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
+        attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
+        attacker_hits = attacker_ship_info['hit_points']
+        defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
+        defender_hits = defender_ship_info['hit_points']
+        winner = None
+        for x in range(30):
+            combat = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
+            if combat == attacker:
+                defender_hits -= 1
+            else:
+                attacker_hits -= 1
+            if attacker_hits <= 0:
+                winner = defender
+                break
+            if defender_hits <= 0:
+                winner = attacker
+                break
         loser = attacker
         winner_catch = defender_attack / 2 + defender_tracking
         loser_escape = attacker_defense / 2 + attacker_maneuver
