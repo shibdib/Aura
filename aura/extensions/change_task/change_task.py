@@ -39,8 +39,10 @@ class ChangeTask:
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
+        mission_destination = ''
         if player[0][22] is not None:
             mission_details = ast.literal_eval(player[0][22])
+            mission_destination = '\nMission Location: {}'.format(mission_details['region'])
             if int(player[0][4]) == int(mission_details['region']):
                 mission_task = '**9.** Warp to mission site.\n'
             else:
@@ -49,7 +51,7 @@ class ChangeTask:
             mission_task = '**9.** Request a Mission.\n'
         if region_security != 'High':
             embed.add_field(name="Change Task",
-                            value="**Current Task** - {}\n\n"
+                            value="**Current Task** - {}{}\n\n"
                                   "**Dock**\n"
                                   "**1.** Dock in current region.\n"
                                   "**PVP Tasks**\n"
@@ -63,11 +65,12 @@ class ChangeTask:
                                   "{}"
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n"
-                                  "**11.** Mine a mining anomaly.\n".format(current_task, mission_task))
+                                  "**11.** Mine a mining anomaly.\n".format(current_task, mission_destination,
+                                                                            mission_task))
             accepted = [1, 2, 3, 5, 6, 7, 8, 9, 10]
         else:
             embed.add_field(name="Change Task",
-                            value="**Current Task** - {}\n\n"
+                            value="**Current Task** - {}{}\n\n"
                                   "**Dock**\n"
                                   "**1.** Dock in current region.\n"
                                   "**PVP Tasks**\n"
@@ -77,7 +80,8 @@ class ChangeTask:
                                   "**8.** Do some exploration and run sites in the system.\n"
                                   "**9.** {}.\n"
                                   "**Mining Tasks**\n"
-                                  "**10.** Mine an asteroid belt.\n".format(current_task, mission_task))
+                                  "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination,
+                                                                            mission_task))
             accepted = [1, 4, 6, 8, 9]
         await ctx.author.send(embed=embed)
 

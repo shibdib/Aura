@@ -446,7 +446,7 @@ class EveRpg:
                             mission_details = (?)
                         WHERE
                             player_id = (?); '''
-                values = (None, player[2],)
+                values = (None, mission_runner[2],)
                 await db.execute_sql(sql, values)
 
     async def process_roams(self):
