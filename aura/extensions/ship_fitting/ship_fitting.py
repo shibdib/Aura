@@ -29,9 +29,6 @@ class ShipFitting:
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
-        if player[0][6] is not 1:
-            await ctx.author.send('**ERROR** - You must be docked to do this.')
-            return await ctx.invoke(self.bot.get_command("me"), True)
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
         player_ship_obj = ast.literal_eval(player[0][14])
@@ -145,6 +142,8 @@ class ShipFitting:
                                     value=stored_modules)
                 await ctx.author.send(embed=embed)
         await ctx.author.send(embed=embed)
+        if player[0][6] is not 1:
+            return await ctx.invoke(self.bot.get_command("me"), True)
 
         def check(m):
             return m.author == ctx.author and m.channel == ctx.author.dm_channel
