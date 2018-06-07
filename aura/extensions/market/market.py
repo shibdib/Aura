@@ -950,7 +950,7 @@ class Market:
                     component_number += 1
                     if component_number >= 10:
                         stored_modules = '\n'.join(stored_ships_array)
-                        embed.add_field(name="{} Module Hangar".format(region_name),
+                        embed.add_field(name="{} Component Hangar".format(region_name),
                                         value=stored_modules)
                         stored_ships_array = []
                 stored_components = '\n'.join(stored_ships_array)
@@ -980,8 +980,9 @@ class Market:
                             if component['selection'] == int(selling):
                                 sell_components.append(component['id'])
                                 selected_component = await game_functions.get_component(int(component['type_id']))
-                                total_isk += int(float(selected_component['isk']))
-                                sell_components_text.append('{}'.format(selected_component['name']))
+                                total_isk += int(float(selected_component['isk'] * component['amount']))
+                                sell_components_text.append('{}x {}'.format(component['amount'],
+                                                                            selected_component['name']))
                                 count += 1
                                 if count >= 10:
                                     count = 0
