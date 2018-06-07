@@ -1,3 +1,5 @@
+import ast
+
 from discord.ext import commands
 
 from aura.core import checks
@@ -36,6 +38,11 @@ class ChangeTask:
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
+        if player[0][22] is not None:
+            mission_details = ast.literal_eval(player[0][22])
+            mission_task = 'Request a Mission.'
+        else:
+            mission_task = 'Request a Mission.'
         if region_security != 'High':
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}\n\n"
@@ -49,9 +56,10 @@ class ChangeTask:
                                   "**6.** Kill belt rats.\n"
                                   "**7.** Run anomalies in the system.\n"
                                   "**8.** Do some exploration and run sites in the system.\n"
+                                  "**9.** {}.\n"
                                   "**Mining Tasks**\n"
-                                  "**9.** Mine an asteroid belt.\n"
-                                  "**10.** Mine a mining anomaly.\n".format(current_task))
+                                  "**10.** Mine an asteroid belt.\n"
+                                  "**11.** Mine a mining anomaly.\n".format(current_task, mission_task))
             accepted = [1, 2, 3, 5, 6, 7, 8, 9, 10]
         else:
             embed.add_field(name="Change Task",
@@ -63,8 +71,9 @@ class ChangeTask:
                                   "**PVE Tasks**\n"
                                   "**6.** Kill belt rats.\n"
                                   "**8.** Do some exploration and run sites in the system.\n"
+                                  "**9.** {}.\n"
                                   "**Mining Tasks**\n"
-                                  "**9.** Mine an asteroid belt.\n".format(current_task))
+                                  "**10.** Mine an asteroid belt.\n".format(current_task, mission_task))
             accepted = [1, 4, 6, 8, 9]
         await ctx.author.send(embed=embed)
 
@@ -73,7 +82,7 @@ class ChangeTask:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '5' or content == '8' or content == '10':
+        if content == '5' or content == '8' or content == '9' or content == '11':
             await ctx.author.send('**Not Yet Implemented**')
         elif int(content) in accepted:
             sql = ''' UPDATE eve_rpg_players
