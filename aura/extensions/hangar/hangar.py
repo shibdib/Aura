@@ -133,7 +133,7 @@ class Hangar:
                 await ctx.author.send('**A {} Is Now Your Active Ship**'.format(selected_ship['name']))
             else:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-                if content.find('!!') == -1:
-                    return await ctx.invoke(self.bot.get_command("me"), True)
-                else:
-                    return
+            if content.find('!!') == -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
