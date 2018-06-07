@@ -30,11 +30,17 @@ class Travel:
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
         connected_regions = []
+        connected_regions_detail = {}
+        options = []
+        option_number = 1
         region_connections = await game_functions.get_region_connections(region_id)
         for regions in region_connections:
             name = await game_functions.get_region(regions)
             sec = await  game_functions.get_region_security(regions)
-            connected_regions.append('**{}.** {} ({} Sec)'.format(regions, name, sec))
+            connected_regions_detail[option_number] = regions
+            options.append(option_number)
+            connected_regions.append('**{}.** {} ({} Sec)'.format(option_number, name, sec))
+            option_number += 1
         region_list = '\n'.join(connected_regions)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -48,13 +54,14 @@ class Travel:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if int(content) in region_connections:
+        if int(content) in options:
             sql = ''' UPDATE eve_rpg_players
                     SET destination = (?),
                         task = 20
                     WHERE
                         player_id = (?); '''
-            values = (int(content), ctx.author.id,)
+            target = connected_regions_detail[int(content)]
+            values = (int(target), ctx.author.id,)
             destination = await game_functions.get_region(int(content))
             await db.execute_sql(sql, values)
             await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
