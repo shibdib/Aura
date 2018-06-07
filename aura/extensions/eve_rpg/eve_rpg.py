@@ -393,9 +393,9 @@ class EveRpg:
             ship_id = ratter_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             isk = mission_details['reward']
-            survival = 200 * ship['pve_multi']
+            survival = 150 * ship['pve_multi']
             max_damage = 10
-            level_multi = int(float(mission_details['level'] * 1.5))
+            level_multi = int(float(mission_details['level'] * 3))
             #  PVE Rolls
             ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
