@@ -274,6 +274,7 @@ ship_classes = {
     0: 'Rookie Ship',
     1: 'Frigate',
     2: 'Interceptor',
+    3: 'Destroyer',
     4: 'Tactical Destroyer',
     5: 'Cruiser',
     6: 'Battlecruiser',
