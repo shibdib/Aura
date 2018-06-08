@@ -154,7 +154,6 @@ class EveRpg:
                 npc = 350
                 max_damage = 14
             #  PVE Rolls
-            ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ratter, ship_id)
             death = await self.weighted_choice(
@@ -169,6 +168,18 @@ class EveRpg:
                 damage_done = random.randint(1, max_damage)
                 if damage_done < ship['hit_points']:
                     return
+                module_value = 0
+                loser_modules = ''
+                loser_modules_array = []
+                if ratter[12] is not None:
+                    modules = ast.literal_eval(ratter[12])
+                    for module in modules:
+                        module_item = await game_functions.get_module(module)
+                        module_value += module_item['isk']
+                        loser_modules_array.append('{}'.format(module_item['name']))
+                    loser_module_list = '\n'.join(loser_modules_array)
+                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                module_value += ship['isk']
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -177,9 +188,10 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed by belt rats.".format(region_name,
-                                                                                           user.display_name,
-                                                                                           ship_name))
+                                      "**{}** flying a {} was killed while belt ratting.{}\n\n"
+                                      "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
+                                                                      loser_modules,
+                                                                      '{0:,.2f}'.format(float(module_value))))
                 await self.add_loss(ratter)
                 player = self.bot.get_user(ratter[2])
                 await player.send(embed=embed)
@@ -225,7 +237,6 @@ class EveRpg:
                 npc = 350
                 max_damage = 13
             #  PVE Rolls
-            ship_name = await game_functions.get_ship_name(ship_id)
             ship_attack, ship_defense, ship_maneuver, ship_tracking = \
                 await game_functions.get_combat_attributes(ratter, ship_id)
             death = await self.weighted_choice(
@@ -240,6 +251,18 @@ class EveRpg:
                 damage_done = random.randint(1, max_damage)
                 if damage_done < ship['hit_points']:
                     return
+                module_value = 0
+                loser_modules = ''
+                loser_modules_array = []
+                if ratter[12] is not None:
+                    modules = ast.literal_eval(ratter[12])
+                    for module in modules:
+                        module_item = await game_functions.get_module(module)
+                        module_value += module_item['isk']
+                        loser_modules_array.append('{}'.format(module_item['name']))
+                    loser_module_list = '\n'.join(loser_modules_array)
+                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                module_value += ship['isk']
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -248,9 +271,10 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed while running an anomaly.".format(region_name,
-                                                                                                       user.display_name,
-                                                                                                       ship_name))
+                                      "**{}** flying a {} was killed while anomaly ratting.{}\n\n"
+                                      "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
+                                                                      loser_modules,
+                                                                      '{0:,.2f}'.format(float(module_value))))
                 await self.add_loss(ratter)
                 await user.send(embed=embed)
                 await self.send_global(embed, True)
@@ -315,19 +339,19 @@ class EveRpg:
                 defense_multi = 1
                 if ship['class'] == 21:
                     multiplier = 1.75
-                    defense_multi = 1.5
-                if ship['id'] == 80:
-                    multiplier = 2.4
-                    defense_multi = 4
-                if ship['id'] == 81:
-                    multiplier = 3
-                    defense_multi = 2
-                if ship['id'] == 90:
-                    multiplier = 2.9
-                    defense_multi = 6
-                if ship['id'] == 91:
-                    multiplier = 4
                     defense_multi = 2.5
+                if ship['id'] == 80:
+                    multiplier = 5
+                    defense_multi = 6
+                if ship['id'] == 81:
+                    multiplier = 6.5
+                    defense_multi = 4
+                if ship['id'] == 90:
+                    multiplier = 6
+                    defense_multi = 8
+                if ship['id'] == 91:
+                    multiplier = 9
+                    defense_multi = 4.5
                 if miner[12] is not None:
                     modules = ast.literal_eval(miner[12])
                     for module in modules:
@@ -351,6 +375,18 @@ class EveRpg:
                     damage_done = random.randint(1, max_damage)
                     if damage_done < ship['hit_points']:
                         return
+                    module_value = 0
+                    loser_modules = ''
+                    loser_modules_array = []
+                    if miner[12] is not None:
+                        modules = ast.literal_eval(miner[12])
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            module_value += module_item['isk']
+                            loser_modules_array.append('{}'.format(module_item['name']))
+                        loser_module_list = '\n'.join(loser_modules_array)
+                        loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    module_value += ship['isk']
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
@@ -359,9 +395,10 @@ class EveRpg:
                     embed.add_field(name="Killmail",
                                     value="**Region** - {}\n\n"
                                           "**Loser**\n"
-                                          "**{}** flying a {} was killed while belt mining.".format(region_name,
-                                                                                                    user.display_name,
-                                                                                                    ship['name']))
+                                          "**{}** flying a {} was killed while belt mining.{}\n\n"
+                                          "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
+                                                                          loser_modules,
+                                                                          '{0:,.2f}'.format(float(module_value))))
                     await self.add_loss(miner)
                     await user.send(embed=embed)
                     await self.send_global(embed, True)
@@ -410,6 +447,18 @@ class EveRpg:
                 damage_done = random.randint(1, max_damage)
                 if damage_done < ship['hit_points']:
                     return
+                module_value = 0
+                loser_modules = ''
+                loser_modules_array = []
+                if mission_runner[12] is not None:
+                    modules = ast.literal_eval(mission_runner[12])
+                    for module in modules:
+                        module_item = await game_functions.get_module(module)
+                        module_value += module_item['isk']
+                        loser_modules_array.append('{}'.format(module_item['name']))
+                    loser_module_list = '\n'.join(loser_modules_array)
+                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                module_value += ship['isk']
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -418,9 +467,9 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed while running a mission.".format(region_name,
-                                                                                                      user.display_name,
-                                                                                                      ship_name))
+                                      "**{}** flying a {} was killed while running a mission.{}\n\n"
+                                      "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship_name,
+                                                                      loser_modules, '{0:,.2f}'.format(float(module_value))))
                 await self.add_loss(mission_runner)
                 player = self.bot.get_user(mission_runner[2])
                 await player.send(embed=embed)
@@ -682,13 +731,19 @@ class EveRpg:
         loser_name = self.bot.get_user(int(loser[2])).display_name
         winner_ship_obj = ast.literal_eval(winner[14])
         winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
+        winner_ship_info = await game_functions.get_ship(int(winner_ship_obj['ship_type']))
         winner_task = await game_functions.get_task(int(winner[6]))
+        winner_modules = ''
+        winner_modules_array = []
         loser_ship_obj = ast.literal_eval(loser[14])
         loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
+        loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
         loser_task = await game_functions.get_task(int(loser[6]))
         loser_modules = ''
         loser_modules_array = []
         dropped_mods = []
+        module_value = 0
+        winner_module_value = 0
         if loser[12] is not None:
             modules = ast.literal_eval(loser[12])
             for module in modules:
@@ -697,13 +752,24 @@ class EveRpg:
                     escape = await self.weighted_choice([(True, 50), (False, 50)])
                 dropped = await self.weighted_choice([(True, 50), (False, 50)])
                 module_drop = ''
+                module_value += module_item['isk']
                 if dropped is True:
                     dropped_mods.append(module)
                     module_drop = ' **Module Dropped**'
                 loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
             loser_module_list = '\n'.join(loser_modules_array)
             loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+        if winner[12] is not None:
+            modules = ast.literal_eval(winner[12])
+            for module in modules:
+                module_item = await game_functions.get_module(module)
+                winner_module_value += module_item['isk']
+                winner_modules_array.append('{}'.format(module_item['name']))
+            winner_module_list = '\n'.join(winner_modules_array)
+            winner_modules = '\n\n__Modules Lost__\n{}'.format(winner_module_list)
         xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+        isk_lost = module_value + loser_ship_info['isk']
+        isk_lost_winner = winner_module_value + winner_ship_info['isk']
         if escape is False:
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -714,9 +780,11 @@ class EveRpg:
                             value="**Region** - {}\n\n"
                                   "**Loser**\n"
                                   "**{}** flying a {} was killed while they were {}.{}\n\n"
+                                  "Total ISK Lost: {} ISK\n\n"
                                   "**Killer**\n"
                                   "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship,
                                                                             loser_task, loser_modules,
+                                                                            '{0:,.2f}'.format(float(isk_lost)),
                                                                             winner_name, winner_ship, winner_task))
             winner_user = self.bot.get_user(winner[2])
             loser_user = self.bot.get_user(loser[2])
@@ -736,12 +804,15 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed while they were {}.\n\n"
+                                      "**{}** flying a {} was killed while they were {}.{}\n\n"
+                                      "Total ISK Lost: {} ISK\n\n"
                                       "**Final Blow**\n"
                                       "Concord\n\n"
                                       "**Other Attackers**\n"
                                       "**{}** flying a {}".format(region_name, winner_name, winner_ship, winner_task,
-                                                                  loser_name, loser_ship))
+                                                                  winner_modules,
+                                                                  '{0:,.2f}'.format(float(isk_lost_winner)), loser_name,
+                                                                  loser_ship))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
@@ -767,12 +838,15 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed while they were {}.\n\n"
+                                      "**{}** flying a {} was killed while they were {}.{}\n\n"
+                                      "Total ISK Lost: {} ISK\n\n"
                                       "**Final Blow**\n"
                                       "Concord\n\n"
                                       "**Other Attackers**\n"
                                       "**{}** flying a {}".format(region_name, winner_name, winner_ship, winner_task,
-                                                                  loser_name, loser_ship))
+                                                                  winner_modules,
+                                                                  '{0:,.2f}'.format(float(isk_lost_winner)), loser_name,
+                                                                  loser_ship))
                 try:
                     await winner_user.send(embed=embed)
                 except Exception:
@@ -800,11 +874,14 @@ class EveRpg:
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
                                       "**{}** flying a {} was killed while they were {}.{}\n\n"
+                                      "Total ISK Lost: {} ISK\n\n"
                                       "**Final Blow**\n"
                                       "Concord\n\n"
                                       "**Other Attackers**\n"
                                       "**{}** flying a {}".format(region_name, loser_name, loser_ship, loser_task,
-                                                                  loser_modules, winner_name, winner_ship))
+                                                                  loser_modules,
+                                                                  '{0:,.2f}'.format(float(isk_lost)), winner_name,
+                                                                  winner_ship))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
