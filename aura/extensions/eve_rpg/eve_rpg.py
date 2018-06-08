@@ -314,13 +314,13 @@ class EveRpg:
                 ore = 150
                 possible_npc = 2
                 max_damage = 11
-                isk = random.randint(2000, 3750)
+                isk = random.randint(8000, 17500)
             elif region_security == 'Null':
                 survival = 275
                 ore = 300
                 possible_npc = 4
                 max_damage = 13
-                isk = random.randint(4750, 10550)
+                isk = random.randint(16000, 45000)
             if ship['class'] == 0:
                 survival = 175
                 if region_security == 'Low':
