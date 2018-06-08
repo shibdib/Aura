@@ -192,13 +192,13 @@ class ChangeTask:
                 await ctx.author.send('**No mission found for the requested level**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
             if int(content) < 3:
-                reward = random.randint(15000 * int(content), 75000 * int(content))
+                reward = random.randint(35000 * int(content), 95000 * int(content))
                 failure = random.randint(int(float(reward * 0.20)), int(float(reward * 0.60)))
             elif int(content) < 5:
-                reward = random.randint(75000 * int(content), 150000 * int(content))
+                reward = random.randint(125000 * int(content), 550000 * int(content))
                 failure = random.randint(int(float(reward * 0.20)), int(float(reward * 0.60)))
             else:
-                reward = random.randint(125000 * int(content), 1000000 * int(content))
+                reward = random.randint(525000 * int(content), 1000000 * int(content))
                 failure = random.randint(int(float(reward * 0.20)), int(float(reward * 0.60)))
             region_id = random.randint(5, 20)
             region_name = await game_functions.get_region(region_id)
