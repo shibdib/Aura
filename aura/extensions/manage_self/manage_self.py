@@ -50,7 +50,7 @@ class ManageSelf:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
-            timeout = 60
+            timeout = None
             if redirect is False:
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"

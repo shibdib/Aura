@@ -690,7 +690,6 @@ class Market:
                         stored_ships = '\n'.join(sell_ships_text)
                         embed.add_field(name="Sell",
                                         value="__**Sell**__\n{}".format(stored_ships), inline=False)
-                    await ctx.author.send(embed=embed)
                     sale_price = '{0:,.2f}'.format(float(total_isk))
                     embed.add_field(name="Confirm Sale",
                                     value="For {} ISK \n\n"
@@ -877,7 +876,6 @@ class Market:
                         stored_modules = '\n'.join(sell_modules_text)
                         embed.add_field(name="Sell",
                                         value="__**Sell**__\n{}".format(stored_modules), inline=False)
-                    await ctx.author.send(embed=embed)
                     sale_price = '{0:,.2f}'.format(float(total_isk))
                     embed.add_field(name="Confirm Sale",
                                     value="For {} ISK \n\n"
@@ -1036,7 +1034,6 @@ class Market:
                         stored_modules = '\n'.join(sell_components_text)
                         embed.add_field(name="Sell",
                                         value="__**Sell**__\n{}".format(stored_modules), inline=False)
-                    await ctx.author.send(embed=embed)
                     sale_price = '{0:,.2f}'.format(float(total_isk))
                     embed.add_field(name="Confirm Sale",
                                     value="For {} ISK \n\n"
