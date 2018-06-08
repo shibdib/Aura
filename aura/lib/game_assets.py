@@ -248,25 +248,25 @@ ships = {  # Noob
     # Mining frigate
     70: {'id': 70, 'name': 'Venture', 'class': 21, 'hit_points': 3, 'attack': 0, 'defense': 5, 'maneuver': 4,
          'tracking': 1,
-         'image': 'https://image.eveonline.com/Type/32880_64.png', 'pve_multi': 1, 'isk': 593884, 'slots': 2,
+         'image': 'https://image.eveonline.com/Type/32880_64.png', 'pve_multi': 1, 'isk': 593884, 'slots': 3,
          'drone_bay': 5},
     # Mining barge
     80: {'id': 80, 'name': 'Procurer', 'class': 22, 'hit_points': 5, 'attack': 0, 'defense': 12, 'maneuver': 1,
          'tracking': 1,
-         'image': 'https://image.eveonline.com/Type/17480_64.png', 'pve_multi': 1, 'isk': 18656208, 'slots': 3,
+         'image': 'https://image.eveonline.com/Type/17480_64.png', 'pve_multi': 1, 'isk': 18656208, 'slots': 4,
          'drone_bay': 15},
     81: {'id': 81, 'name': 'Covetor', 'class': 22, 'hit_points': 4, 'attack': 0, 'defense': 6, 'maneuver': 1,
          'tracking': 1,
-         'image': 'https://image.eveonline.com/Type/17476_64.png', 'pve_multi': 1, 'isk': 26888937, 'slots': 3,
+         'image': 'https://image.eveonline.com/Type/17476_64.png', 'pve_multi': 1, 'isk': 26888937, 'slots': 4,
          'drone_bay': 10},
     # Exhumer
     90: {'id': 90, 'name': 'Skiff', 'class': 23, 'hit_points': 7, 'attack': 0, 'defense': 18, 'maneuver': 2,
          'tracking': 1,
-         'image': 'https://image.eveonline.com/Type/22546_64.png', 'pve_multi': 1, 'isk': 297386539, 'slots': 3,
+         'image': 'https://image.eveonline.com/Type/22546_64.png', 'pve_multi': 1, 'isk': 297386539, 'slots': 4,
          'drone_bay': 50},
     91: {'id': 90, 'name': 'Hulk', 'class': 23, 'hit_points': 5, 'attack': 0, 'defense': 8, 'maneuver': 2,
          'tracking': 1,
-         'image': 'https://image.eveonline.com/Type/22544_64.png', 'pve_multi': 1, 'isk': 382481286, 'slots': 3,
+         'image': 'https://image.eveonline.com/Type/22544_64.png', 'pve_multi': 1, 'isk': 382481286, 'slots': 4,
          'drone_bay': 25},
 }
 
