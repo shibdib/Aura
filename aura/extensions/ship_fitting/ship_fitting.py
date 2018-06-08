@@ -89,7 +89,10 @@ class ShipFitting:
             clean_equipped_drones = '\n'.join(equipped_drones_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(player[0], int(player_ship_obj['ship_type']))
-        value = '**{}** - {}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'], killmarks, insured, ship_attack, ship_defense, ship_maneuver, ship_tracking)
+        value = '**{}** - {}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current ' \
+                'Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'],
+                                                                  killmarks, insured, ship_attack, ship_defense,
+                                                                  ship_maneuver, ship_tracking)
         if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__\n{}'.format(value, clean_equipped_modules)
         if len(remove_drones_commands) > 0:
