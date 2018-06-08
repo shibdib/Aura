@@ -125,7 +125,7 @@ class ChangeTask:
             mission_details = ast.literal_eval(player[22])
             if int(player[4]) == int(mission_details['region']):
                 ship_type = ast.literal_eval(player[14])['ship_type']
-                ship = await game_functions.get_ship(ast.literal_eval(ship_type))
+                ship = await game_functions.get_ship(int(ship_type))
                 level = mission_details['level']
                 if ship['class'] not in restrictions[level]:
                     await ctx.author.send('**That Class Of Ship Is Not Authorized In This Area**')
