@@ -339,19 +339,19 @@ class EveRpg:
                 defense_multi = 1
                 if ship['class'] == 21:
                     multiplier = 1.75
-                    defense_multi = 1.5
-                if ship['id'] == 80:
-                    multiplier = 2.4
-                    defense_multi = 4
-                if ship['id'] == 81:
-                    multiplier = 3
-                    defense_multi = 2
-                if ship['id'] == 90:
-                    multiplier = 2.9
-                    defense_multi = 6
-                if ship['id'] == 91:
-                    multiplier = 4
                     defense_multi = 2.5
+                if ship['id'] == 80:
+                    multiplier = 5
+                    defense_multi = 6
+                if ship['id'] == 81:
+                    multiplier = 6.5
+                    defense_multi = 4
+                if ship['id'] == 90:
+                    multiplier = 6
+                    defense_multi = 8
+                if ship['id'] == 91:
+                    multiplier = 9
+                    defense_multi = 4.5
                 if miner[12] is not None:
                     modules = ast.literal_eval(miner[12])
                     for module in modules:
