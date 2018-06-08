@@ -187,7 +187,7 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed while running a mission.{}\n\n"
+                                      "**{}** flying a {} was killed while belt ratting.{}\n\n"
                                       "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
                                                                       loser_modules,
                                                                       '{0:,.2f}'.format(float(module_value))))
@@ -269,7 +269,7 @@ class EveRpg:
                 embed.add_field(name="Killmail",
                                 value="**Region** - {}\n\n"
                                       "**Loser**\n"
-                                      "**{}** flying a {} was killed while running a mission.{}\n\n"
+                                      "**{}** flying a {} was killed while anomaly ratting.{}\n\n"
                                       "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
                                                                       loser_modules,
                                                                       '{0:,.2f}'.format(float(module_value))))
@@ -392,7 +392,7 @@ class EveRpg:
                     embed.add_field(name="Killmail",
                                     value="**Region** - {}\n\n"
                                           "**Loser**\n"
-                                          "**{}** flying a {} was killed while running a mission.{}\n\n"
+                                          "**{}** flying a {} was killed while belt mining.{}\n\n"
                                           "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
                                                                           loser_modules,
                                                                           '{0:,.2f}'.format(float(module_value))))
