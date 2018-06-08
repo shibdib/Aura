@@ -140,7 +140,7 @@ class EveRpg:
             ship_id = ratter_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
-            survival = 200 * ship['pve_multi']
+            survival = 400
             npc = 125
             max_damage = 8
             if region_security == 'Low':
@@ -223,7 +223,7 @@ class EveRpg:
             ship_id = ratter_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             isk = random.randint(1000, 3500)
-            survival = 175 * ship['pve_multi']
+            survival = 175
             npc = 125
             max_damage = 8
             if region_security == 'Low':
