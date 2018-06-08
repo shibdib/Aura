@@ -179,6 +179,7 @@ class EveRpg:
                         loser_modules_array.append('{}'.format(module_item['name']))
                     loser_module_list = '\n'.join(loser_modules_array)
                     loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                module_value += ship['isk']
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -261,6 +262,7 @@ class EveRpg:
                         loser_modules_array.append('{}'.format(module_item['name']))
                     loser_module_list = '\n'.join(loser_modules_array)
                     loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                module_value += ship['isk']
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -384,6 +386,7 @@ class EveRpg:
                             loser_modules_array.append('{}'.format(module_item['name']))
                         loser_module_list = '\n'.join(loser_modules_array)
                         loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    module_value += ship['isk']
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
@@ -455,6 +458,7 @@ class EveRpg:
                         loser_modules_array.append('{}'.format(module_item['name']))
                     loser_module_list = '\n'.join(loser_modules_array)
                     loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                module_value += ship['isk']
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
