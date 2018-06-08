@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from aura.core import checks
 from aura.lib import db
+from aura.lib import game_assets
 from aura.lib import game_functions
 from aura.utils import make_embed
 
@@ -119,11 +120,11 @@ class ChangeTask:
             return
 
     async def process_mission(self, ctx, player):
+        restrictions = game_assets.mission_restrictions
         if player[22] is not None:
             mission_details = ast.literal_eval(player[22])
             if int(player[4]) == int(mission_details['region']):
                 ship = ast.literal_eval(player[14])
-                restrictions = {1: [0, 1, 2, 3, 4, 5, 6], 2: [1, 2, 3, 4, 5, 6], 3: [3, 4, 5, 6], 4: [5, 6], 5: [6]}
                 level = mission_details['level']
                 if ship['ship_type'] not in restrictions[level]:
                     await ctx.author.send('**That Class Of Ship Is Not Authorized In This Area**')
@@ -190,7 +191,7 @@ class ChangeTask:
                 await ctx.author.send('**No mission found for the requested level**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
             if int(content) < 3:
-                reward = random.randint(25000 * int(content), 75000 * int(content))
+                reward = random.randint(15000 * int(content), 75000 * int(content))
                 failure = random.randint(int(float(reward * 0.20)), int(float(reward * 0.60)))
             elif int(content) < 5:
                 reward = random.randint(75000 * int(content), 150000 * int(content))
@@ -200,17 +201,26 @@ class ChangeTask:
                 failure = random.randint(int(float(reward * 0.20)), int(float(reward * 0.60)))
             region_id = random.randint(5, 20)
             region_name = await game_functions.get_region(region_id)
+            accepted_classes = []
+            for ship_class in restrictions[int(content)]:
+                ship_class_name = game_assets.ship_classes[ship_class]
+                accepted_classes.append(ship_class_name)
+            ship_class_text = ' '.join(accepted_classes)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
             embed.add_field(name="Offered Mission",
-                            value="{}\n\n"
+                            value="__**{}**__\n\n"
+                                  "{}\n\n"
                                   "Mission Region: {}\n"
+                                  "Accepted Ship Classes: {}\n"
                                   "Reward: {} ISK\n"
                                   "Failure Penalty: {} ISK\n"
                                   "**1.** Accept\n"
                                   "**2.** Deny\n"
-                                  "**3.** Request another mission\n".format(mission['initial'], region_name,
+                                  "**3.** Request another mission\n".format(mission['name'], mission['initial'],
+                                                                            region_name,
+                                                                            ship_class_text,
                                                                             '{0:,.2f}'.format(float(reward)),
                                                                             '{0:,.2f}'.format(float(failure))))
             await ctx.author.send(embed=embed)
