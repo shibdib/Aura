@@ -109,10 +109,11 @@ class JoinGame:
                 SET race = (?),
                     ship = (?),
                     region = (?),
-                    home = (?)
+                    home = (?),
+                    isk = (?)
                 WHERE
                     player_id = (?); '''
-        values = (int(content), str(new_ship), region_id, region_id, author,)
+        values = (int(content), str(new_ship), region_id, region_id, 250000, author,)
         await db.execute_sql(sql, values)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
