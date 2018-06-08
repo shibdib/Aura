@@ -212,10 +212,10 @@ class ChangeTask:
             embed.add_field(name="Offered Mission",
                             value="__**{}**__\n\n"
                                   "{}\n\n"
-                                  "Mission Region: {}\n"
-                                  "Accepted Ship Classes: {}\n"
-                                  "Reward: {} ISK\n"
-                                  "Failure Penalty: {} ISK\n"
+                                  "**Mission Region:** {}\n"
+                                  "**Accepted Ship Classes:** {}\n"
+                                  "**Reward:** {} ISK\n"
+                                  "**Failure Penalty:** {} ISK\n\n"
                                   "**1.** Accept\n"
                                   "**2.** Deny\n"
                                   "**3.** Request another mission\n".format(mission['name'], mission['initial'],
