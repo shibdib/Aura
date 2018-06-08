@@ -122,6 +122,12 @@ class ChangeTask:
         if player[22] is not None:
             mission_details = ast.literal_eval(player[22])
             if int(player[4]) == int(mission_details['region']):
+                ship = ast.literal_eval(player[14])
+                restrictions = {1: [0, 1, 2, 3, 4, 5, 6], 2: [1, 2, 3, 4, 5, 6], 3: [3, 4, 5, 6], 4: [5, 6], 5: [6]}
+                level = mission_details['level']
+                if ship['ship_type'] not in restrictions[level]:
+                    await ctx.author.send('**That Class Of Ship Is Not Authorized In This Area**')
+                    return await ctx.invoke(self.bot.get_command("me"), True)
                 sql = ''' UPDATE eve_rpg_players
                         SET task = (?)
                         WHERE
