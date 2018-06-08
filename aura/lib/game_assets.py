@@ -273,9 +273,10 @@ ships = {  # Noob
 ship_classes = {
     0: 'Rookie Ship',
     1: 'Frigate',
-    3: 'Destroyer',
-    4: 'Tactical Destroyer',
     2: 'Interceptor',
+    4: 'Tactical Destroyer',
+    5: 'Cruiser',
+    6: 'Battlecruiser',
     21: 'Mining Frigate',
     22: 'Mining Barge',
     23: 'Exhumer',
