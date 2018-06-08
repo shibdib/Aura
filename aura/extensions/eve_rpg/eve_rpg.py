@@ -144,12 +144,12 @@ class EveRpg:
             npc = 125
             max_damage = 8
             if region_security == 'Low':
-                isk = random.randint(2500, 6500)
+                isk = random.randint(5000, 15000)
                 survival = 175 * ship['pve_multi']
                 npc = 225
                 max_damage = 12
             elif region_security == 'Null':
-                isk = random.randint(5500, 10500)
+                isk = random.randint(12000, 19000)
                 survival = 125 * ship['pve_multi']
                 npc = 350
                 max_damage = 14
