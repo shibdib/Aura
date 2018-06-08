@@ -375,7 +375,7 @@ class ShipFitting:
                 await ctx.author.send('**{} Has Been Equipped**'.format(selected_module['name']))
             else:
                 await ctx.author.send('**ERROR** - Not a valid choice.')
-            if msg.content.find('!!') == -1:
-                return await ctx.invoke(self.bot.get_command("me"), True)
-            else:
-                return
+                if msg.content.find('!!') == -1:
+                    return await ctx.invoke(self.bot.get_command("me"), True)
+                else:
+                    return

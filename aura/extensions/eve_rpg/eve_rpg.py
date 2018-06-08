@@ -584,6 +584,8 @@ class EveRpg:
                     target_aggression = 5
                     if 1 < int(target[6]) < 5:
                         target_aggression = 45
+                    if int(target[6]) == 9:
+                        target_aggression = 2
                     conflict = await self.weighted_choice([(True, target_aggression), (False, 65), (None, 45)])
                     if conflict is None:
                         break
@@ -605,6 +607,8 @@ class EveRpg:
                 target_aggression = 5
                 if 1 < int(target[6]) < 5:
                     target_aggression = 45
+                if int(target[6]) == 9:
+                    target_aggression = 2
                 conflict = await self.weighted_choice([(True, target_aggression), (False, 65), (None, 45)])
                 if conflict is None:
                     break
