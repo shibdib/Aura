@@ -80,7 +80,7 @@ class ChangeTask:
                                   "**PVE Tasks**\n"
                                   "**6.** Kill belt rats.\n"
                                   "**8.** Do some exploration and run sites in the system.\n"
-                                  "{}\n"
+                                  "{}"
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination,
                                                                             mission_task))
@@ -205,7 +205,7 @@ class ChangeTask:
             for ship_class in restrictions[int(content)]:
                 ship_class_name = game_assets.ship_classes[ship_class]
                 accepted_classes.append(ship_class_name)
-            ship_class_text = ' '.join(accepted_classes)
+            ship_class_text = ', '.join(accepted_classes)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
