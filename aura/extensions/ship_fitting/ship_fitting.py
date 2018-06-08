@@ -142,7 +142,6 @@ class ShipFitting:
                     stored_modules = '\n'.join(stored_modules_array)
                     embed.add_field(name="{} Module/Drone Hangar".format(region_name),
                                     value=stored_modules)
-                await ctx.author.send(embed=embed)
         await ctx.author.send(embed=embed)
         if player[0][6] is not 1:
             return await ctx.invoke(self.bot.get_command("me"), True)
