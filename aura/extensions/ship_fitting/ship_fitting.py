@@ -50,8 +50,10 @@ class ShipFitting:
             killmarks = '\n**{} Kill Marks**'.format(player_ship_obj['kill_marks'])
         module_count = 0
         drone_count = 0
+        equipped_prop_mods = []
         if player[0][12] is not None:
             equipped_modules = ast.literal_eval(player[0][12])
+            equipped_prop_mods = []
             equipped_modules_array = []
             equipped_drones_array = []
             for item in equipped_modules:
@@ -72,6 +74,8 @@ class ShipFitting:
                     module_number += 1
                     drone_count += 1
                 else:
+                    if module['class'] == 3:
+                        equipped_prop_mods.append(module_number)
                     module_count += 1
                     remove_module_order[module_number] = int(item)
                     module_attack = module['attack']
@@ -155,6 +159,8 @@ class ShipFitting:
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
         if type(module_array) is list:
+            remove_prop_mods = []
+            equip_prop_mods = []
             equip_modules = []
             equip_modules_text = []
             remove_modules = []
@@ -168,10 +174,14 @@ class ShipFitting:
             for module in module_array:
                 if int(module) in remove_commands:
                     selected_module = await game_functions.get_module(int(remove_module_order[module]))
+                    if selected_module['class'] == 3:
+                        remove_prop_mods.append(int(remove_module_order[module]))
                     remove_modules_text.append('{}'.format(selected_module['name']))
                     remove_modules.append(int(remove_module_order[module]))
                 elif int(module) in equip_commands:
                     selected_module = await game_functions.get_module(int(equip_module_order[module]))
+                    if selected_module['class'] == 3:
+                        equip_prop_mods.append(int(remove_module_order[module]))
                     equip_modules_text.append('{}'.format(selected_module['name']))
                     equip_modules.append(int(equip_module_order[module]))
                 elif int(module) in equip_drones_commands:
@@ -186,6 +196,9 @@ class ShipFitting:
                     remove_drones_text.append('{}'.format(selected_module['name']))
                     remove_modules.append(int(remove_module_order[module]))
                     drone_remove_count += 1
+            if ((len(equipped_prop_mods) + len(equip_prop_mods)) - len(remove_prop_mods)) > 1:
+                await ctx.author.send('**This ship can only have 1 propulsion mod equipped at a time**')
+                return await ctx.invoke(self.bot.get_command("fitting"))
             if ((int(drone_count) + int(drone_equip_count)) - int(drone_remove_count)) > 5:
                 await ctx.author.send('**This ship can only have 5 drones equipped at one time**')
                 return await ctx.invoke(self.bot.get_command("fitting"))
