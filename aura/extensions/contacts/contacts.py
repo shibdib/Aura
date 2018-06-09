@@ -36,8 +36,11 @@ class Contacts:
                     sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
                     values = (user,)
                     blue = await db.select_var(sql, values)
-                    blue_name = self.bot.get_user(int(blue[0][2])).display_name
-                    blue_array.append(blue_name)
+                    if len(blue) > 0:
+                        blue_name = self.bot.get_user(int(blue[0][2])).display_name
+                        blue_array.append(blue_name)
+                    else:
+                        continue
                 blue_text = '\n'.join(blue_array)
             else:
                 blue_text = ''

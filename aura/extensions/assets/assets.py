@@ -55,6 +55,7 @@ class Assets:
                             embed.add_field(name="Ships",
                                             value='{}'.format(stored_ships))
                             stored_ships_array = []
+                            count += 1
                 if len(stored_ships_array) > 0:
                     stored_ships = '\n'.join(stored_ships_array)
                     embed.add_field(name="Ships",
@@ -75,6 +76,7 @@ class Assets:
                             embed.add_field(name="Modules",
                                             value='{}'.format(stored_modules))
                             stored_modules_array = []
+                            count += 1
                 if len(stored_modules_array) > 0:
                     stored_modules = '\n'.join(stored_modules_array)
                     embed.add_field(name="Modules",
