@@ -136,9 +136,9 @@ class EveRpg:
             system_ratters = await db.select_var(sql, values)
             npc = 35
             if region_security == 'Low':
-                npc = 65
+                npc = 45
             elif region_security == 'Null':
-                npc = 95
+                npc = 75
             #  PVE Rolls
             enounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
             if enounter is True:
