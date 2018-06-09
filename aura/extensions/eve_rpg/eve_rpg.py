@@ -202,15 +202,15 @@ class EveRpg:
                 ship = await game_functions.get_ship(ship_id)
                 multiplier = 1
                 if ship['class'] == 21:
-                    multiplier = 1.75
+                    multiplier = 2.25
                 if ship['id'] == 80:
-                    multiplier = 5
+                    multiplier = 4
                 if ship['id'] == 81:
-                    multiplier = 6.5
+                    multiplier = 8
                 if ship['id'] == 90:
                     multiplier = 6
                 if ship['id'] == 91:
-                    multiplier = 9
+                    multiplier = 12
                 if miner[12] is not None:
                     modules = ast.literal_eval(miner[12])
                     for module in modules:
