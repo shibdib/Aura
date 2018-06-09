@@ -135,9 +135,9 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            npc = 35
+            npc = 45
             if region_security == 'Low':
-                npc = 45
+                npc = 55
             elif region_security == 'Null':
                 npc = 75
             #  PVE Rolls
@@ -158,7 +158,7 @@ class EveRpg:
             system_ratters = await db.select_var(sql, values)
             npc = 35
             if region_security == 'Low':
-                npc = 45
+                npc = 55
             elif region_security == 'Null':
                 npc = 75
             #  PVE Rolls
