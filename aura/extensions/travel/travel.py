@@ -65,6 +65,7 @@ class Travel:
             destination = await game_functions.get_region(int(target))
             await db.execute_sql(sql, values)
             await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
+            return await ctx.invoke(self.bot.get_command("me"), True)
         elif content.find('!!') == -1:
             return await ctx.invoke(self.bot.get_command("me"), True)
         else:
