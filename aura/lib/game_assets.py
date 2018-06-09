@@ -254,7 +254,7 @@ ships = {  # Noob
     80: {'id': 80, 'name': 'Procurer', 'class': 22, 'hit_points': 5, 'attack': 0, 'defense': 12, 'maneuver': 1,
          'tracking': 1,
          'image': 'https://image.eveonline.com/Type/17480_64.png', 'pve_multi': 6, 'isk': 18656208, 'slots': 4,
-         'drone_bay': 15},
+         'drone_bay': 25},
     81: {'id': 81, 'name': 'Covetor', 'class': 22, 'hit_points': 4, 'attack': 0, 'defense': 6, 'maneuver': 1,
          'tracking': 1,
          'image': 'https://image.eveonline.com/Type/17476_64.png', 'pve_multi': 2, 'isk': 26888937, 'slots': 4,
