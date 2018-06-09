@@ -130,81 +130,19 @@ class EveRpg:
             return
         for ratter in ratters:
             region_id = int(ratter[4])
-            region_name = await game_functions.get_region(int(region_id))
-            user = self.bot.get_user(ratter[2])
             region_security = await game_functions.get_region_security(region_id)
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            ratter_ship = ast.literal_eval(ratter[14])
-            ship_id = ratter_ship['ship_type']
-            ship = await game_functions.get_ship(ship_id)
-            isk = random.randint(1000, 3500)
-            survival = 400
-            npc = 125
-            max_damage = 8
+            npc = 35
             if region_security == 'Low':
-                isk = random.randint(5000, 15000)
-                survival = 250 * ship['pve_multi']
-                npc = 225
-                max_damage = 12
+                npc = 65
             elif region_security == 'Null':
-                isk = random.randint(12000, 19000)
-                survival = 175 * ship['pve_multi']
-                npc = 350
-                max_damage = 14
+                npc = 95
             #  PVE Rolls
-            ship_attack, ship_defense, ship_maneuver, ship_tracking = \
-                await game_functions.get_combat_attributes(ratter, ship_id)
-            death = await self.weighted_choice(
-                [(True, 2), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
-                                                (ship_attack * 8)))])
-            flee = await self.weighted_choice(
-                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            find_rats = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 40)])
-            if find_rats is False:
-                continue
-            if death is True and flee is False:
-                damage_done = random.randint(1, max_damage)
-                if damage_done < ship['hit_points']:
-                    return
-                module_value = 0
-                loser_modules = ''
-                loser_modules_array = []
-                if ratter[12] is not None:
-                    modules = ast.literal_eval(ratter[12])
-                    for module in modules:
-                        module_item = await game_functions.get_module(module)
-                        module_value += module_item['isk']
-                        loser_modules_array.append('{}'.format(module_item['name']))
-                    loser_module_list = '\n'.join(loser_modules_array)
-                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-                module_value += ship['isk']
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(ship_id)
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "**Loser**\n"
-                                      "**{}** flying a {} was killed while belt ratting.{}\n\n"
-                                      "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
-                                                                      loser_modules,
-                                                                      '{0:,.2f}'.format(float(module_value))))
-                await self.add_loss(ratter)
-                player = self.bot.get_user(ratter[2])
-                await player.send(embed=embed)
-                await self.send_global(embed, True)
-                return await self.destroy_ship(ratter)
-            elif flee is True:
-                ratter_user = self.bot.get_user(ratter[2])
-                # await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
-            else:
-                xp_gained = await self.weighted_choice([(1, 35), (3, 15), (0, 15)])
-                await self.add_xp(ratter, xp_gained)
-                await self.add_isk(ratter, isk)
-                await self.update_journal(ratter, isk, 'Belt Ratting')
+            enounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+            if enounter is True:
+                return self.process_pve_combat(ratter)
 
     async def process_anomaly_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 '''
@@ -213,80 +151,19 @@ class EveRpg:
             return
         for ratter in ratters:
             region_id = int(ratter[4])
-            region_name = await game_functions.get_region(int(region_id))
-            user = self.bot.get_user(ratter[2])
             region_security = await game_functions.get_region_security(region_id)
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 AND `region` = (?) '''
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
-            ratter_ship = ast.literal_eval(ratter[14])
-            ship_id = ratter_ship['ship_type']
-            ship = await game_functions.get_ship(ship_id)
-            isk = random.randint(1000, 3500)
-            survival = 175
-            npc = 125
-            max_damage = 8
+            npc = 35
             if region_security == 'Low':
-                isk = random.randint(17500, 27000)
-                survival = 150 * ship['pve_multi']
-                npc = 225
-                max_damage = 11
+                npc = 45
             elif region_security == 'Null':
-                isk = random.randint(24500, 45000)
-                survival = 100 * ship['pve_multi']
-                npc = 350
-                max_damage = 13
+                npc = 75
             #  PVE Rolls
-            ship_attack, ship_defense, ship_maneuver, ship_tracking = \
-                await game_functions.get_combat_attributes(ratter, ship_id)
-            death = await self.weighted_choice(
-                [(True, 12), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
-                                                 (ship_attack * 8)))])
-            flee = await self.weighted_choice(
-                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
-            find_rats = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 40)])
-            if find_rats is False:
-                continue
-            if death is True and flee is False:
-                damage_done = random.randint(1, max_damage)
-                if damage_done < ship['hit_points']:
-                    return
-                module_value = 0
-                loser_modules = ''
-                loser_modules_array = []
-                if ratter[12] is not None:
-                    modules = ast.literal_eval(ratter[12])
-                    for module in modules:
-                        module_item = await game_functions.get_module(module)
-                        module_value += module_item['isk']
-                        loser_modules_array.append('{}'.format(module_item['name']))
-                    loser_module_list = '\n'.join(loser_modules_array)
-                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-                module_value += ship['isk']
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(ship_id)
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "**Loser**\n"
-                                      "**{}** flying a {} was killed while anomaly ratting.{}\n\n"
-                                      "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
-                                                                      loser_modules,
-                                                                      '{0:,.2f}'.format(float(module_value))))
-                await self.add_loss(ratter)
-                await user.send(embed=embed)
-                await self.send_global(embed, True)
-                return await self.destroy_ship(ratter)
-            elif flee is True:
-                ratter_user = self.bot.get_user(ratter[2])
-                # await ratter_user.send('**NOTICE** - You nearly died to anomaly rats but managed to warp off.')
-            else:
-                xp_gained = await self.weighted_choice([(2, 35), (3, 15), (0, 15)])
-                await self.add_xp(ratter, xp_gained)
-                await self.add_isk(ratter, isk)
-                await self.update_journal(ratter, isk, 'Anomaly Ratting')
+            enounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+            if enounter is True:
+                return self.process_pve_combat(ratter)
 
     async def process_belt_mining(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 10 '''
@@ -296,8 +173,6 @@ class EveRpg:
         for miner in miners:
             region_id = int(miner[4])
             region_security = await game_functions.get_region_security(region_id)
-            region_name = await game_functions.get_region(int(region_id))
-            user = self.bot.get_user(miner[2])
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 10 AND `region` = (?) '''
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
@@ -306,52 +181,38 @@ class EveRpg:
             ship_id = miner_ship['ship_type']
             ship = await game_functions.get_ship(ship_id)
             possible_npc = False
-            survival = 500
             ore = 100
-            max_damage = 8
             if region_security == 'Low':
-                survival = 350
                 ore = 150
                 possible_npc = 2
-                max_damage = 11
                 isk = random.randint(8000, 17500)
             elif region_security == 'Null':
-                survival = 275
                 ore = 300
                 possible_npc = 4
-                max_damage = 13
                 isk = random.randint(16000, 45000)
-            if ship['class'] == 0:
-                survival = 175
-                if region_security == 'Low':
-                    survival = 25
-                elif region_security == 'Null':
-                    survival = 0
             find_ore = await self.weighted_choice([(True, ore / len(belt_miners)), (False, 40)])
             if find_ore is False:
                 continue
             else:
+                if possible_npc is not False:
+                    enounter = await self.weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
+                    if enounter is True:
+                        return self.process_pve_combat(miner)
                 #  Ship multi
                 miner_ship = ast.literal_eval(miner[14])
                 ship_id = miner_ship['ship_type']
                 ship = await game_functions.get_ship(ship_id)
                 multiplier = 1
-                defense_multi = 1
                 if ship['class'] == 21:
                     multiplier = 1.75
-                    defense_multi = 2.5
                 if ship['id'] == 80:
                     multiplier = 5
-                    defense_multi = 8
                 if ship['id'] == 81:
                     multiplier = 6.5
-                    defense_multi = 6
                 if ship['id'] == 90:
                     multiplier = 6
-                    defense_multi = 10
                 if ship['id'] == 91:
                     multiplier = 9
-                    defense_multi = 7.5
                 if miner[12] is not None:
                     modules = ast.literal_eval(miner[12])
                     for module in modules:
@@ -366,44 +227,6 @@ class EveRpg:
                             continue
                         if module == 122:
                             isk = (isk * .1) + isk
-                death = False
-                if possible_npc is not False:
-                    death = await self.weighted_choice(
-                        [(True, possible_npc), (False, survival + ((ship['defense'] * 11) + (ship['maneuver'] * 6) +
-                                                                   (ship['attack'] * 8)) * defense_multi)])
-                if death is True:
-                    damage_done = random.randint(1, max_damage)
-                    if damage_done < ship['hit_points']:
-                        return
-                    module_value = 0
-                    loser_modules = ''
-                    loser_modules_array = []
-                    if miner[12] is not None:
-                        modules = ast.literal_eval(miner[12])
-                        for module in modules:
-                            module_item = await game_functions.get_module(module)
-                            module_value += module_item['isk']
-                            loser_modules_array.append('{}'.format(module_item['name']))
-                        loser_module_list = '\n'.join(loser_modules_array)
-                        loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-                    module_value += ship['isk']
-                    embed = make_embed(icon=self.bot.user.avatar)
-                    embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                     text="Aura - EVE Text RPG")
-                    ship_image = await game_functions.get_ship_image(ship_id)
-                    embed.set_thumbnail(url="{}".format(ship_image))
-                    embed.add_field(name="Killmail",
-                                    value="**Region** - {}\n\n"
-                                          "**Loser**\n"
-                                          "**{}** flying a {} was killed while belt mining.{}\n\n"
-                                          "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship['name'],
-                                                                          loser_modules,
-                                                                          '{0:,.2f}'.format(float(module_value))))
-                    await self.add_loss(miner)
-                    await user.send(embed=embed)
-                    await self.send_global(embed, True)
-                    return await self.destroy_ship(miner)
-
                 xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
@@ -423,62 +246,13 @@ class EveRpg:
                 values = (mission_runner[2],)
                 return await db.execute_sql(sql, values)
             mission_details = ast.literal_eval(mission_runner[22])
-            region_id = int(mission_runner[4])
-            region_name = await game_functions.get_region(int(region_id))
-            user = self.bot.get_user(mission_runner[2])
-            ratter_ship = ast.literal_eval(mission_runner[14])
-            ship_id = ratter_ship['ship_type']
-            ship = await game_functions.get_ship(ship_id)
             isk = mission_details['reward']
-            survival = 150 * ship['pve_multi']
-            max_damage = 10
             level_multi = int(float(mission_details['level'] * 3))
             #  PVE Rolls
-            ship_name = await game_functions.get_ship_name(ship_id)
-            ship_attack, ship_defense, ship_maneuver, ship_tracking = \
-                await game_functions.get_combat_attributes(mission_runner, ship_id)
-            death = await self.weighted_choice(
-                [(True, 8 * level_multi), (False, survival + ((ship_defense * 11) + (ship_maneuver * 6) +
-                                                              (ship_attack * 8)))])
-            flee = await self.weighted_choice(
-                [(True, 13 + (ship_defense + (ship_maneuver * 2))), (False, 80 - (ship_maneuver * 2.5))])
             complete_mission = await self.weighted_choice([(True, 20), (False, 30 * mission_details['level'])])
-            if death is True and flee is False:
-                damage_done = random.randint(1, max_damage)
-                if damage_done < ship['hit_points']:
-                    return
-                module_value = 0
-                loser_modules = ''
-                loser_modules_array = []
-                if mission_runner[12] is not None:
-                    modules = ast.literal_eval(mission_runner[12])
-                    for module in modules:
-                        module_item = await game_functions.get_module(module)
-                        module_value += module_item['isk']
-                        loser_modules_array.append('{}'.format(module_item['name']))
-                    loser_module_list = '\n'.join(loser_modules_array)
-                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-                module_value += ship['isk']
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(ship_id)
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "**Loser**\n"
-                                      "**{}** flying a {} was killed while running a mission.{}\n\n"
-                                      "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship_name,
-                                                                      loser_modules,
-                                                                      '{0:,.2f}'.format(float(module_value))))
-                await self.add_loss(mission_runner)
-                player = self.bot.get_user(mission_runner[2])
-                await player.send(embed=embed)
-                await self.send_global(embed, True)
-                return await self.destroy_ship(mission_runner)
-            elif flee is True:
-                ratter_user = self.bot.get_user(mission_runner[2])
-                # await ratter_user.send('**NOTICE** - You nearly died to belt rats but managed to warp off.')
+            enounter = await self.weighted_choice([(True, 70), (False, 30)])
+            if enounter is True:
+                return self.process_pve_combat(mission_runner)
             else:
                 if complete_mission is False:
                     continue
@@ -616,6 +390,84 @@ class EveRpg:
                 else:
                     await player.send('**Failure** The AI defeated you, looking for a new site.')
 
+    async def process_pve_combat(self, player):
+        player_user = self.bot.get_user(player[2])
+        player_task = await game_functions.get_task(int(player[6]))
+        player_ship = ast.literal_eval(player[14])
+        ship_id = player_ship['ship_type']
+        player_ship_info = await game_functions.get_ship(ship_id)
+        player_attack, player_defense, player_maneuver, player_tracking = \
+            await game_functions.get_combat_attributes(player, ship_id)
+        ship = await game_functions.get_ship(ship_id)
+        region_id = int(player[4])
+        region_security = await game_functions.get_region_security(region_id)
+        if region_security == 'High':
+            escape_chance = 45
+            npc = await game_functions.get_npc(0)
+        elif region_security == 'Low':
+            escape_chance = 30
+            npc = await game_functions.get_npc(1)
+        else:
+            escape_chance = 20
+            npc = await game_functions.get_npc(2)
+        npc_attack, npc_defense, npc_maneuver, npc_tracking = \
+            await game_functions.get_combat_attributes(player, npc['id'], True)
+        region_name = await game_functions.get_region(int(region_id))
+        # Combat
+        player_weight = ((((player[8] + 1) * 0.5) + (player_attack - (npc_defense / 2))) * player_tracking) * ship['pve_multi']
+        npc_weight = (npc_attack - (player_defense / 2)) * npc_tracking
+        player_hits, npc_hits = ship['hit_points'], npc['hit_points']
+        for x in range(int(player_hits + npc_hits + 1)):
+            combat = await self.weighted_choice([(player, player_weight), (npc, npc_weight)])
+            if combat == player:
+                npc_hits -= 1
+            else:
+                player_hits -= 1
+            player_hit_percentage, defender_hit_percentage = player_hits / ship['hit_points'], npc_hits / npc['hit_points']
+            if player_hits <= 0:
+                break
+            if npc_hits <= 0:
+                await self.add_xp(player, random.randint(2, 10))
+                await self.add_isk(player, npc['isk'])
+                await self.update_journal(player, npc['isk'], '{} - Killed NPC {}'.format(player_task, npc['name']))
+                return
+            if player_hits < (ship['hit_points'] * 0.75) and player_hit_percentage < defender_hit_percentage:
+                escape = await self.weighted_choice([(True, escape_chance), (False, 100 - escape_chance)])
+                if escape is True:
+                    await player_user.send(
+                        '**PVE ESCAPE** - Combat between you and a {}, they nearly killed your {} but you '
+                        'managed to warp off.'.format(npc['name'], player_ship_info['name']))
+                    return
+        module_value = 0
+        loser_modules = ''
+        loser_modules_array = []
+        if player[12] is not None:
+            modules = ast.literal_eval(player[12])
+            for module in modules:
+                module_item = await game_functions.get_module(module)
+                module_value += module_item['isk']
+                loser_modules_array.append('{}'.format(module_item['name']))
+            loser_module_list = '\n'.join(loser_modules_array)
+            loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+        module_value += ship['isk']
+        embed = make_embed(icon=self.bot.user.avatar)
+        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        ship_image = await game_functions.get_ship_image(ship_id)
+        embed.set_thumbnail(url="{}".format(ship_image))
+        embed.add_field(name="NPC Killmail",
+                        value="**Region** - {}\n\n"
+                              "__**Loser**__\n"
+                              "**{}** flying a {} was killed while they were {}.{}\n\n"
+                              "Total ISK Lost: {} ISK\n\n"
+                              "__**Final Blow**__\n"
+                              "**{}**\n\n".format(region_name, player_user.display_name, ship['name'], player_task,
+                                                  loser_modules, '{0:,.2f}'.format(float(module_value)), npc['name']))
+        await self.add_loss(player)
+        await player_user.send(embed=embed)
+        await self.send_global(embed, True)
+        return await self.destroy_ship(player)
+
     async def process_roams(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
         roamers = await db.select(sql)
@@ -724,7 +576,7 @@ class EveRpg:
                         embed.set_thumbnail(url="{}".format(ship_image))
                         embed.add_field(name="Killmail",
                                         value="**Region** - {}\n\n"
-                                              "**Loser**\n"
+                                              "__**Loser**__\n"
                                               "**{}** flying a {} was killed while they were {}.{}\n\n"
                                               "Total ISK Lost: {} ISK\n\n"
                                               "**Killer**\n"
@@ -760,7 +612,7 @@ class EveRpg:
                     if concord is True:
                         embed.add_field(name="Killmail",
                                         value="**Region** - {}\n\n"
-                                              "**Loser**\n"
+                                              "__**Loser**__\n"
                                               "**{}** flying a {} was killed while they were {}.{}\n\n"
                                               "Total ISK Lost: {} ISK\n\n"
                                               "__**Final Blow**__\n"
@@ -772,7 +624,7 @@ class EveRpg:
                     else:
                         embed.add_field(name="Killmail",
                                         value="**Region** - {}\n\n"
-                                              "**Loser**\n"
+                                              "__**Loser**__\n"
                                               "**{}** flying a {} was killed while they were {}.{}\n\n"
                                               "Total ISK Lost: {} ISK\n\n"
                                               "__**Final Blow**__\n"
@@ -910,7 +762,7 @@ class EveRpg:
         embed.set_thumbnail(url="{}".format(ship_image))
         embed.add_field(name="Killmail",
                         value="**Region** - {}\n\n"
-                              "**Loser**\n"
+                              "__**Loser**__\n"
                               "**{}** flying a {} was killed while they were {}.{}\n\n"
                               "Total ISK Lost: {} ISK\n\n"
                               "__**Final Blow**__\n"

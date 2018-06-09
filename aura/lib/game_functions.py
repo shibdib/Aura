@@ -63,35 +63,52 @@ async def get_ship_image(ship_id):
     return game_assets.ships[ship_id]['image']
 
 
-async def get_combat_attributes(player, ship_id):
-    ship = game_assets.ships[ship_id]
-    attack = int(ship['attack'])
-    defense = int(ship['defense'])
-    maneuver = int(ship['maneuver'])
-    tracking = int(ship['tracking'])
-    if player[12] is not None:
-        equipped_modules = ast.literal_eval(player[12])
-        checked_modules = []
-        for item in equipped_modules:
-            checked_modules.append(int(item))
-            current_count = checked_modules.count(int(item))
-            efficiency = 1
-            if current_count > 1:
-                efficiency = 1 - (0.5 * (0.45 * (current_count - 1)) ** 2)
-            module = await get_module(int(item))
-            if 'size' not in module:
-                attack = int(float((attack * (module['attack'] * efficiency)) + attack))
-                defense = int(float((defense * (module['defense'] * efficiency)) + defense))
-                maneuver = int(float((maneuver * (module['maneuver'] * efficiency)) + maneuver))
-                tracking = int(float((tracking * (module['tracking'] * efficiency)) + tracking))
-        for item in equipped_modules:
-            module = await get_module(int(item))
-            if 'size' in module:
-                attack = module['attack'] + attack
-                defense = module['defense'] + defense
-                maneuver = module['maneuver'] + maneuver
-                tracking = module['tracking'] + tracking
+async def get_npc(sec):
+    possible_npc = []
+    for npc in game_assets.npc:
+        if npc['class'] == sec:
+            possible_npc.append(npc)
+    if len(possible_npc) > 0:
+        return random.choice(possible_npc)
+    else:
+        return None
 
+
+async def get_combat_attributes(player, ship_id, npc=False):
+    if npc is False:
+        ship = game_assets.ships[ship_id]
+        attack = int(ship['attack'])
+        defense = int(ship['defense'])
+        maneuver = int(ship['maneuver'])
+        tracking = int(ship['tracking'])
+        if player[12] is not None:
+            equipped_modules = ast.literal_eval(player[12])
+            checked_modules = []
+            for item in equipped_modules:
+                checked_modules.append(int(item))
+                current_count = checked_modules.count(int(item))
+                efficiency = 1
+                if current_count > 1:
+                    efficiency = 1 - (0.5 * (0.45 * (current_count - 1)) ** 2)
+                module = await get_module(int(item))
+                if 'size' not in module:
+                    attack = int(float((attack * (module['attack'] * efficiency)) + attack))
+                    defense = int(float((defense * (module['defense'] * efficiency)) + defense))
+                    maneuver = int(float((maneuver * (module['maneuver'] * efficiency)) + maneuver))
+                    tracking = int(float((tracking * (module['tracking'] * efficiency)) + tracking))
+            for item in equipped_modules:
+                module = await get_module(int(item))
+                if 'size' in module:
+                    attack = module['attack'] + attack
+                    defense = module['defense'] + defense
+                    maneuver = module['maneuver'] + maneuver
+                    tracking = module['tracking'] + tracking
+    else:
+        ship = game_assets.npc[ship_id]
+        attack = int(ship['attack'])
+        defense = int(ship['defense'])
+        maneuver = int(ship['maneuver'])
+        tracking = int(ship['tracking'])
     return int(round(attack)), int(round(defense)), int(round(maneuver)), int(round(tracking))
 
 
