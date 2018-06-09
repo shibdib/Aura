@@ -469,7 +469,8 @@ class EveRpg:
                                       "**Loser**\n"
                                       "**{}** flying a {} was killed while running a mission.{}\n\n"
                                       "Total ISK Lost: {} ISK".format(region_name, user.display_name, ship_name,
-                                                                      loser_modules, '{0:,.2f}'.format(float(module_value))))
+                                                                      loser_modules,
+                                                                      '{0:,.2f}'.format(float(module_value))))
                 await self.add_loss(mission_runner)
                 player = self.bot.get_user(mission_runner[2])
                 await player.send(embed=embed)
@@ -644,46 +645,161 @@ class EveRpg:
 
     async def process_ganks(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 4 '''
-        roamers = await db.select(sql)
-        if roamers is None or len(roamers) is 0:
+        gankers = await db.select(sql)
+        if gankers is None or len(gankers) is 0:
             return
-        for roamer in roamers:
-            region_id = int(roamer[4])
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` != 1 AND `region` = (?) AND `player_id` != (?) '''
-            values = (region_id, roamer[2])
+        for ganker in gankers:
+            region_id = int(ganker[4])
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` != 1 AND `task` != 4 AND `region` = (?) AND `player_id` != (?) '''
+            values = (region_id, ganker[2])
             potential_targets = await db.select_var(sql, values)
             for target in potential_targets:
                 target_aggression = 5
-                if 1 < int(target[6]) < 5:
-                    target_aggression = 45
                 if int(target[6]) == 9:
                     target_aggression = 2
                 conflict = await self.weighted_choice([(True, target_aggression), (False, 65), (None, 45)])
                 if conflict is None:
                     break
                 elif conflict is True:
-                    await self.solo_combat(roamer, target, True)
-                    break
+                    region_id = int(ganker[4])
+                    region_name = await game_functions.get_region(int(region_id))
+                    ganker_user, target_user = self.bot.get_user(ganker[2]), self.bot.get_user(target[2])
+                    target_task = await game_functions.get_task(target[6])
+                    attacker_ship, defender_ship = ast.literal_eval(ganker[14]), ast.literal_eval(target[14])
+                    attacker_ship_id, defender_ship_id = attacker_ship['ship_type'], defender_ship['ship_type']
+                    attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
+                        await game_functions.get_combat_attributes(ganker, attacker_ship_id)
+                    defender_attack, defender_defense, defender_maneuver, defender_tracking = \
+                        await game_functions.get_combat_attributes(target, defender_ship_id)
+                    ganker_weight = (((ganker[8] + 1) * 0.5) + (attacker_attack - (defender_defense / 2))) * attacker_tracking
+                    target_weight = ((((target[8] + 1) * 0.5) + (defender_attack - (attacker_defense / 2))) * defender_tracking) - 2
+                    attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
+                    defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
+                    ganker_hits, target_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
+                    turns = 0
+                    success = False
+                    concord_response = random.randint(4, 12)
+                    concord = True
+                    for x in range(int(ganker_hits + target_hits + 1)):
+                        turns += 1
+                        if turns >= concord_response:
+                            success = False
+                            target_user.send('**PVP** - {} attempted to gank you but Concord arrived in time to prevent it.'.format(ganker_user.display_name))
+                            break
+                        combat = await self.weighted_choice([(ganker, ganker_weight), (target, target_weight)])
+                        if combat == ganker:
+                            target_hits -= 1
+                        else:
+                            ganker_hits -= 1
+                        if ganker_hits <= 0:
+                            success = False
+                            concord = False
+                            break
+                        if target_hits <= 0:
+                            success = True
+                            break
+                    if success is True:
+                        target_modules = ''
+                        target_modules_array = []
+                        dropped_mods = []
+                        module_value = 0
+                        if target[12] is not None:
+                            modules = ast.literal_eval(target[12])
+                            for module in modules:
+                                module_item = await game_functions.get_module(module)
+                                dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                                module_drop = ''
+                                module_value += module_item['isk']
+                                if dropped is True:
+                                    dropped_mods.append(module)
+                                    module_drop = ' **Module Dropped**'
+                                target_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                            target_module_list = '\n'.join(target_modules_array)
+                            target_modules = '\n\n__Modules Lost__\n{}'.format(target_module_list)
+                        isk_lost = module_value + defender_ship_info['isk']
+                        embed = make_embed(icon=self.bot.user.avatar)
+                        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                         text="Aura - EVE Text RPG")
+                        ship_image = await game_functions.get_ship_image(defender_ship_info['ship_type'])
+                        embed.set_thumbnail(url="{}".format(ship_image))
+                        embed.add_field(name="Killmail",
+                                        value="**Region** - {}\n\n"
+                                              "**Loser**\n"
+                                              "**{}** flying a {} was killed while they were {}.{}\n\n"
+                                              "Total ISK Lost: {} ISK\n\n"
+                                              "**Killer**\n"
+                                              "**{}** flying a {} while {}.\n\n".format(region_name, target_user.display_name, defender_ship_info['name'],
+                                                                                        target_task, target_modules, '{0:,.2f}'.format(float(isk_lost)),
+                                                                                        ganker_user.display_name, attacker_ship_info['name'], 'Ganking'))
+                        await ganker_user.send(embed=embed)
+                        await target_user.send(embed=embed)
+                        await self.send_global(embed, True)
+                    target_modules = ''
+                    target_modules_array = []
+                    dropped_mods = []
+                    module_value = 0
+                    if target[12] is not None:
+                        modules = ast.literal_eval(target[12])
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            module_drop = ''
+                            module_value += module_item['isk']
+                            if dropped is True:
+                                dropped_mods.append(module)
+                                module_drop = ' **Module Dropped**'
+                            target_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                        target_module_list = '\n'.join(target_modules_array)
+                        target_modules = '\n\n__Modules Lost__\n{}'.format(target_module_list)
+                    isk_lost = module_value + defender_ship_info['isk']
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    ship_image = await game_functions.get_ship_image(attacker_ship_info['ship_type'])
+                    embed.set_thumbnail(url="{}".format(ship_image))
+                    if concord is True:
+                        embed.add_field(name="Killmail",
+                                        value="**Region** - {}\n\n"
+                                              "**Loser**\n"
+                                              "**{}** flying a {} was killed while they were {}.{}\n\n"
+                                              "Total ISK Lost: {} ISK\n\n"
+                                              "__**Final Blow**__\n"
+                                              "**Concord**\n\n"
+                                              "**Other Attackers**\n"
+                                              "**{}** flying a {}.\n\n".format(region_name, ganker_user.display_name, attacker_ship_info['name'],
+                                                                                        'Ganking', target_modules, '{0:,.2f}'.format(float(isk_lost)),
+                                                                                        target_user.display_name, defender_ship_info['name'], target_task))
+                    else:
+                        embed.add_field(name="Killmail",
+                                        value="**Region** - {}\n\n"
+                                              "**Loser**\n"
+                                              "**{}** flying a {} was killed while they were {}.{}\n\n"
+                                              "Total ISK Lost: {} ISK\n\n"
+                                              "__**Final Blow**__\n"
+                                              "**{}** flying a {} while {}.\n\n".format(region_name, ganker_user.display_name, attacker_ship_info['name'],
+                                                                                        'Ganking', target_modules, '{0:,.2f}'.format(float(isk_lost)),
+                                                                                        target_user.display_name, defender_ship_info['name'], target_task))
+                    await ganker_user.send(embed=embed)
+                    await target_user.send(embed=embed)
+                    await self.send_global(embed, True)
 
-    async def solo_combat(self, attacker, defender, concord=False):
+    async def solo_combat(self, attacker, defender):
         # Blue check
         if attacker[21] is not None:
             blue_array = ast.literal_eval(attacker[21])
             if defender[0] in blue_array:
                 return
-        attacker_ship = ast.literal_eval(attacker[14])
-        attacker_ship_id = attacker_ship['ship_type']
-        defender_ship = ast.literal_eval(defender[14])
-        defender_ship_id = defender_ship['ship_type']
+        attacker_user, defender_user = self.bot.get_user(attacker[2]), self.bot.get_user(defender[2])
+        attacker_ship, defender_ship = ast.literal_eval(attacker[14]), ast.literal_eval(defender[14])
+        attacker_ship_id, defender_ship_id = attacker_ship['ship_type'], defender_ship['ship_type']
         attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
             await game_functions.get_combat_attributes(attacker, attacker_ship_id)
         defender_attack, defender_defense, defender_maneuver, defender_tracking = \
             await game_functions.get_combat_attributes(defender, defender_ship_id)
-        tracking_one = 1
+        tracking_one, tracking_two = 1, 1
         if attacker_tracking < defender_maneuver:
             tracking_one = 0.8
-        tracking_two = 1
-        if defender_tracking < attacker_maneuver:
+        elif defender_tracking < attacker_maneuver:
             tracking_two = 0.8
         pve_disadvantage = 0
         if 5 < int(defender[6]) < 11 or defender[6] == 10:
@@ -692,49 +808,78 @@ class EveRpg:
         player_two_weight = ((((defender[8] + 1) * 0.5) + (defender_attack -
                                                            (attacker_defense / 2))) * tracking_two) - pve_disadvantage
         attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
-        attacker_hits = attacker_ship_info['hit_points']
         defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
-        defender_hits = defender_ship_info['hit_points']
+        attacker_hits, defender_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
         winner = None
-        for x in range(30):
+        attacker_catch, defender_escape = attacker_attack / 2 + attacker_tracking, defender_defense / 2 + defender_maneuver
+        defender_catch, attacker_escape = defender_attack / 2 + defender_tracking, attacker_defense / 2 + attacker_maneuver
+        # Combat
+        escape = False
+        for x in range(int(attacker_hits + defender_hits + 1)):
             combat = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
             if combat == attacker:
                 defender_hits -= 1
             else:
                 attacker_hits -= 1
+            attacker_hit_percentage, defender_hit_percentage = attacker_hits / attacker_ship_info[
+                'hit_points'], defender_hits / defender_ship_info['hit_points']
             if attacker_hits <= 0:
-                winner = defender
+                winner, loser = defender, attacker
                 break
             if defender_hits <= 0:
-                winner = attacker
+                winner, loser = attacker, defender
                 break
-        loser = attacker
-        winner_catch = defender_attack / 2 + defender_tracking
-        loser_escape = attacker_defense / 2 + attacker_maneuver
-        winner_dies = False
-        loser_dies = False
-        if concord is True:
-            loser_dies = True
-        if winner is attacker:
-            loser_dies = False
-            if concord is True:
-                winner_dies = True
-            loser = defender
-            winner_catch = attacker_attack / 2 + attacker_tracking
-            loser_escape = defender_defense / 2 + defender_maneuver
-        escape = False
-        if loser_escape > winner_catch:
-            escape = await self.weighted_choice([(True, loser_escape), (False, winner_catch)])
+            if defender_escape > attacker_catch and defender_hits < (
+                    defender_ship_info['hit_points'] * 0.75) and defender_hit_percentage < attacker_hit_percentage:
+                escape = await self.weighted_choice([(True, defender_escape), (False, attacker_catch)])
+                if escape is True:
+                    await attacker_user.send(
+                        '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
+                        'managed to warp off.'.format(defender_ship, defender_user.display_name,
+                                                      attacker_ship_info['name']))
+                    await defender_user.send(
+                        '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
+                        'you managed to break tackle and warp off.'.format(attacker_ship, attacker_user.display_name,
+                                                                           defender_ship_info['name']))
+                    return
+            if attacker_escape > defender_catch and attacker_hits < (
+                    attacker_ship_info['hit_points'] * 0.75) and attacker_hit_percentage < defender_hit_percentage:
+                escape = await self.weighted_choice([(True, attacker_escape), (False, defender_catch)])
+                if escape is True:
+                    await defender_user.send(
+                        '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
+                        'managed to warp off.'.format(attacker_ship, attacker_user.display_name,
+                                                      defender_ship_info['name']))
+                    await attacker_user.send(
+                        '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
+                        'you managed to break tackle and warp off.'.format(defender_ship, defender_user.display_name,
+                                                                           attacker_ship_info['name']))
+                    return
+        winner_user = self.bot.get_user(winner[2])
+        loser_user = self.bot.get_user(loser[2])
+        # Handle Cloak
+        if loser[12] is not None:
+            modules = ast.literal_eval(loser[12])
+            for module in modules:
+                module_item = await game_functions.get_module(module)
+                if module_item['id'] == 40 and escape is False:
+                    escape = await self.weighted_choice([(True, 50), (False, 50)])
+                    if escape is True:
+                        await winner_user.send(
+                            '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
+                            'managed to break tackle long enough to cloak.'.format(attacker_ship, attacker_user.display_name,
+                                                                                   defender_ship_info['name']))
+                        await loser_user.send(
+                            '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
+                            'you managed to break tackle and cloak.'.format(defender_ship, defender_user.display_name,
+                                                                            attacker_ship_info['name']))
         winner_name = self.bot.get_user(int(winner[2])).display_name
         region_id = int(winner[4])
         region_name = await game_functions.get_region(int(region_id))
         loser_name = self.bot.get_user(int(loser[2])).display_name
         winner_ship_obj = ast.literal_eval(winner[14])
         winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
-        winner_ship_info = await game_functions.get_ship(int(winner_ship_obj['ship_type']))
         winner_task = await game_functions.get_task(int(winner[6]))
-        winner_modules = ''
-        winner_modules_array = []
         loser_ship_obj = ast.literal_eval(loser[14])
         loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
         loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
@@ -743,13 +888,10 @@ class EveRpg:
         loser_modules_array = []
         dropped_mods = []
         module_value = 0
-        winner_module_value = 0
         if loser[12] is not None:
             modules = ast.literal_eval(loser[12])
             for module in modules:
                 module_item = await game_functions.get_module(module)
-                if module_item['id'] == 40 and escape is False:
-                    escape = await self.weighted_choice([(True, 50), (False, 50)])
                 dropped = await self.weighted_choice([(True, 50), (False, 50)])
                 module_drop = ''
                 module_value += module_item['isk']
@@ -759,142 +901,31 @@ class EveRpg:
                 loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
             loser_module_list = '\n'.join(loser_modules_array)
             loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-        if winner[12] is not None:
-            modules = ast.literal_eval(winner[12])
-            for module in modules:
-                module_item = await game_functions.get_module(module)
-                winner_module_value += module_item['isk']
-                winner_modules_array.append('{}'.format(module_item['name']))
-            winner_module_list = '\n'.join(winner_modules_array)
-            winner_modules = '\n\n__Modules Lost__\n{}'.format(winner_module_list)
         xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
         isk_lost = module_value + loser_ship_info['isk']
-        isk_lost_winner = winner_module_value + winner_ship_info['isk']
-        if escape is False:
-            embed = make_embed(icon=self.bot.user.avatar)
-            embed.set_footer(icon_url=self.bot.user.avatar_url,
-                             text="Aura - EVE Text RPG")
-            ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
-            embed.set_thumbnail(url="{}".format(ship_image))
-            embed.add_field(name="Killmail",
-                            value="**Region** - {}\n\n"
-                                  "**Loser**\n"
-                                  "**{}** flying a {} was killed while they were {}.{}\n\n"
-                                  "Total ISK Lost: {} ISK\n\n"
-                                  "**Killer**\n"
-                                  "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship,
-                                                                            loser_task, loser_modules,
-                                                                            '{0:,.2f}'.format(float(isk_lost)),
-                                                                            winner_name, winner_ship, winner_task))
-            winner_user = self.bot.get_user(winner[2])
-            loser_user = self.bot.get_user(loser[2])
-            await winner_user.send(embed=embed)
-            await loser_user.send(embed=embed)
-            await self.send_global(embed, True)
-            await self.destroy_ship(loser)
-            await self.add_loss(loser)
-            await self.add_kill(winner, dropped_mods)
-            await self.add_xp(winner, xp_gained)
-            if winner_dies is True:
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(winner_ship_obj['ship_type'])
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "**Loser**\n"
-                                      "**{}** flying a {} was killed while they were {}.{}\n\n"
-                                      "Total ISK Lost: {} ISK\n\n"
-                                      "**Final Blow**\n"
-                                      "Concord\n\n"
-                                      "**Other Attackers**\n"
-                                      "**{}** flying a {}".format(region_name, winner_name, winner_ship, winner_task,
-                                                                  winner_modules,
-                                                                  '{0:,.2f}'.format(float(isk_lost_winner)), loser_name,
-                                                                  loser_ship))
-                await winner_user.send(embed=embed)
-                await loser_user.send(embed=embed)
-                await self.send_global(embed, True)
-                await self.add_loss(winner)
-                await self.add_kill(loser, None)
-                await self.destroy_ship(winner)
-                await self.add_xp(loser, xp_gained)
-            else:
-                await self.give_pvp_loot(winner)
-        else:
-            winner_user = self.bot.get_user(winner[2])
-            loser_user = self.bot.get_user(loser[2])
-            if winner_dies is False:
-                await winner_user.send(
-                    '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                    'managed to warp off and dock.'.format(loser_ship, loser_name, winner_ship))
-            else:
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(winner_ship_obj['ship_type'])
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "**Loser**\n"
-                                      "**{}** flying a {} was killed while they were {}.{}\n\n"
-                                      "Total ISK Lost: {} ISK\n\n"
-                                      "**Final Blow**\n"
-                                      "Concord\n\n"
-                                      "**Other Attackers**\n"
-                                      "**{}** flying a {}".format(region_name, winner_name, winner_ship, winner_task,
-                                                                  winner_modules,
-                                                                  '{0:,.2f}'.format(float(isk_lost_winner)), loser_name,
-                                                                  loser_ship))
-                try:
-                    await winner_user.send(embed=embed)
-                except Exception:
-                    self.logger.error('User {} message error'.format(winner_user.id))
-                try:
-                    await loser_user.send(embed=embed)
-                except Exception:
-                    self.logger.error('User {} message error'.format(loser_user.id))
-                await self.send_global(embed, True)
-                await self.add_loss(winner)
-                await self.add_kill(loser, None)
-                await self.destroy_ship(winner)
-                await self.add_xp(winner, xp_gained)
-
-            if loser_dies is False:
-                await loser_user.send('**PVP** - Combat between you and a {} flown by {}, you nearly lost your {} but '
-                                      'managed to break tackle and dock.'.format(winner_ship, winner_name, loser_ship))
-            else:
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "**Loser**\n"
-                                      "**{}** flying a {} was killed while they were {}.{}\n\n"
-                                      "Total ISK Lost: {} ISK\n\n"
-                                      "**Final Blow**\n"
-                                      "Concord\n\n"
-                                      "**Other Attackers**\n"
-                                      "**{}** flying a {}".format(region_name, loser_name, loser_ship, loser_task,
-                                                                  loser_modules,
-                                                                  '{0:,.2f}'.format(float(isk_lost)), winner_name,
-                                                                  winner_ship))
-                await winner_user.send(embed=embed)
-                await loser_user.send(embed=embed)
-                await self.send_global(embed, True)
-                await self.add_loss(loser)
-                await self.add_kill(winner, dropped_mods)
-                await self.give_pvp_loot(winner)
-                await self.destroy_ship(loser)
-            sql = ''' UPDATE eve_rpg_players
-                    SET task = 1
-                    WHERE
-                        player_id = (?); '''
-            values = (loser[2],)
-            await db.execute_sql(sql, values)
+        embed = make_embed(icon=self.bot.user.avatar)
+        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
+        embed.set_thumbnail(url="{}".format(ship_image))
+        embed.add_field(name="Killmail",
+                        value="**Region** - {}\n\n"
+                              "**Loser**\n"
+                              "**{}** flying a {} was killed while they were {}.{}\n\n"
+                              "Total ISK Lost: {} ISK\n\n"
+                              "__**Final Blow**__\n"
+                              "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship,
+                                                                        loser_task, loser_modules,
+                                                                        '{0:,.2f}'.format(float(isk_lost)),
+                                                                        winner_name, winner_ship, winner_task))
+        await winner_user.send(embed=embed)
+        await loser_user.send(embed=embed)
+        await self.send_global(embed, True)
+        await self.destroy_ship(loser)
+        await self.add_loss(loser)
+        await self.add_kill(winner, dropped_mods)
+        await self.add_xp(winner, xp_gained)
+        await self.give_pvp_loot(winner)
 
     async def weighted_choice(self, items):
         """items is a list of tuples in the form (item, weight)"""
