@@ -693,11 +693,11 @@ class EveRpg:
                 if escape is True:
                     await attacker_user.send(
                         '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                        'managed to warp off.'.format(defender_ship, defender_user.display_name,
+                        'managed to warp off.'.format(defender_ship_info['name'], defender_user.display_name,
                                                       attacker_ship_info['name']))
                     await defender_user.send(
                         '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                        'you managed to break tackle and warp off.'.format(attacker_ship, attacker_user.display_name,
+                        'you managed to break tackle and warp off.'.format(attacker_ship_info['name'], attacker_user.display_name,
                                                                            defender_ship_info['name']))
                     return
             if attacker_escape > defender_catch and attacker_hits < (
@@ -706,11 +706,11 @@ class EveRpg:
                 if escape is True:
                     await defender_user.send(
                         '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                        'managed to warp off.'.format(attacker_ship, attacker_user.display_name,
+                        'managed to warp off.'.format(attacker_ship_info['name'], attacker_user.display_name,
                                                       defender_ship_info['name']))
                     await attacker_user.send(
                         '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                        'you managed to break tackle and warp off.'.format(defender_ship, defender_user.display_name,
+                        'you managed to break tackle and warp off.'.format(defender_ship_info['name'], defender_user.display_name,
                                                                            attacker_ship_info['name']))
                     return
         winner_user = self.bot.get_user(winner[2])
@@ -725,11 +725,11 @@ class EveRpg:
                     if escape is True:
                         await winner_user.send(
                             '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                            'managed to break tackle long enough to cloak.'.format(attacker_ship, attacker_user.display_name,
+                            'managed to break tackle long enough to cloak.'.format(attacker_ship_info['name'], attacker_user.display_name,
                                                                                    defender_ship_info['name']))
                         await loser_user.send(
                             '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                            'you managed to break tackle and cloak.'.format(defender_ship, defender_user.display_name,
+                            'you managed to break tackle and cloak.'.format(defender_ship_info['name'], defender_user.display_name,
                                                                             attacker_ship_info['name']))
         winner_name = self.bot.get_user(int(winner[2])).display_name
         region_id = int(winner[4])
