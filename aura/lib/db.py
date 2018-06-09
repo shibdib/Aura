@@ -38,13 +38,13 @@ async def create_tables():
                                     ); """
         await create_table(db, whitelist_table)
         # create fleets tables
-        eve_rpg_channels_table = """ CREATE TABLE IF NOT EXISTS fleets (
+        fleets_table = """ CREATE TABLE IF NOT EXISTS fleets (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                                         fleet_id INTEGER NOT NULL UNIQUE,
                                         fleet_fc STRING NOT NULL,
                                         fleet_members INTEGER NOT NULL
                                     ); """
-        await create_table(db, eve_rpg_channels_table)
+        await create_table(db, fleets_table)
         # create eve_rpg tables
         eve_rpg_channels_table = """ CREATE TABLE IF NOT EXISTS eve_rpg_channels (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
