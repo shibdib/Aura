@@ -65,7 +65,7 @@ async def get_ship_image(ship_id):
 
 async def get_npc(sec):
     possible_npc = []
-    for npc in game_assets.npc:
+    for key, npc in game_assets.npc.items():
         if npc['class'] == sec:
             possible_npc.append(npc)
     if len(possible_npc) > 0:
