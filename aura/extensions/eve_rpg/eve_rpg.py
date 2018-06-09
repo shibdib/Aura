@@ -421,15 +421,21 @@ class EveRpg:
             player_transversal = 1.5
         if npc_maneuver > player_tracking:
             npc_transversal = 1.5
+        npc_damage = 1
+        player_damage = 1
+        if player_defense > npc_attack:
+            npc_damage = npc_attack / player_defense
+        if npc_defense > player_attack:
+            player_damage = player_attack / npc_defense
         player_weight = ((player[8] + 1) * 0.5) + (player_attack * 1.5) + (player_defense * 1.25) + (player_maneuver * player_transversal) + player_tracking
         npc_weight = (npc_attack * 1.5) + (npc_defense * 1.25) + (npc_maneuver * npc_transversal) + npc_tracking
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
-        for x in range(int(player_hits + npc_hits + 1)):
+        for x in range(int(player_hits + npc_hits * 1.5)):
             combat = await self.weighted_choice([(player, player_weight), (npc, npc_weight)])
             if combat == player:
-                npc_hits -= 1
+                npc_hits -= player_damage
             else:
-                player_hits -= 1
+                player_hits -= npc_damage
             player_hit_percentage, defender_hit_percentage = player_hits / ship['hit_points'], npc_hits / npc['hit_points']
             if player_hits <= 0:
                 break
@@ -445,6 +451,8 @@ class EveRpg:
                         '**PVE ESCAPE** - Combat between you and a {}, they nearly killed your {} but you '
                         'managed to warp off.'.format(npc['name'], player_ship_info['name']))
                     return
+        if npc_hits > 0 and player_hits > 0:
+            return
         module_value = 0
         loser_modules = ''
         loser_modules_array = []
