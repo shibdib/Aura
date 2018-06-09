@@ -65,11 +65,7 @@ class Travel:
             destination = await game_functions.get_region(int(target))
             await db.execute_sql(sql, values)
             await ctx.author.send('**Task Updated** - You are now traveling to {}.'.format(destination))
-        elif content == '5':
-            await ctx.author.send('**Not Yet Implemented**')
-        else:
-            await ctx.author.send('**ERROR** - Not a valid choice.')
-        if content.find('!!') == -1:
+        elif content.find('!!') == -1:
             return await ctx.invoke(self.bot.get_command("me"), True)
         else:
             return
