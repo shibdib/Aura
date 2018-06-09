@@ -245,12 +245,11 @@ class EveRpg:
                 return await db.execute_sql(sql, values)
             mission_details = ast.literal_eval(mission_runner[22])
             isk = mission_details['reward']
-            level_multi = int(float(mission_details['level'] * 3))
             #  PVE Rolls
             complete_mission = await self.weighted_choice([(True, 20), (False, 30 * mission_details['level'])])
             enounter = await self.weighted_choice([(True, 70), (False, 30)])
             if enounter is True:
-                return await self.process_pve_combat(mission_runner)
+                return await self.process_pve_combat(mission_runner, mission_details['level'])
             else:
                 if complete_mission is False:
                     continue
@@ -388,7 +387,7 @@ class EveRpg:
                 else:
                     await player.send('**Failure** The AI defeated you, looking for a new site.')
 
-    async def process_pve_combat(self, player):
+    async def process_pve_combat(self, player, mission=False):
         player_user = self.bot.get_user(player[2])
         player_task = await game_functions.get_task(int(player[6]))
         player_ship = ast.literal_eval(player[14])
@@ -399,7 +398,10 @@ class EveRpg:
         ship = await game_functions.get_ship(ship_id)
         region_id = int(player[4])
         region_security = await game_functions.get_region_security(region_id)
-        if region_security == 'High':
+        if mission is not False:
+            escape_chance = 45 / mission
+            npc = await game_functions.get_npc(mission + 9)
+        elif region_security == 'High':
             escape_chance = 45
             npc = await game_functions.get_npc(0)
         elif region_security == 'Low':
