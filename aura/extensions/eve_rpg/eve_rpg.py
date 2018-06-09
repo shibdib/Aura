@@ -179,16 +179,17 @@ class EveRpg:
             belt_miners = await db.select_var(sql, values)
             isk = random.randint(100, 750)
             possible_npc = False
-            ore = 100
+            ore = 50
             if region_security == 'Low':
-                ore = 150
+                ore = 75
                 possible_npc = 2
                 isk = random.randint(8000, 17500)
             elif region_security == 'Null':
-                ore = 300
+                ore = 90
                 possible_npc = 4
                 isk = random.randint(16000, 45000)
-            find_ore = await self.weighted_choice([(True, ore / len(belt_miners)), (False, 40)])
+            find_ore = await self.weighted_choice(
+                [(True, ore / len(belt_miners)), (False, 100 - (ore / len(belt_miners)))])
             if find_ore is False:
                 continue
             else:
