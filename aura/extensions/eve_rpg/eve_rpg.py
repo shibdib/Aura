@@ -663,17 +663,13 @@ class EveRpg:
             await game_functions.get_combat_attributes(attacker, attacker_ship_id)
         defender_attack, defender_defense, defender_maneuver, defender_tracking = \
             await game_functions.get_combat_attributes(defender, defender_ship_id)
-        tracking_one, tracking_two = 1, 1
-        if attacker_tracking < defender_maneuver:
-            tracking_one = 0.8
-        elif defender_tracking < attacker_maneuver:
-            tracking_two = 0.8
         pve_disadvantage = 0
         if 5 < int(defender[6]) < 11 or defender[6] == 10:
             pve_disadvantage = 2
-        player_one_weight = (((attacker[8] + 1) * 0.5) + (attacker_attack - (defender_defense / 2))) * tracking_one
-        player_two_weight = ((((defender[8] + 1) * 0.5) + (defender_attack -
-                                                           (attacker_defense / 2))) * tracking_two) - pve_disadvantage
+        player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 1.5) + (
+                    attacker_defense * 1.25) + attacker_maneuver + attacker_tracking
+        player_two_weight = ((defender[8] + 1) * 0.5) + (defender_attack * 1.5) + (
+                    defender_defense * 1.25) + defender_maneuver + defender_tracking - pve_disadvantage
         attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
         defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
         attacker_hits, defender_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
@@ -682,12 +678,17 @@ class EveRpg:
         defender_catch, attacker_escape = defender_attack / 2 + defender_tracking, attacker_defense / 2 + attacker_maneuver
         # Combat
         escape = False
-        for x in range(int(attacker_hits + defender_hits + 1)):
+        attacker_damage, defender_damage = 1, 1
+        if attacker_defense > defender_attack:
+            defender_damage = defender_attack / attacker_defense
+        if defender_defense > attacker_attack:
+            attacker_damage = attacker_attack / defender_defense
+        for x in range(int((attacker_hits + defender_hits) * 1.75)):
             combat = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
             if combat == attacker:
-                defender_hits -= 1
+                defender_hits -= attacker_damage
             else:
-                attacker_hits -= 1
+                attacker_hits -= defender_damage
             attacker_hit_percentage, defender_hit_percentage = attacker_hits / attacker_ship_info[
                 'hit_points'], defender_hits / defender_ship_info['hit_points']
             if attacker_hits <= 0:
@@ -722,6 +723,8 @@ class EveRpg:
                         'you managed to break tackle and warp off.'.format(defender_ship_info['name'], defender_user.display_name,
                                                                            attacker_ship_info['name']))
                     return
+        if defender_hits > 0 and attacker_hits > 0:
+            return
         winner_user = self.bot.get_user(winner[2])
         loser_user = self.bot.get_user(loser[2])
         # Handle Cloak
