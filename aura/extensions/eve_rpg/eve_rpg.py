@@ -22,6 +22,7 @@ class EveRpg:
         await self.initial_checks()
         while not self.bot.is_closed():
             try:
+                await game_functions.tick_count()
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
@@ -140,8 +141,8 @@ class EveRpg:
             elif region_security == 'Null':
                 npc = 75
             #  PVE Rolls
-            enounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
-            if enounter is True:
+            encounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+            if encounter is True:
                 return await self.process_pve_combat(ratter)
 
     async def process_anomaly_ratting(self):
@@ -161,8 +162,8 @@ class EveRpg:
             elif region_security == 'Null':
                 npc = 75
             #  PVE Rolls
-            enounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
-            if enounter is True:
+            encounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+            if encounter is True:
                 return await self.process_pve_combat(ratter)
 
     async def process_belt_mining(self):
@@ -177,9 +178,6 @@ class EveRpg:
             values = (region_id,)
             belt_miners = await db.select_var(sql, values)
             isk = random.randint(100, 750)
-            miner_ship = ast.literal_eval(miner[14])
-            ship_id = miner_ship['ship_type']
-            ship = await game_functions.get_ship(ship_id)
             possible_npc = False
             ore = 100
             if region_security == 'Low':
@@ -195,8 +193,8 @@ class EveRpg:
                 continue
             else:
                 if possible_npc is not False:
-                    enounter = await self.weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
-                    if enounter is True:
+                    encounter = await self.weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
+                    if encounter is True:
                         return await self.process_pve_combat(miner)
                 #  Ship multi
                 miner_ship = ast.literal_eval(miner[14])
@@ -420,8 +418,8 @@ class EveRpg:
             player_transversal = 1.5
         if npc_maneuver > player_tracking:
             npc_transversal = 1.5
-        player_weight = (((((player[8] + 1) * 0.5) + (player_attack - (npc_defense / 2))) * player_tracking) * player_transversal) * ship['pve_multi']
-        npc_weight = ((npc_attack - (player_defense / 2)) * npc_tracking) * npc_transversal
+        player_weight = ((player[8] + 1) * 0.5) + (player_attack * 1.5) + (player_defense * 1.25) + (player_maneuver * player_transversal) + player_tracking
+        npc_weight = (npc_attack * 1.5) + (npc_defense * 1.25) + (npc_maneuver * npc_transversal) + npc_tracking
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
         for x in range(int(player_hits + npc_hits + 1)):
             combat = await self.weighted_choice([(player, player_weight), (npc, npc_weight)])

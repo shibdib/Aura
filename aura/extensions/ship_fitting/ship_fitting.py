@@ -181,7 +181,7 @@ class ShipFitting:
                 elif int(module) in equip_commands:
                     selected_module = await game_functions.get_module(int(equip_module_order[module]))
                     if selected_module['class'] == 3:
-                        equip_prop_mods.append(int(remove_module_order[module]))
+                        equip_prop_mods.append(int(equip_module_order[module]))
                     equip_modules_text.append('{}'.format(selected_module['name']))
                     equip_modules.append(int(equip_module_order[module]))
                 elif int(module) in equip_drones_commands:

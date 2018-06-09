@@ -5,6 +5,19 @@ from aura.lib import db
 from aura.lib import game_assets
 
 
+async def tick_count():
+    sql = ''' SELECT int FROM data WHERE `entry` = 'tick_number' '''
+    current_tick_array = await db.select(sql)
+    current_tick = int(current_tick_array[0][0])
+    if current_tick is None:
+        current_tick = 0
+        current_tick += 1
+    sql = ''' REPLACE INTO data(entry,int)
+              VALUES(?,?) '''
+    values = ('tick_number', current_tick)
+    await db.execute_sql(sql, values)
+    return current_tick
+
 async def refresh_player(player):
     sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
     values = (player[2],)
