@@ -98,9 +98,7 @@ class ManageSelf:
 
             msg = await self.bot.wait_for('message', check=check, timeout=timeout)
             content = msg.content
-            if content == '!!me':
-                return await ctx.invoke(self.bot.get_command("me"), True)
-            elif content == '1':
+            if content == '1':
                 await ctx.invoke(self.bot.get_command("task"))
             elif content == '2':
                 await ctx.invoke(self.bot.get_command("travel"))
@@ -126,8 +124,6 @@ class ManageSelf:
                 await ctx.invoke(self.bot.get_command("wallet"))
             elif content == '13':
                 await ctx.invoke(self.bot.get_command("contacts"))
-            elif content.find('!!') == -1:
-                return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
 
