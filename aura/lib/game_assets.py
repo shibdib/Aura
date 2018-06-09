@@ -246,7 +246,7 @@ ships = {  # Noob
          'image': 'https://image.eveonline.com/Type/17932_64.png', 'pve_multi': 2, 'isk': 46790226, 'slots': 3,
          'drone_bay': 5},
     # Mining frigate
-    70: {'id': 70, 'name': 'Venture', 'class': 21, 'hit_points': 3, 'attack': 0, 'defense': 5, 'maneuver': 4,
+    70: {'id': 70, 'name': 'Venture', 'class': 21, 'hit_points': 3, 'attack': 0, 'defense': 5, 'maneuver': 6,
          'tracking': 1,
          'image': 'https://image.eveonline.com/Type/32880_64.png', 'pve_multi': 4, 'isk': 593884, 'slots': 3,
          'drone_bay': 5},

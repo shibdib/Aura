@@ -414,8 +414,14 @@ class EveRpg:
             await game_functions.get_combat_attributes(player, npc['id'], True)
         region_name = await game_functions.get_region(int(region_id))
         # Combat
-        player_weight = ((((player[8] + 1) * 0.5) + (player_attack - (npc_defense / 2))) * player_tracking) * ship['pve_multi']
-        npc_weight = (npc_attack - (player_defense / 2)) * npc_tracking
+        npc_transversal = 1
+        player_transversal = 1
+        if player_maneuver > npc_tracking:
+            player_transversal = 1.5
+        if npc_maneuver > player_tracking:
+            npc_transversal = 1.5
+        player_weight = (((((player[8] + 1) * 0.5) + (player_attack - (npc_defense / 2))) * player_tracking) * player_transversal) * ship['pve_multi']
+        npc_weight = ((npc_attack - (player_defense / 2)) * npc_tracking) * npc_transversal
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
         for x in range(int(player_hits + npc_hits + 1)):
             combat = await self.weighted_choice([(player, player_weight), (npc, npc_weight)])
