@@ -979,7 +979,7 @@ class Market:
                                     value='No Components Found In This Region')
                     return await ctx.author.send(embed=embed)
                 component_hangar = ast.literal_eval(player[0][19])
-                stored_ships_array = []
+                stored_components_array = []
                 owned_ship_ids = []
                 component_number = 1
                 embed = make_embed(icon=ctx.bot.user.avatar)
@@ -989,19 +989,21 @@ class Market:
                     component_info = await game_functions.get_component(int(component['type_id']))
                     sale_price = '{0:,.2f}'.format(float((component_info['isk'] * 0.95) * component['amount']))
                     component['sale_price'] = sale_price
-                    stored_ships_array.append('{}. {}x {} *({} ISK)*'.format(component_number, component['amount'],
-                                                                             component_info['name'], sale_price))
+                    stored_components_array.append('{}. {}x {} *({} ISK)*'.format(component_number, component['amount'],
+                                                                                  component_info['name'], sale_price))
                     component_number += 1
                     if component_number >= 10:
-                        stored_modules = '\n'.join(stored_ships_array)
+                        stored_components = '\n'.join(stored_components_array)
                         embed.add_field(name="{} Component Hangar".format(region_name),
-                                        value=stored_modules)
-                        stored_ships_array = []
-                stored_components = '\n'.join(stored_ships_array)
+                                        value=stored_components)
+                        stored_components_array = []
+                        component_number = 0
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
-                embed.add_field(name="{} Component Hangar".format(region_name),
-                                value=stored_components)
+                if len(stored_components_array) > 0:
+                    stored_components = '\n'.join(stored_components_array)
+                    embed.add_field(name="{} Component Hangar".format(region_name),
+                                    value=stored_components)
                 await ctx.author.send(embed=embed)
 
                 def check(m):
