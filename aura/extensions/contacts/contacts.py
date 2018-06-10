@@ -130,11 +130,11 @@ class Contacts:
         await ctx.invoke(self.bot.get_command("me"), True)
 
     async def remove_blue(self, ctx, player):
-        if player[0][21] is not None:
+        if player[21] is not None:
             remove_blue = {}
             remove_text = []
             count = 1
-            for user in ast.literal_eval(player[0][21]):
+            for user in ast.literal_eval(player[21]):
                 sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
                 values = (user,)
                 blue = await db.select_var(sql, values)
