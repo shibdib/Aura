@@ -106,6 +106,19 @@ class EveRpg:
                 await game_functions.get_combat_attributes(traveler, defender_ship_id)
             if len(campers) is not 0:
                 for camper in campers:
+                    # Blue check
+                    if camper[21] is not None:
+                        blue_array = ast.literal_eval(camper[21])
+                        if traveler[0] in blue_array:
+                            return
+                    # Fleet check
+                    if camper[16] is not None and camper[16] != 0:
+                        sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                        values = (camper[16],)
+                        fleet_info = await db.select_var(sql, values)
+                        fleet_array = ast.literal_eval(fleet_info[0][3])
+                        if traveler[0] in fleet_array:
+                                return
                     conflict = await self.weighted_choice([(True, 55 - defender_maneuver), (False, 55)])
                     if conflict is True:
                         camper_fleet = False
@@ -448,6 +461,7 @@ class EveRpg:
                 player_attack += member_attack
         ship = await game_functions.get_ship(ship_id)
         region_security = await game_functions.get_region_security(region_id)
+        officer = False
         if mission is not False:
             npc = await game_functions.get_npc(mission + 9)
         elif region_security == 'High':
@@ -455,7 +469,11 @@ class EveRpg:
         elif region_security == 'Low':
             npc = await game_functions.get_npc(1)
         else:
-            npc = await game_functions.get_npc(2)
+            officer = await self.weighted_choice([(True, 1), (False, 750)])
+            if officer is False:
+                npc = await game_functions.get_npc(2)
+            else:
+                npc = await game_functions.get_npc(20)
         escape_chance = player_defense / 2 + player_maneuver
         if player_maneuver == 0:
             escape_chance = 0
@@ -491,6 +509,8 @@ class EveRpg:
                     await self.add_xp(player, random.randint(2, 10))
                     await self.add_isk(player, npc['isk'] / len(payout_array))
                     await self.update_journal(player, npc['isk'] / len(payout_array), '{} - {}'.format(player_task, npc['name']))
+                if officer is True:
+                    await self.pve_loot(player, 1, False, True)
                 return
             if player_hits < (ship['hit_points'] * 0.75) and player_hit_percentage < defender_hit_percentage:
                 escape = await self.weighted_choice([(True, escape_chance), (False, 100 - escape_chance)])
@@ -558,7 +578,7 @@ class EveRpg:
                         if target[0] in blue_array:
                             return
                     # Fleet check
-                    if roamer[16] is not None:
+                    if roamer[16] is not None and roamer[16] != 0:
                         sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
                         values = (roamer[16],)
                         fleet_info = await db.select_var(sql, values)
@@ -619,7 +639,7 @@ class EveRpg:
                     if target[0] in blue_array:
                         return
                 # Fleet check
-                if ganker[16] is not None:
+                if ganker[16] is not None and ganker[16] != 0:
                     sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
                     values = (ganker[16],)
                     fleet_info = await db.select_var(sql, values)
@@ -1438,10 +1458,10 @@ class EveRpg:
             values = (str(ship), player[2],)
             return await db.execute_sql(sql, values)
 
-    async def pve_loot(self, player, chance, overseer=False):
+    async def pve_loot(self, player, chance, overseer=False, officer=True):
         false = 200 - int(chance)
         loot_drop = await self.weighted_choice([(True, chance), (False, false)])
-        if loot_drop is True:
+        if loot_drop is True or officer is True:
             player = await self.refresh_player(player)
             ship = ast.literal_eval(player[14])
             loot_type = await self.weighted_choice([(200, 25), (201, 25), (202, 25), (203, 25), (204, 25)])
