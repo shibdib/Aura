@@ -43,7 +43,9 @@ class Fleets:
                     values = (None, ctx.author.id,)
                     await db.execute_sql(sql, values)
                     return await ctx.invoke(self.bot.get_command("fleet"))
+                fleet_members = ast.literal_eval(fleet_info[0][3])
                 if fleet_info[0][2] == player[0][0]:
+                    fleet_members = ast.literal_eval(fleet_info[0][3])
                     new_access = 'Public'
                     if fleet_info[0][4] == 1:
                         new_access = 'Blues Only'
@@ -56,7 +58,7 @@ class Fleets:
                                           "**1.** Disband Fleet\n"
                                           "**2.** Kick Member\n"
                                           "**3.** Change Access to {}\n"
-                                          "**4.** Return to the main menu".format(len(fleet_info[0][3]), new_access))
+                                          "**4.** Return to the main menu".format(len(fleet_members), new_access))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -93,7 +95,8 @@ class Fleets:
                                           "FC: {}\n"
                                           "FC Location: {}\n\n"
                                           "**1.** Leave Fleet\n"
-                                          "**2.** Return to the main menu".format(len(fleet_info[0][3]), fc_name, fc_location))
+                                          "**2.** Return to the main menu".format(len(fleet_members), fc_name,
+                                                                                  fc_location))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
