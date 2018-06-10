@@ -495,7 +495,7 @@ class Market:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
-                    if total_isk > int(float(player[5])):
+                    if total_isk > int(float(player[0][5])):
                         await ctx.author.send('**Not Enough ISK**')
                         return await ctx.invoke(self.bot.get_command("me"), True)
                     player = await game_functions.refresh_player(player[0])
