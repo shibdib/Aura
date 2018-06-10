@@ -1110,7 +1110,8 @@ class EveRpg:
             attacker_fleet.append(member[0])
             attackers_in_system += 1
             member_ship = ast.literal_eval(member[0][14])
-            attacker_fleet_hits += member_ship['hit_points']
+            ship_details = await game_functions.get_ship(member_ship['ship_type'])
+            attacker_fleet_hits += ship_details['hit_points']
             member_attack, member_defense, member_maneuver, member_tracking = \
                 await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
             attacker_fleet_attack += member_attack
