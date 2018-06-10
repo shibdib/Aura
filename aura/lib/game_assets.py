@@ -406,7 +406,7 @@ modules = {  # Attack
     # Medium
     109: {'id': 109, 'name': 'Valkyrie I', 'class': 11, 'attack': 1.5, 'defense': 0, 'maneuver': 1.5, 'tracking': 0,
           'image': 'https://image.eveonline.com/Type/15510_64.png', 'isk': 26169, 'special': None, 'size': 10},
-    110: {'id': 110, 'name': 'Hammerhead I', 'class': 11, 'attack': 3.5, 'defense': 0, 'maneuver': 0, 'tracking': -1,
+    110: {'id': 110, 'name': 'Hammerhead I', 'class': 11, 'attack': 3, 'defense': 0, 'maneuver': 0, 'tracking': -1,
           'image': 'https://image.eveonline.com/Type/2183_64.png', 'isk': 16200, 'special': None, 'size': 10},
     111: {'id': 111, 'name': 'Vespa I', 'class': 11, 'attack': 1.75, 'defense': 0, 'maneuver': 1, 'tracking': 0,
           'image': 'https://image.eveonline.com/Type/15508_64.png', 'isk': 31000, 'special': None, 'size': 10},
@@ -415,7 +415,7 @@ modules = {  # Attack
     # Medium 2
     113: {'id': 113, 'name': 'Valkyrie II', 'class': 11, 'attack': 2, 'defense': 0, 'maneuver': 2, 'tracking': 1,
           'image': 'https://image.eveonline.com/Type/21640_64.png', 'isk': 826070, 'special': None, 'size': 10},
-    114: {'id': 114, 'name': 'Hammerhead II', 'class': 11, 'attack': 4.5, 'defense': 0, 'maneuver': 0, 'tracking': -1,
+    114: {'id': 114, 'name': 'Hammerhead II', 'class': 11, 'attack': 3.75, 'defense': 0, 'maneuver': 0, 'tracking': -1,
           'image': 'https://image.eveonline.com/Type/2185_64.png', 'isk': 840000, 'special': None, 'size': 10},
     115: {'id': 115, 'name': 'Vespa II', 'class': 11, 'attack': 2.25, 'defense': 0, 'maneuver': 2, 'tracking': 0,
           'image': 'https://image.eveonline.com/Type/221638_64.png', 'isk': 1300011, 'special': None, 'size': 10},
@@ -426,9 +426,9 @@ modules = {  # Attack
           'image': 'https://image.eveonline.com/Type/2476_64.png', 'isk': 45450, 'special': None, 'size': 20},
     132: {'id': 132, 'name': 'Ogre I', 'class': 12, 'attack': 4.5, 'defense': 0, 'maneuver': 0, 'tracking': -2,
           'image': 'https://image.eveonline.com/Type/2444_64.png', 'isk': 34895, 'special': None, 'size': 20},
-    133: {'id': 133, 'name': 'Wasp I', 'class': 12, 'attack': 3.25, 'defense': 0, 'maneuver': 0, 'tracking': 0,
+    133: {'id': 133, 'name': 'Wasp I', 'class': 12, 'attack': 3.5, 'defense': 0, 'maneuver': 0, 'tracking': 0,
           'image': 'https://image.eveonline.com/Type/1201_64.png', 'isk': 78599, 'special': None, 'size': 20},
-    134: {'id': 134, 'name': 'Praetor I', 'class': 12, 'attack': 3.25, 'defense': 1, 'maneuver': 0, 'tracking': -1,
+    134: {'id': 134, 'name': 'Praetor I', 'class': 12, 'attack': 3.5, 'defense': 1, 'maneuver': 0, 'tracking': -1,
           'image': 'https://image.eveonline.com/Type/2193_64.png', 'isk': 148839, 'special': None, 'size': 20},
     # Heavy 2
     135: {'id': 135, 'name': 'Berserker II', 'class': 12, 'attack': 4, 'defense': 0, 'maneuver': 2, 'tracking': -1,
