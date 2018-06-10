@@ -478,7 +478,8 @@ class EveRpg:
                                                   loser_modules, '{0:,.2f}'.format(float(module_value)), npc['name']))
         await self.add_loss(player)
         await player_user.send(embed=embed)
-        await self.send_global(embed, True)
+        if ship['class'] != 0:
+            await self.send_global(embed, True)
         return await self.destroy_ship(player)
 
     async def process_roams(self):
