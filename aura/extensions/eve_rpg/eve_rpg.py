@@ -971,6 +971,7 @@ class EveRpg:
                 await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
             attacker_fleet_attack += member_attack
             attacker_fleet_maneuver += member_maneuver
+            attacker_fleet_tracking += member_tracking
         defender_fleet_array = ast.literal_eval(fleet_two[3])
         defender_fleet = []
         defenders_in_system = 0
@@ -989,6 +990,7 @@ class EveRpg:
                 await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
             defender_fleet_attack += member_attack
             defender_fleet_maneuver += member_maneuver
+            defender_fleet_tracking += member_tracking
         attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
         defender_initiative = 50 + (defender_fleet_maneuver / defenders_in_system)
         aggressor_damage = attacker_fleet_attack
@@ -1121,6 +1123,7 @@ class EveRpg:
                 await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
             attacker_fleet_attack += member_attack
             attacker_fleet_maneuver += member_maneuver
+            attacker_fleet_tracking += member_tracking
         primary_ship = ast.literal_eval(player[14])
         ship = await game_functions.get_ship(primary_ship['ship_type'])
         hit_points = ship['hit_points']
