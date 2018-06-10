@@ -550,6 +550,19 @@ class EveRpg:
                 continue
             else:
                 for target in potential_targets:
+                    # Blue check
+                    if roamer[21] is not None:
+                        blue_array = ast.literal_eval(roamer[21])
+                        if target[0] in blue_array:
+                            return
+                    # Fleet check
+                    if roamer[16] is not None:
+                        sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                        values = (roamer[16],)
+                        fleet_info = await db.select_var(sql, values)
+                        fleet_array = ast.literal_eval(fleet_info[0][3])
+                        if target[0] in fleet_array:
+                            return
                     target_aggression = 20
                     if 1 < int(target[6]) < 5:
                         target_aggression = 45
@@ -598,6 +611,19 @@ class EveRpg:
             values = (region_id, ganker[2])
             potential_targets = await db.select_var(sql, values)
             for target in potential_targets:
+                # Blue check
+                if ganker[21] is not None:
+                    blue_array = ast.literal_eval(ganker[21])
+                    if target[0] in blue_array:
+                        return
+                # Fleet check
+                if ganker[16] is not None:
+                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                    values = (ganker[16],)
+                    fleet_info = await db.select_var(sql, values)
+                    fleet_array = ast.literal_eval(fleet_info[0][3])
+                    if target[0] in fleet_array:
+                        return
                 target_aggression = 5
                 if int(target[6]) == 9:
                     target_aggression = 2
@@ -747,11 +773,6 @@ class EveRpg:
                     await self.send_global(embed, True)
 
     async def solo_combat(self, attacker, defender):
-        # Blue check
-        if attacker[21] is not None:
-            blue_array = ast.literal_eval(attacker[21])
-            if defender[0] in blue_array:
-                return
         attacker_user, defender_user = self.bot.get_user(attacker[2]), self.bot.get_user(defender[2])
         attacker_ship, defender_ship = ast.literal_eval(attacker[14]), ast.literal_eval(defender[14])
         attacker_ship_id, defender_ship_id = attacker_ship['ship_type'], defender_ship['ship_type']
