@@ -178,10 +178,10 @@ class EveRpg:
             if region_security == 'Low':
                 npc = 55
             elif region_security == 'Null':
-                npc = 75
+                npc = 90
             #  PVE Rolls
             encounter = await self.weighted_choice(
-                [(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+                [(True, npc / len(system_ratters) * 0.5), (False, 100 - (npc / len(system_ratters) * 0.5))])
             if encounter is True:
                 return await self.process_pve_combat(ratter)
 
@@ -200,10 +200,10 @@ class EveRpg:
             if region_security == 'Low':
                 npc = 55
             elif region_security == 'Null':
-                npc = 75
+                npc = 99
             #  PVE Rolls
             encounter = await self.weighted_choice(
-                [(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+                [(True, npc / len(system_ratters) * 0.5), (False, 100 - (npc / len(system_ratters) * 0.5))])
             if encounter is True:
                 return await self.process_pve_combat(ratter)
 
