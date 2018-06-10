@@ -662,13 +662,13 @@ class EveRpg:
             await game_functions.get_combat_attributes(attacker, attacker_ship_id)
         defender_attack, defender_defense, defender_maneuver, defender_tracking = \
             await game_functions.get_combat_attributes(defender, defender_ship_id)
-        pve_disadvantage = 0
-        if 5 < int(defender[6]) < 11 or defender[6] == 10:
-            pve_disadvantage = 2
+        pve_disadvantage = 1
+        if 5 < int(defender[6]) < 11:
+            pve_disadvantage = 0.93
         player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 1.5) + (
                     attacker_defense * 1.25) + attacker_maneuver + attacker_tracking
-        player_two_weight = ((defender[8] + 1) * 0.5) + (defender_attack * 1.5) + (
-                    defender_defense * 1.25) + defender_maneuver + defender_tracking - pve_disadvantage
+        player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack * 1.5) + (
+                defender_defense * 1.25) + defender_maneuver + defender_tracking) * pve_disadvantage
         attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
         defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
         attacker_hits, defender_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
