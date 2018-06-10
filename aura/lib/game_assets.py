@@ -389,7 +389,7 @@ modules = {  # Attack
     # Light
     101: {'id': 101, 'name': 'Warrior I', 'class': 10, 'attack': 0.75, 'defense': 0, 'maneuver': 2, 'tracking': 2,
           'image': 'https://image.eveonline.com/Type/2486_64.png', 'isk': 7111, 'special': None, 'size': 5},
-    102: {'id': 102, 'name': 'Hobgoblin I', 'class': 10, 'attack': 2, 'defense': 0, 'maneuver': 1, 'tracking': 1,
+    102: {'id': 102, 'name': 'Hobgoblin I', 'class': 10, 'attack': 1.5, 'defense': 0, 'maneuver': 1, 'tracking': 1,
           'image': 'https://image.eveonline.com/Type/2454_64.png', 'isk': 5060, 'special': None, 'size': 5},
     103: {'id': 103, 'name': 'Hornet I', 'class': 10, 'attack': 1, 'defense': 0, 'maneuver': 1.5, 'tracking': 1,
           'image': 'https://image.eveonline.com/Type/2464_64.png', 'isk': 4020, 'special': None, 'size': 5},
@@ -398,7 +398,7 @@ modules = {  # Attack
     # Light 2
     105: {'id': 105, 'name': 'Warrior II', 'class': 10, 'attack': 1, 'defense': 0, 'maneuver': 3, 'tracking': 2,
           'image': 'https://image.eveonline.com/Type/2488_64.png', 'isk': 407854, 'special': None, 'size': 5},
-    106: {'id': 106, 'name': 'Hobgoblin II', 'class': 10, 'attack': 3, 'defense': 0, 'maneuver': 1, 'tracking': 1,
+    106: {'id': 106, 'name': 'Hobgoblin II', 'class': 10, 'attack': 2, 'defense': 0, 'maneuver': 1, 'tracking': 1,
           'image': 'https://image.eveonline.com/Type/2456_64.png', 'isk': 381735, 'special': None, 'size': 5},
     107: {'id': 107, 'name': 'Hornet II', 'class': 10, 'attack': 1.5, 'defense': 0, 'maneuver': 2, 'tracking': 1,
           'image': 'https://image.eveonline.com/Type/2466_64.png', 'isk': 464348, 'special': None, 'size': 5},
