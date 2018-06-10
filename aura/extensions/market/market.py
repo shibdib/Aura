@@ -982,6 +982,7 @@ class Market:
                 stored_ships_array = []
                 owned_ship_ids = []
                 component_number = 1
+                embed = make_embed(icon=ctx.bot.user.avatar)
                 for component in component_hangar[player[0][4]]:
                     owned_ship_ids.append(component_number)
                     component['selection'] = component_number
@@ -997,7 +998,6 @@ class Market:
                                         value=stored_modules)
                         stored_ships_array = []
                 stored_components = '\n'.join(stored_ships_array)
-                embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
                 embed.add_field(name="{} Component Hangar".format(region_name),
