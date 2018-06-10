@@ -982,8 +982,10 @@ class Market:
                 stored_components_array = []
                 owned_ship_ids = []
                 component_number = 1
+                component_count = 0
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 for component in component_hangar[player[0][4]]:
+                    component_count += 1
                     owned_ship_ids.append(component_number)
                     component['selection'] = component_number
                     component_info = await game_functions.get_component(int(component['type_id']))
@@ -992,12 +994,12 @@ class Market:
                     stored_components_array.append('{}. {}x {} *({} ISK)*'.format(component_number, component['amount'],
                                                                                   component_info['name'], sale_price))
                     component_number += 1
-                    if component_number >= 10:
+                    if component_count >= 10:
+                        component_count = 0
                         stored_components = '\n'.join(stored_components_array)
                         embed.add_field(name="{} Component Hangar".format(region_name),
                                         value=stored_components)
                         stored_components_array = []
-                        component_number = 0
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
                 if len(stored_components_array) > 0:
