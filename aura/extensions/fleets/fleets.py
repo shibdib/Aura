@@ -42,7 +42,7 @@ class Fleets:
                                     player_id = (?); '''
                     values = (None, ctx.author.id,)
                     await db.execute_sql(sql, values)
-                    return await ctx.invoke(self.bot.get_command("fleet"), True)
+                    return await ctx.invoke(self.bot.get_command("fleet"))
                 if fleet_info[0][2] == player[0][0]:
                     new_access = 'Public'
                     if fleet_info[0][4] == 1:
@@ -252,6 +252,7 @@ class Fleets:
             member_name = self.bot.get_user(int(member[0][2])).display_name
             fleet_member_dict[member_number] = member[0][0]
             fleet_member_array.append('**{}.** {}'.format(member_number, member_name))
+            member_number += 1
         clean_members = '\n'.join(fleet_member_array)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
