@@ -15,7 +15,7 @@ class Fleets:
         self.config = bot.config
         self.logger = bot.logger
 
-    @commands.command(name='fleet', case_insensitive=True)
+    @commands.group(name='fleet', case_insensitive=True)
     @checks.spam_check()
     @checks.is_whitelist()
     @checks.has_account()
@@ -308,3 +308,23 @@ class Fleets:
         await db.execute_sql(sql, values)
         await ctx.author.send('**Success** - Access Updated.')
         await ctx.invoke(self.bot.get_command("me"), True)
+
+    @_fleets.group(name='chat')
+    @checks.has_account()
+    async def _chat(self, ctx, *, message: str):
+        """Talk in fleet chat."""
+        if ctx.guild is not None:
+            try:
+                await ctx.message.delete()
+            except Exception:
+                pass
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
+        values = (ctx.message.author.id,)
+        player = await db.select_var(sql, values)
+        sender = self.bot.get_user(int(player[0][2])).display_name
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `fleet` = (?) '''
+        values = (int(player[0][16]),)
+        fleet_players = await db.select_var(sql, values)
+        for user in fleet_players:
+            user = self.bot.get_user(int(user[2]))
+            await user.send('**Fleet** {}: {}'.format(sender, message))
