@@ -401,17 +401,16 @@ class EveRpg:
         region_id = int(player[4])
         region_security = await game_functions.get_region_security(region_id)
         if mission is not False:
-            escape_chance = 45 / mission
             npc = await game_functions.get_npc(mission + 9)
         elif region_security == 'High':
-            escape_chance = 45
             npc = await game_functions.get_npc(0)
         elif region_security == 'Low':
-            escape_chance = 30
             npc = await game_functions.get_npc(1)
         else:
-            escape_chance = 20
             npc = await game_functions.get_npc(2)
+        escape_chance = player_defense / 2 + player_maneuver
+        if player_maneuver == 0:
+            escape_chance = 0
         npc_attack, npc_defense, npc_maneuver, npc_tracking = \
             await game_functions.get_combat_attributes(player, npc['id'], True)
         region_name = await game_functions.get_region(int(region_id))
@@ -681,6 +680,10 @@ class EveRpg:
         winner = None
         attacker_catch, defender_escape = attacker_attack / 2 + attacker_tracking, defender_defense / 2 + defender_maneuver
         defender_catch, attacker_escape = defender_attack / 2 + defender_tracking, attacker_defense / 2 + attacker_maneuver
+        if defender_maneuver == 0:
+            defender_escape = 0
+        if attacker_maneuver == 0:
+            attacker_escape = 0
         # Combat
         escape = False
         attacker_damage, defender_damage = 1, 1
