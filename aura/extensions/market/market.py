@@ -80,7 +80,7 @@ class Market:
                     cost = '{0:,.2f}'.format(float(ship['isk']))
                     if ship['class'] == 1:
                         frigates.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -101,7 +101,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 3:
                         destroyers.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -122,7 +122,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 4:
                         tactical_destroyers.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -143,7 +143,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 2:
                         interceptors.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -164,7 +164,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 5:
                         cruisers.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -185,7 +185,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 6:
                         battlecruisers.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -206,7 +206,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 7:
                         battleships.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -227,7 +227,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 21:
                         mining_frigate.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -248,7 +248,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 22:
                         mining_barges.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
@@ -269,7 +269,7 @@ class Market:
                         ship_number += 1
                     elif ship['class'] == 23:
                         exhumers.append(
-                            '**{}.** {} ({} HP) ({}/{}/{}/{}) - *Drone Bay Size: {}m3* - {} ISK'.format(ship_number,
+                            '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
                                                                                                         ship[
                                                                                                             'name'],
                                                                                                         ship[
