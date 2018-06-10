@@ -598,7 +598,7 @@ class Market:
                         await db.execute_sql(sql, values)
                     await ctx.author.send(
                         '**Purchase Complete, Items Are Now Stored In Your Module Hangar For This Region**')
-                    await self.update_journal(player[0], float(total_isk) * -1)
+                    await self.update_journal(player, float(total_isk) * -1)
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 item = msg.content
                 if int(item) in accepted_modules:
