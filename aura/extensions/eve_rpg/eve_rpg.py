@@ -142,7 +142,8 @@ class EveRpg:
             elif region_security == 'Null':
                 npc = 75
             #  PVE Rolls
-            encounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+            encounter = await self.weighted_choice(
+                [(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
             if encounter is True:
                 return await self.process_pve_combat(ratter)
 
@@ -163,7 +164,8 @@ class EveRpg:
             elif region_security == 'Null':
                 npc = 75
             #  PVE Rolls
-            encounter = await self.weighted_choice([(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
+            encounter = await self.weighted_choice(
+                [(True, npc / len(system_ratters)), (False, 100 - (npc / len(system_ratters)))])
             if encounter is True:
                 return await self.process_pve_combat(ratter)
 
@@ -390,6 +392,7 @@ class EveRpg:
                     await player.send('**Failure** The AI defeated you, looking for a new site.')
 
     async def process_pve_combat(self, player, mission=False):
+        region_id = int(player[4])
         player_user = self.bot.get_user(player[2])
         player_task = await game_functions.get_task(int(player[6]))
         player_ship = ast.literal_eval(player[14])
@@ -397,8 +400,26 @@ class EveRpg:
         player_ship_info = await game_functions.get_ship(ship_id)
         player_attack, player_defense, player_maneuver, player_tracking = \
             await game_functions.get_combat_attributes(player, ship_id)
+        payout_array = [player]
+        if player[16] is not None and player[16] != 0:
+            payout_array = []
+            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+            values = (player[16],)
+            fleet_info = await db.select_var(sql, values)
+            fleet_array = ast.literal_eval(fleet_info[0][3])
+            player_attack = 0
+            for member_id in fleet_array:
+                sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+                values = (int(member_id),)
+                member = await db.select_var(sql, values)
+                if member[0][4] != region_id:
+                    continue
+                payout_array.append(member[0])
+                member_ship = ast.literal_eval(member[0][14])
+                member_attack, member_defense, member_maneuver, member_tracking = \
+                    await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+                player_attack += member_attack
         ship = await game_functions.get_ship(ship_id)
-        region_id = int(player[4])
         region_security = await game_functions.get_region_security(region_id)
         if mission is not False:
             npc = await game_functions.get_npc(mission + 9)
@@ -425,7 +446,7 @@ class EveRpg:
         if npc_maneuver > player_tracking:
             player_damage *= (player_tracking / npc_maneuver)
         player_weight = ((player[8] + 1) * 0.5) + (player_attack * 1.5) + (
-                    player_defense * 1.25) + player_maneuver + player_tracking
+                player_defense * 1.25) + player_maneuver + player_tracking
         npc_weight = (npc_attack * 1.5) + (npc_defense * 1.25) + npc_maneuver + npc_tracking
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
         for x in range(int(player_hits + npc_hits * 1.5)):
@@ -434,13 +455,15 @@ class EveRpg:
                 npc_hits -= player_damage
             else:
                 player_hits -= npc_damage
-            player_hit_percentage, defender_hit_percentage = player_hits / ship['hit_points'], npc_hits / npc['hit_points']
+            player_hit_percentage, defender_hit_percentage = player_hits / ship['hit_points'], npc_hits / npc[
+                'hit_points']
             if player_hits <= 0:
                 break
             if npc_hits <= 0:
-                await self.add_xp(player, random.randint(2, 10))
-                await self.add_isk(player, npc['isk'])
-                await self.update_journal(player, npc['isk'], '{} - {}'.format(player_task, npc['name']))
+                for player in payout_array:
+                    await self.add_xp(player, random.randint(2, 10))
+                    await self.add_isk(player, npc['isk'] / len(payout_array))
+                    await self.update_journal(player, npc['isk'] / len(payout_array), '{} - {}'.format(player_task, npc['name']))
                 return
             if player_hits < (ship['hit_points'] * 0.75) and player_hit_percentage < defender_hit_percentage:
                 escape = await self.weighted_choice([(True, escape_chance), (False, 100 - escape_chance)])
@@ -453,7 +476,7 @@ class EveRpg:
             await player_user.send(
                 '**PVE DISENGAGE** - Combat between you and a {}, has ended in a draw. You ended the battle '
                 'with {} of {} hit points, while they ended with {} of {} hit points.'.format(
-                    npc['name'], player_ship_info['name'], player_hits, ship['hit_points'], npc_hits,
+                    npc['name'], player_hits, ship['hit_points'], npc_hits,
                     npc['hit_points']))
             return
         module_value = 0
@@ -542,8 +565,10 @@ class EveRpg:
                         await game_functions.get_combat_attributes(ganker, attacker_ship_id)
                     defender_attack, defender_defense, defender_maneuver, defender_tracking = \
                         await game_functions.get_combat_attributes(target, defender_ship_id)
-                    ganker_weight = (((ganker[8] + 1) * 0.5) + (attacker_attack - (defender_defense / 2))) * attacker_tracking
-                    target_weight = ((((target[8] + 1) * 0.5) + (defender_attack - (attacker_defense / 2))) * defender_tracking) - 2
+                    ganker_weight = (((ganker[8] + 1) * 0.5) + (
+                            attacker_attack - (defender_defense / 2))) * attacker_tracking
+                    target_weight = ((((target[8] + 1) * 0.5) + (
+                            defender_attack - (attacker_defense / 2))) * defender_tracking) - 2
                     attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
                     defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
                     ganker_hits, target_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
@@ -555,7 +580,9 @@ class EveRpg:
                         turns += 1
                         if turns >= concord_response:
                             success = False
-                            target_user.send('**PVP** - {} attempted to gank you but Concord arrived in time to prevent it.'.format(ganker_user.display_name))
+                            target_user.send(
+                                '**PVP** - {} attempted to gank you but Concord arrived in time to prevent it.'.format(
+                                    ganker_user.display_name))
                             break
                         combat = await self.weighted_choice([(ganker, ganker_weight), (target, target_weight)])
                         if combat == ganker:
@@ -599,9 +626,15 @@ class EveRpg:
                                               "**{}** flying a {} was killed while they were {}.{}\n\n"
                                               "Total ISK Lost: {} ISK\n\n"
                                               "**Killer**\n"
-                                              "**{}** flying a {} while {}.\n\n".format(region_name, target_user.display_name, defender_ship_info['name'],
-                                                                                        target_task, target_modules, '{0:,.2f}'.format(float(isk_lost)),
-                                                                                        ganker_user.display_name, attacker_ship_info['name'], 'Ganking'))
+                                              "**{}** flying a {} while {}.\n\n".format(region_name,
+                                                                                        target_user.display_name,
+                                                                                        defender_ship_info['name'],
+                                                                                        target_task, target_modules,
+                                                                                        '{0:,.2f}'.format(
+                                                                                            float(isk_lost)),
+                                                                                        ganker_user.display_name,
+                                                                                        attacker_ship_info['name'],
+                                                                                        'Ganking'))
                         await ganker_user.send(embed=embed)
                         await target_user.send(embed=embed)
                         await self.send_global(embed, True)
@@ -637,9 +670,12 @@ class EveRpg:
                                               "__**Final Blow**__\n"
                                               "**Concord**\n\n"
                                               "**Other Attackers**\n"
-                                              "**{}** flying a {}.\n\n".format(region_name, ganker_user.display_name, attacker_ship_info['name'],
-                                                                                        'Ganking', target_modules, '{0:,.2f}'.format(float(isk_lost)),
-                                                                                        target_user.display_name, defender_ship_info['name'], target_task))
+                                              "**{}** flying a {}.\n\n".format(region_name, ganker_user.display_name,
+                                                                               attacker_ship_info['name'],
+                                                                               'Ganking', target_modules,
+                                                                               '{0:,.2f}'.format(float(isk_lost)),
+                                                                               target_user.display_name,
+                                                                               defender_ship_info['name'], target_task))
                     else:
                         embed.add_field(name="Killmail",
                                         value="**Region** - {}\n\n"
@@ -647,9 +683,15 @@ class EveRpg:
                                               "**{}** flying a {} was killed while they were {}.{}\n\n"
                                               "Total ISK Lost: {} ISK\n\n"
                                               "__**Final Blow**__\n"
-                                              "**{}** flying a {} while {}.\n\n".format(region_name, ganker_user.display_name, attacker_ship_info['name'],
-                                                                                        'Ganking', target_modules, '{0:,.2f}'.format(float(isk_lost)),
-                                                                                        target_user.display_name, defender_ship_info['name'], target_task))
+                                              "**{}** flying a {} while {}.\n\n".format(region_name,
+                                                                                        ganker_user.display_name,
+                                                                                        attacker_ship_info['name'],
+                                                                                        'Ganking', target_modules,
+                                                                                        '{0:,.2f}'.format(
+                                                                                            float(isk_lost)),
+                                                                                        target_user.display_name,
+                                                                                        defender_ship_info['name'],
+                                                                                        target_task))
                     await ganker_user.send(embed=embed)
                     await target_user.send(embed=embed)
                     await self.send_global(embed, True)
@@ -671,7 +713,7 @@ class EveRpg:
         if 5 < int(defender[6]) < 11:
             pve_disadvantage = 0.93
         player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 1.5) + (
-                    attacker_defense * 1.25) + attacker_maneuver + attacker_tracking
+                attacker_defense * 1.25) + attacker_maneuver + attacker_tracking
         player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack * 1.5) + (
                 defender_defense * 1.25) + defender_maneuver + defender_tracking) * pve_disadvantage
         attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
@@ -719,7 +761,8 @@ class EveRpg:
                                                       attacker_ship_info['name']))
                     await defender_user.send(
                         '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                        'you managed to break tackle and warp off.'.format(attacker_ship_info['name'], attacker_user.display_name,
+                        'you managed to break tackle and warp off.'.format(attacker_ship_info['name'],
+                                                                           attacker_user.display_name,
                                                                            defender_ship_info['name']))
                     return
             if attacker_escape > defender_catch and attacker_hits < (
@@ -732,7 +775,8 @@ class EveRpg:
                                                       defender_ship_info['name']))
                     await attacker_user.send(
                         '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                        'you managed to break tackle and warp off.'.format(defender_ship_info['name'], defender_user.display_name,
+                        'you managed to break tackle and warp off.'.format(defender_ship_info['name'],
+                                                                           defender_user.display_name,
                                                                            attacker_ship_info['name']))
                     return
         if defender_hits > 0 and attacker_hits > 0:
@@ -749,11 +793,13 @@ class EveRpg:
                     if escape is True:
                         await winner_user.send(
                             '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                            'managed to break tackle long enough to cloak.'.format(attacker_ship_info['name'], attacker_user.display_name,
+                            'managed to break tackle long enough to cloak.'.format(attacker_ship_info['name'],
+                                                                                   attacker_user.display_name,
                                                                                    defender_ship_info['name']))
                         await loser_user.send(
                             '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                            'you managed to break tackle and cloak.'.format(defender_ship_info['name'], defender_user.display_name,
+                            'you managed to break tackle and cloak.'.format(defender_ship_info['name'],
+                                                                            defender_user.display_name,
                                                                             attacker_ship_info['name']))
         winner_name = self.bot.get_user(int(winner[2])).display_name
         region_id = int(winner[4])
@@ -808,6 +854,272 @@ class EveRpg:
         await self.add_kill(winner, dropped_mods)
         await self.add_xp(winner, xp_gained)
         await self.give_pvp_loot(winner)
+
+    async def fleet_versus_fleet(self, fleet_one, fleet_two, region):
+        # Fleet stuff
+        attacker_fleet_attack, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits, defender_fleet_attack, \
+        defender_fleet_maneuver, defender_fleet_tracking, defender_fleet_hits = 0, 0, 0, 0, 0, 0, 0, 0
+        attacker_fleet_array = ast.literal_eval(fleet_one[3])
+        attacker_fleet = []
+        attackers_in_system = 0
+        for member_id in attacker_fleet_array:
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+            values = (int(member_id),)
+            member = await db.select_var(sql, values)
+            if member[0][4] != region:
+                continue
+            attacker_fleet.append(member[0])
+            attackers_in_system += 1
+            member_ship = ast.literal_eval(member[0][14])
+            attacker_fleet_hits += member_ship['hit_points']
+            member_attack, member_defense, member_maneuver, member_tracking = \
+                await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+            attacker_fleet_attack += member_attack
+            attacker_fleet_maneuver += member_maneuver
+        defender_fleet_array = ast.literal_eval(fleet_two[3])
+        defender_fleet = []
+        defenders_in_system = 0
+        for member_id in defender_fleet_array:
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+            values = (int(member_id),)
+            member = await db.select_var(sql, values)
+            if member[0][4] != region:
+                continue
+            defender_fleet.append(member[0])
+            defenders_in_system += 1
+            member_ship = ast.literal_eval(member[0][14])
+            defender_fleet_hits += member_ship['hit_points']
+            member_attack, member_defense, member_maneuver, member_tracking = \
+                await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+            defender_fleet_attack += member_attack
+            defender_fleet_maneuver += member_maneuver
+        attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
+        defender_initiative = 50 + (defender_fleet_maneuver / defenders_in_system)
+        aggressor_damage = attacker_fleet_attack
+        aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
+        non_aggressor = defender_fleet
+        active = 1
+        for x in range(int((attacker_fleet_hits + defender_fleet_hits) * 1.5)):
+            if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
+                break
+            aggressor = await self.weighted_choice(
+                [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
+            if aggressor != attacker_fleet:
+                active = 2
+                non_aggressor = attacker_fleet
+                aggressor_damage = defender_fleet_attack
+                aggressor_tracking = (defender_fleet_tracking / defenders_in_system)
+            primary = random.choice(non_aggressor)
+            non_aggressor.remove(primary)
+            primary_ship = ast.literal_eval(primary[14])
+            hit_points = primary_ship['hit_points']
+            if 'ship_hp' in primary:
+                hit_points = primary['ship_hp']
+            primary_attack, primary_defense, primary_maneuver, primary_tracking = \
+                await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
+            transversal = 1
+            if primary_maneuver > aggressor_tracking:
+                transversal = aggressor_tracking / primary_maneuver
+            damage = (aggressor_damage * transversal) - primary_defense
+            if damage < hit_points:
+                primary['hit_points'] = hit_points - damage
+                non_aggressor.append(primary)
+                if active == 1:
+                    attacker_fleet = non_aggressor
+                else:
+                    defender_fleet = non_aggressor
+                continue
+            else:
+                killing_blow = random.choice(aggressor)
+                other_names = []
+                for on_mail in aggressor:
+                    if on_mail == killing_blow:
+                        continue
+                    other_names.append('{}'.format(self.bot.get_user(int(killing_blow[2])).display_name))
+                clean_names = '\n'.join(other_names)
+                if len(other_names) > 6:
+                    clean_names = '\n{} fleet members.'
+                winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
+                winner_name = winner_user.display_name
+                region_id = int(killing_blow[4])
+                region_name = await game_functions.get_region(int(region_id))
+                loser_name = self.bot.get_user(int(primary[2])).display_name
+                winner_ship_obj = ast.literal_eval(killing_blow[14])
+                winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
+                winner_task = await game_functions.get_task(int(killing_blow[6]))
+                loser_ship_obj = ast.literal_eval(primary[14])
+                loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
+                loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
+                loser_task = await game_functions.get_task(int(killing_blow[6]))
+                loser_modules = ''
+                loser_modules_array = []
+                dropped_mods = []
+                module_value = 0
+                if primary[12] is not None:
+                    modules = ast.literal_eval(primary[12])
+                    for module in modules:
+                        module_item = await game_functions.get_module(module)
+                        dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                        module_drop = ''
+                        module_value += module_item['isk']
+                        if dropped is True:
+                            dropped_mods.append(module)
+                            module_drop = ' **Module Dropped**'
+                        loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                    loser_module_list = '\n'.join(loser_modules_array)
+                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                isk_lost = module_value + loser_ship_info['isk']
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "__**Loser**__\n"
+                                      "**{}** flying a {} was killed.{}\n\n"
+                                      "Total ISK Lost: {} ISK\n\n"
+                                      "__**Final Blow**__\n"
+                                      "**{}** flying a {}.\n\n"
+                                      "__**Other Killers**__".format(region_name, loser_name, loser_ship,
+                                                                     loser_task, loser_modules,
+                                                                     '{0:,.2f}'.format(float(isk_lost)),
+                                                                     winner_name, winner_ship, winner_task,
+                                                                     clean_names))
+                await winner_user.send(embed=embed)
+                await loser_user.send(embed=embed)
+                await self.send_global(embed, True)
+                await self.destroy_ship(primary)
+                await self.add_loss(primary)
+                await self.add_kill(killing_blow, dropped_mods)
+                await self.add_xp(killing_blow, xp_gained)
+
+    async def fleet_versus_player(self, fleet_one, player, region):
+        # Fleet stuff
+        attacker_fleet_attack, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits = 0, 0, 0, 0
+        attacker_fleet_array = ast.literal_eval(fleet_one[3])
+        attacker_fleet = []
+        attackers_in_system = 0
+        for member_id in attacker_fleet_array:
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+            values = (int(member_id),)
+            member = await db.select_var(sql, values)
+            if member[0][4] != region:
+                continue
+            attacker_fleet.append(member[0])
+            attackers_in_system += 1
+            member_ship = ast.literal_eval(member[0][14])
+            attacker_fleet_hits += member_ship['hit_points']
+            member_attack, member_defense, member_maneuver, member_tracking = \
+                await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+            attacker_fleet_attack += member_attack
+            attacker_fleet_maneuver += member_maneuver
+        primary_ship = ast.literal_eval(player[14])
+        ship = await game_functions.get_ship(primary_ship['ship_type'])
+        hit_points = ship['hit_points']
+        primary_attack, primary_defense, primary_maneuver, primary_tracking = \
+            await game_functions.get_combat_attributes(player, ship['id'])
+        attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
+        defender_initiative = 100 - attacker_initiative
+        defender_fleet = [player]
+        aggressor_damage = attacker_fleet_attack
+        aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
+        non_aggressor = defender_fleet
+        active = 1
+        for x in range(int((attacker_fleet_hits + hit_points) * 1.5)):
+            if len(attacker_fleet) == 0:
+                break
+            aggressor = await self.weighted_choice(
+                [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
+            if aggressor != attacker_fleet:
+                active = 2
+                non_aggressor = attacker_fleet
+                aggressor_damage = primary_attack
+                aggressor_tracking = primary_tracking
+            primary = random.choice(non_aggressor)
+            non_aggressor.remove(primary)
+            primary_ship = ast.literal_eval(primary[14])
+            hit_points = primary_ship['hit_points']
+            if 'ship_hp' in primary:
+                hit_points = primary['ship_hp']
+            transversal = 1
+            if primary_maneuver > aggressor_tracking:
+                transversal = aggressor_tracking / primary_maneuver
+            damage = (aggressor_damage * transversal) - primary_defense
+            if damage < hit_points:
+                primary['hit_points'] = hit_points - damage
+                non_aggressor.append(primary)
+                if active == 1:
+                    attacker_fleet = non_aggressor
+                else:
+                    defender_fleet = non_aggressor
+                continue
+            else:
+                killing_blow = random.choice(aggressor)
+                other_names = []
+                for on_mail in aggressor:
+                    if on_mail == killing_blow:
+                        continue
+                    other_names.append('{}'.format(self.bot.get_user(int(killing_blow[2])).display_name))
+                clean_names = '\n'.join(other_names)
+                if len(other_names) > 6:
+                    clean_names = '\n{} fleet members.'
+                winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
+                winner_name = winner_user.display_name
+                region_id = int(killing_blow[4])
+                region_name = await game_functions.get_region(int(region_id))
+                loser_name = self.bot.get_user(int(primary[2])).display_name
+                winner_ship_obj = ast.literal_eval(killing_blow[14])
+                winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
+                winner_task = await game_functions.get_task(int(killing_blow[6]))
+                loser_ship_obj = ast.literal_eval(primary[14])
+                loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
+                loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
+                loser_task = await game_functions.get_task(int(killing_blow[6]))
+                loser_modules = ''
+                loser_modules_array = []
+                dropped_mods = []
+                module_value = 0
+                if primary[12] is not None:
+                    modules = ast.literal_eval(primary[12])
+                    for module in modules:
+                        module_item = await game_functions.get_module(module)
+                        dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                        module_drop = ''
+                        module_value += module_item['isk']
+                        if dropped is True:
+                            dropped_mods.append(module)
+                            module_drop = ' **Module Dropped**'
+                        loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                    loser_module_list = '\n'.join(loser_modules_array)
+                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                isk_lost = module_value + loser_ship_info['isk']
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
+                embed.set_thumbnail(url="{}".format(ship_image))
+                embed.add_field(name="Killmail",
+                                value="**Region** - {}\n\n"
+                                      "__**Loser**__\n"
+                                      "**{}** flying a {} was killed.{}\n\n"
+                                      "Total ISK Lost: {} ISK\n\n"
+                                      "__**Final Blow**__\n"
+                                      "**{}** flying a {}.\n\n"
+                                      "__**Other Killers**__".format(region_name, loser_name, loser_ship,
+                                                                     loser_task, loser_modules,
+                                                                     '{0:,.2f}'.format(float(isk_lost)),
+                                                                     winner_name, winner_ship, winner_task,
+                                                                     clean_names))
+                await winner_user.send(embed=embed)
+                await loser_user.send(embed=embed)
+                await self.send_global(embed, True)
+                await self.destroy_ship(primary)
+                await self.add_loss(primary)
+                await self.add_kill(killing_blow, dropped_mods)
+                await self.add_xp(killing_blow, xp_gained)
 
     async def weighted_choice(self, items):
         """items is a list of tuples in the form (item, weight)"""
