@@ -1007,7 +1007,8 @@ class EveRpg:
             primary = random.choice(non_aggressor)
             non_aggressor.remove(primary)
             primary_ship = ast.literal_eval(primary[14])
-            hit_points = primary_ship['hit_points']
+            ship_details = await game_functions.get_ship(member_ship['ship_type'])
+            hit_points = ship_details['hit_points']
             if 'ship_hp' in primary:
                 hit_points = primary['ship_hp']
             primary_attack, primary_defense, primary_maneuver, primary_tracking = \
