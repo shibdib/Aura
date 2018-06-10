@@ -104,7 +104,7 @@ class ChangeTask:
             else:
                 return
         elif content == '5':
-            return await ctx.invoke(self.bot.get_command("fleet"), True)
+            return await ctx.invoke(self.bot.get_command("fleet"))
         elif content == '9':
             await self.process_mission(ctx, player[0])
         elif int(content) in accepted:
