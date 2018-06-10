@@ -993,7 +993,7 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = aggressor_tracking / primary_maneuver
-            damage = (aggressor_damage * transversal) - primary_defense
+            damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage < hit_points:
                 primary['hit_points'] = hit_points - damage
                 non_aggressor.append(primary)
@@ -1119,7 +1119,7 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = aggressor_tracking / primary_maneuver
-            damage = (aggressor_damage * transversal) - primary_defense
+            damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage < hit_points:
                 primary['hit_points'] = hit_points - damage
                 non_aggressor.append(primary)
