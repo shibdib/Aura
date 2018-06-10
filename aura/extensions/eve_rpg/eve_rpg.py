@@ -576,7 +576,7 @@ class EveRpg:
                     if roamer[21] is not None:
                         blue_array = ast.literal_eval(roamer[21])
                         if target[0] in blue_array:
-                            return
+                            continue
                     # Fleet check
                     if roamer[16] is not None and roamer[16] != 0:
                         sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
@@ -584,7 +584,7 @@ class EveRpg:
                         fleet_info = await db.select_var(sql, values)
                         fleet_array = ast.literal_eval(fleet_info[0][3])
                         if target[0] in fleet_array:
-                            return
+                            continue
                     target_aggression = 20
                     if 1 < int(target[6]) < 5:
                         target_aggression = 45
