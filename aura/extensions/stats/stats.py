@@ -44,18 +44,6 @@ class Stats:
                 display_name = top_losers_user.display_name
             top_losers_array.append('{} - {} Losses'.format(display_name, losers[11]))
         losers_list = '\n'.join(top_losers_array)
-        sql = ''' SELECT * FROM eve_rpg_players ORDER BY `isk` DESC LIMIT 10 '''
-        top_isk = await db.select(sql)
-        top_isk_array = []
-        for isk in top_isk:
-            top_isk_user = self.bot.get_user(int(isk[2]))
-            if top_isk_user is None:
-                display_name = 'Unknown'
-            else:
-                display_name = top_isk_user.display_name
-            clean_isk = '{0:,.2f}'.format(float(isk[5]))
-            top_isk_array.append('{} - {} ISK'.format(display_name, clean_isk))
-        isk_list = '\n'.join(top_isk_array)
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 OR `task` = 3 OR`task` = 4 OR`task` = 5 '''
         pvp_active = await db.select(sql)
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 OR `task` = 7 OR`task` = 8 '''
@@ -71,8 +59,6 @@ class Stats:
                         value=killers_list, inline=False)
         embed.add_field(name="Loss Leaderboard",
                         value=losers_list, inline=False)
-        embed.add_field(name="Richest Players",
-                        value=isk_list, inline=False)
         embed.add_field(name="Player Counts",
                         value='{} - Actively PVPing\n{} - Actively PVEing\n{} - Actively Mining\n{} - Docked/In-Space/'
                               'Traveling'.format(
