@@ -51,10 +51,12 @@ class Fleets:
                     embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
                     embed.add_field(name="Fleet Management".format(player_name),
-                                    value="**1.** Disband Fleet\n"
+                                    value="__**Fleet Info**__\n"
+                                          "Member Count: {}\n\n"
+                                          "**1.** Disband Fleet\n"
                                           "**2.** Kick Member\n"
                                           "**3.** Change Access to {}\n"
-                                          "**4.** Return to the main menu".format(new_access))
+                                          "**4.** Return to the main menu".format(len(fleet_info[0][3]), new_access))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -77,12 +79,21 @@ class Fleets:
                         else:
                             return
                 else:
+                    sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+                    values = (int(fleet_info[0][2]),)
+                    fc = await db.select_var(sql, values)
+                    fc_name = self.bot.get_user(fc[0][2]).display_name
+                    fc_location = await game_functions.get_region(fc[0][4])
                     embed = make_embed(icon=ctx.bot.user.avatar)
                     embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
                     embed.add_field(name="Fleet Management".format(player_name),
-                                    value="**1.** Leave Fleet\n"
-                                          "**2.** Return to the main menu")
+                                    value="__**Fleet Info**__\n"
+                                          "Member Count: {}\n"
+                                          "FC: {}\n"
+                                          "FC Location: {}\n\n"
+                                          "**1.** Leave Fleet\n"
+                                          "**2.** Return to the main menu".format(len(fleet_info[0][3]), fc_name, fc_location))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
