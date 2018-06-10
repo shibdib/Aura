@@ -1027,12 +1027,17 @@ class EveRpg:
             print('dam - {}'.format(damage))
             print('hp - {}'.format(hit_points))
             if damage < hit_points:
+                killing_blow = random.choice(aggressor)
+                # Fleet check
+                if killing_blow[16] is not None and killing_blow[16] != 0:
+                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                    values = (killing_blow[16],)
+                    fleet_info = await db.select_var(sql, values)
+                    fleet_array = ast.literal_eval(fleet_info[0][3])
+                    if primary[0] in fleet_array:
+                        continue
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
-                if active == 1:
-                    attacker_fleet = non_aggressor
-                else:
-                    defender_fleet = non_aggressor
                 continue
             else:
                 non_aggressor.remove(primary)
@@ -1184,6 +1189,15 @@ class EveRpg:
             print('hp - {}'.format(hit_points))
             print(active)
             if damage < hit_points:
+                killing_blow = random.choice(aggressor)
+                # Fleet check
+                if killing_blow[16] is not None and killing_blow[16] != 0:
+                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                    values = (killing_blow[16],)
+                    fleet_info = await db.select_var(sql, values)
+                    fleet_array = ast.literal_eval(fleet_info[0][3])
+                    if primary[0] in fleet_array:
+                        continue
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
                 continue
