@@ -960,7 +960,7 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
-            if member[0][4] != region:
+            if member[0][4] != region and member[0][6] != 1 and member[0][6] != 20:
                 continue
             attacker_fleet.append(member[0])
             attackers_in_system += 1
@@ -979,7 +979,7 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
-            if member[0][4] != region:
+            if member[0][4] != region and member[0][6] != 1 and member[0][6] != 20:
                 continue
             defender_fleet.append(member[0])
             defenders_in_system += 1
@@ -998,6 +998,7 @@ class EveRpg:
         non_aggressor = defender_fleet
         active = 1
         damaged_ships = {}
+        print('start')
         for x in range(int((attacker_fleet_hits + defender_fleet_hits) * 1.5)):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
@@ -1009,7 +1010,6 @@ class EveRpg:
                 aggressor_damage = defender_fleet_attack
                 aggressor_tracking = (defender_fleet_tracking / defenders_in_system)
             primary = random.choice(non_aggressor)
-            non_aggressor.remove(primary)
             primary_ship = ast.literal_eval(primary[14])
             ship_details = await game_functions.get_ship(primary_ship['ship_type'])
             hit_points = ship_details['hit_points']
@@ -1020,18 +1020,31 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
+            print('trans - {}'.format(transversal))
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
+            if damage <= 0:
+                damage = 1
+            print('dam - {}'.format(damage))
+            print('hp - {}'.format(hit_points))
             if damage < hit_points:
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
-                non_aggressor.append(primary)
                 if active == 1:
                     attacker_fleet = non_aggressor
                 else:
                     defender_fleet = non_aggressor
                 continue
             else:
+                non_aggressor.remove(primary)
                 killing_blow = random.choice(aggressor)
+                # Fleet check
+                if killing_blow[16] is not None and killing_blow[16] != 0:
+                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                    values = (killing_blow[16],)
+                    fleet_info = await db.select_var(sql, values)
+                    fleet_array = ast.literal_eval(fleet_info[0][3])
+                    if primary[0] in fleet_array:
+                        continue
                 other_names = []
                 other_users = []
                 for on_mail in aggressor:
@@ -1107,13 +1120,15 @@ class EveRpg:
         attacker_fleet_attack, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits = 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
+        f_id = []
         attackers_in_system = 0
         for member_id in attacker_fleet_array:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
-            if member[0][4] != region:
+            if member[0][4] != region and member[0][6] != 1 and member[0][6] != 20:
                 continue
+            f_id.append(member[0][0])
             attacker_fleet.append(member[0])
             attackers_in_system += 1
             member_ship = ast.literal_eval(member[0][14])
@@ -1137,8 +1152,11 @@ class EveRpg:
         non_aggressor = defender_fleet
         active = 1
         damaged_ships = {}
+        print(f_id)
+        print(player[0])
+        print('start fvp')
         for x in range(int((attacker_fleet_hits + hit_points) * 1.5)):
-            if len(attacker_fleet) == 0:
+            if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             aggressor = await self.weighted_choice(
                 [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
@@ -1148,7 +1166,6 @@ class EveRpg:
                 aggressor_damage = primary_attack
                 aggressor_tracking = primary_tracking
             primary = random.choice(non_aggressor)
-            non_aggressor.remove(primary)
             primary_ship = ast.literal_eval(primary[14])
             ship_details = await game_functions.get_ship(primary_ship['ship_type'])
             hit_points = ship_details['hit_points']
@@ -1157,18 +1174,32 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
+            primary_name = self.bot.get_user(int(primary[2])).display_name
+            print('prim - {}'.format(primary_name))
+            print('trans - {}'.format(transversal))
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
+            if damage <= 0:
+                damage = 1
+            print('dam - {}'.format(damage))
+            print('hp - {}'.format(hit_points))
+            print(active)
             if damage < hit_points:
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
-                non_aggressor.append(primary)
-                if active == 1:
-                    attacker_fleet = non_aggressor
-                else:
-                    defender_fleet = non_aggressor
                 continue
             else:
+                non_aggressor.remove(primary)
+                print(active)
+                print(aggressor)
                 killing_blow = random.choice(aggressor)
+                # Fleet check
+                if killing_blow[16] is not None and killing_blow[16] != 0:
+                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                    values = (killing_blow[16],)
+                    fleet_info = await db.select_var(sql, values)
+                    fleet_array = ast.literal_eval(fleet_info[0][3])
+                    if primary[0] in fleet_array:
+                        continue
                 other_names = []
                 other_users = []
                 for on_mail in aggressor:
