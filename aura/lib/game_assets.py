@@ -498,7 +498,7 @@ components = {
         'isk': 5797061},
 }
 
-mission_restrictions = {1: [0, 1, 2, 3, 4, 5, 6], 2: [1, 2, 3, 4, 5, 6], 3: [3, 4, 5, 6], 4: [5, 6], 5: [6]}
+mission_restrictions = {1: [0, 1, 2, 3, 4, 5, 6, 7], 2: [1, 2, 3, 4, 5, 6, 7], 3: [3, 4, 5, 6, 7], 4: [5, 6, 7], 5: [6, 7]}
 
 missions = {
     1: {'id': 1, 'name': 'Investigate The Transmission', 'level': 1,
