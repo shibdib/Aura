@@ -236,7 +236,8 @@ class Fleets:
         fleet_member_dict = {}
         fleet_member_array = []
         member_number = 1
-        for member_id in fleet[3]:
+        members = ast.literal_eval(fleet[3])
+        for member_id in members:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
@@ -265,7 +266,6 @@ class Fleets:
                         id = (?); '''
         values = (None, fleet_member_dict[int(content)],)
         await db.execute_sql(sql, values)
-        members = ast.literal_eval(fleet[3])
         members.remove(fleet_member_dict[int(content)])
         sql = ''' UPDATE fleet_info
                     SET fleet_members = (?)
