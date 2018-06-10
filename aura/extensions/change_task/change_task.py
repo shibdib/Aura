@@ -51,7 +51,7 @@ class ChangeTask:
                 mission_task = '**9.** Abandon Mission.\n'
         else:
             mission_task = '**9.** Request a Mission.\n'
-        if player[0][16] is not None:
+        if player[0][16] is not None and player[0][16] != 0:
             fleet_task = '**5.** Fleet Options.\n'
         else:
             fleet_task = '**5.** Join Fleet.\n'
@@ -97,12 +97,14 @@ class ChangeTask:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '5' or content == '11' or content == '8':
+        if content == '11' or content == '8':
             await ctx.author.send('**Not Yet Implemented**')
             if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
+        elif content == '5':
+            return await ctx.invoke(self.bot.get_command("fleet"), True)
         elif content == '9':
             await self.process_mission(ctx, player[0])
         elif int(content) in accepted:

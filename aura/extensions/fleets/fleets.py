@@ -31,7 +31,7 @@ class Fleets:
             values = (ctx.message.author.id,)
             player = await db.select_var(sql, values)
             player_name = self.bot.get_user(int(player[0][2])).display_name
-            if player[0][16] is not None:
+            if player[0][16] is not None and player[0][16] != 0:
                 sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
                 values = (player[0][16],)
                 fleet_info = await db.select_var(sql, values)
@@ -55,6 +55,30 @@ class Fleets:
                     elif content == '2':
                         await self.kick_member(ctx, fleet_info[0])
                     elif content == '3':
+                        await ctx.invoke(self.bot.get_command("me"), True)
+                    elif '!!' not in content:
+                        await ctx.author.send('**ERROR** - Not a valid choice.')
+                        if content.find('!!') == -1:
+                            return await ctx.invoke(self.bot.get_command("me"), True)
+                        else:
+                            return
+                else:
+                    embed = make_embed(icon=ctx.bot.user.avatar)
+                    embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="Fleet Management".format(player_name),
+                                    value="**1.** Leave Fleet\n"
+                                          "**2.** Return to the main menu")
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120)
+                    content = msg.content
+                    if content == '1':
+                        await self.leave_fleet(ctx, player[0], fleet_info[0])
+                    elif content == '2':
                         await ctx.invoke(self.bot.get_command("me"), True)
                     elif '!!' not in content:
                         await ctx.author.send('**ERROR** - Not a valid choice.')
@@ -168,6 +192,24 @@ class Fleets:
             await ctx.author.send('**Failure** - FC has set the fleet to only accept blues.')
             return await ctx.invoke(self.bot.get_command("me"), True)
 
+    async def leave_fleet(self, ctx, player, fleet):
+        sql = ''' UPDATE eve_rpg_players
+                    SET fleet = (?)
+                    WHERE
+                        id = (?); '''
+        values = (None, player[0],)
+        await db.execute_sql(sql, values)
+        members = ast.literal_eval(fleet[3])
+        members.remove(player[0])
+        sql = ''' UPDATE fleet_info
+                    SET fleet_members = (?)
+                    WHERE
+                        fleet_id = (?); '''
+        values = (members, fleet[1])
+        await db.execute_sql(sql, values)
+        await ctx.author.send('**Success** - Left Fleet.')
+        await ctx.invoke(self.bot.get_command("me"), True)
+
     async def disband_fleet(self, ctx, fleet):
         sql = ''' UPDATE eve_rpg_players
                     SET fleet = (?)
@@ -210,7 +252,6 @@ class Fleets:
         if int(content) not in fleet_member_dict:
             await ctx.author.send('**ERROR** - Incorrect Selection.')
             return await ctx.invoke(self.bot.get_command("me"), True)
-
         sql = ''' UPDATE eve_rpg_players
                     SET fleet = (?)
                     WHERE
