@@ -202,7 +202,10 @@ class GameModerator:
                 await self.remove_bad_channel(channels[2])
                 continue
             if embed is False:
-                await channel.send(message)
+                try:
+                    await channel.send(message)
+                except Exception:
+                    continue
                 continue
             else:
                 await channel.send(embed=message)
@@ -215,7 +218,10 @@ class GameModerator:
                 await self.remove_bad_user(player[2])
                 continue
             if embed is False:
-                await channel.send(message)
+                try:
+                    await channel.send(message)
+                except Exception:
+                    continue
                 continue
             else:
                 await channel.send(embed=message)
