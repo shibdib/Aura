@@ -168,7 +168,7 @@ class Fleets:
                         SET fleet_members = (?)
                         WHERE
                             fleet_id = (?); '''
-            values = (members, fleet[0][1])
+            values = (str(members), fleet[0][1])
             await db.execute_sql(sql, values)
             await ctx.author.send('**Success** - Fleet created.')
             return await ctx.invoke(self.bot.get_command("me"), True)
@@ -191,7 +191,7 @@ class Fleets:
                                 SET fleet_members = (?)
                                 WHERE
                                     fleet_id = (?); '''
-                    values = (members, fleet[0][1])
+                    values = (str(members), fleet[0][1])
                     await db.execute_sql(sql, values)
                     await ctx.author.send('**Success** - Joined Fleet.')
                     return await ctx.invoke(self.bot.get_command("me"), True)
@@ -211,7 +211,7 @@ class Fleets:
                     SET fleet_members = (?)
                     WHERE
                         fleet_id = (?); '''
-        values = (members, fleet[1])
+        values = (str(members), fleet[1])
         await db.execute_sql(sql, values)
         await ctx.author.send('**Success** - Left Fleet.')
         await ctx.invoke(self.bot.get_command("me"), True)
@@ -264,6 +264,14 @@ class Fleets:
                     WHERE
                         id = (?); '''
         values = (None, fleet_member_dict[int(content)],)
+        await db.execute_sql(sql, values)
+        members = ast.literal_eval(fleet[3])
+        members.remove(fleet_member_dict[int(content)])
+        sql = ''' UPDATE fleet_info
+                    SET fleet_members = (?)
+                    WHERE
+                        fleet_id = (?); '''
+        values = (str(members), fleet[1])
         await db.execute_sql(sql, values)
         await ctx.author.send('**Success** - Member Kicked.')
         await ctx.invoke(self.bot.get_command("me"), True)
