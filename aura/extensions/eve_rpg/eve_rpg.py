@@ -1,5 +1,6 @@
 import ast
 import asyncio
+import datetime
 import random
 
 from aura.lib import db
@@ -871,14 +872,16 @@ class EveRpg:
 
     async def update_journal(self, player, isk, entry):
         player = await game_functions.refresh_player(player)
+        utc = datetime.datetime.utcnow()
+        time = utc.strftime("%H:%M:%S")
         if player[20] is not None:
             journal = ast.literal_eval(player[20])
             if len(journal) == 10:
                 journal.pop(0)
-            transaction = {'isk': isk, 'type': entry}
+            transaction = {'isk': isk, 'type': entry, 'time': time}
             journal.append(transaction)
         else:
-            transaction = {'isk': isk, 'type': entry}
+            transaction = {'isk': isk, 'type': entry, 'time': time}
             journal = [transaction]
         sql = ''' UPDATE eve_rpg_players
                 SET wallet_journal = (?)

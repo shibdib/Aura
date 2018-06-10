@@ -39,9 +39,12 @@ class Wallet:
         else:
             wallet_journal = ast.literal_eval(player[0][20])
             journal_array = []
+            time = 'N/A'
             for entry in wallet_journal:
+                if 'time' in entry:
+                    time = entry['time']
                 journal_isk = '{0:,.2f}'.format(float(entry['isk']))
-                journal_array.append("*{}* - {} ISK".format(entry['type'], journal_isk))
+                journal_array.append("{} EVE - *{}* - {} ISK".format(time, entry['type'], journal_isk))
             journal_text = '\n'.join(journal_array)
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,

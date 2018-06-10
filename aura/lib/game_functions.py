@@ -20,11 +20,13 @@ async def tick_count():
     await db.execute_sql(sql, values)
     return current_tick
 
+
 async def refresh_player(player):
     sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
     values = (player[2],)
     new_player = await db.select_var(sql, values)
     return new_player[0]
+
 
 async def get_region(region_id):
     return game_assets.regions[region_id]
