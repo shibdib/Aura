@@ -488,7 +488,6 @@ class Market:
                         return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
                     msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-                    await self.update_journal(player[0], float(total_isk) * -1)
                     content = msg.content
                     if content != '1':
                         await ctx.author.send('**Purchase Canceled**')
@@ -496,6 +495,9 @@ class Market:
                             return await ctx.invoke(self.bot.get_command("me"), True)
                         else:
                             return
+                    if total_isk > int(float(player[5])):
+                        await ctx.author.send('**Not Enough ISK**')
+                        return await ctx.invoke(self.bot.get_command("me"), True)
                     player = await game_functions.refresh_player(player[0])
                     for item in purchase_items:
                         module = await game_functions.get_module(item)
@@ -518,6 +520,7 @@ class Market:
                         await db.execute_sql(sql, values)
                     await ctx.author.send(
                         '**Purchase Complete, Items Are Now Stored In Your Module Hangar For This Region**')
+                    await self.update_journal(player[0], float(total_isk) * -1)
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 item = msg.content
                 if int(item) in accepted_modules:
