@@ -217,10 +217,11 @@ class Fleets:
                         fleet = (?); '''
         values = (None, fleet[1],)
         await db.execute_sql(sql, values)
-        sql = ''' DELETE FROM fleet_info
+        sql = ''' DELETE FROM 
+                        `fleet_info`
                     WHERE
-                        fleet_id = (?); '''
-        values = (fleet[1])
+                        `fleet_fc` = (?) '''
+        values = (int(fleet[2]),)
         await db.execute_sql(sql, values)
         await ctx.author.send('**Success** - Fleet disbanded.')
         await ctx.invoke(self.bot.get_command("me"), True)
