@@ -250,7 +250,7 @@ class EveRpg:
             #  PVE Rolls
             complete_mission = await self.weighted_choice([(True, 20), (False, 30 * mission_details['level'])])
             enounter = await self.weighted_choice([(True, 70), (False, 30)])
-            if enounter is True:
+            if enounter is True and complete_mission is False:
                 return await self.process_pve_combat(mission_runner, mission_details['level'])
             else:
                 if complete_mission is False:
@@ -451,6 +451,11 @@ class EveRpg:
                         'managed to warp off.'.format(npc['name'], player_ship_info['name']))
                     return
         if npc_hits > 0 and player_hits > 0:
+            await player_user.send(
+                '**PVE DISENGAGE** - Combat between you and a {}, has ended in a draw. You ended the battle '
+                'with {} of {} hit points, while they ended with {} of {} hit points.'.format(
+                    npc['name'], player_ship_info['name'], player_hits, ship['hit_points'], npc_hits,
+                    npc['hit_points']))
             return
         module_value = 0
         loser_modules = ''
