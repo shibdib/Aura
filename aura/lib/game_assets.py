@@ -329,6 +329,7 @@ ship_classes = {
     4: 'Tactical Destroyer',
     5: 'Cruiser',
     6: 'Battlecruiser',
+    7: 'Battleship',
     21: 'Mining Frigate',
     22: 'Mining Barge',
     23: 'Exhumer',
