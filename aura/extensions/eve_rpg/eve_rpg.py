@@ -960,7 +960,9 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
-            if member[0][4] != region and member[0][6] != 1 and member[0][6] != 20:
+            if member[0][4] != region:
+                continue
+            if member[0][6] == 1 or member[0][6] == 20:
                 continue
             attacker_fleet.append(member[0])
             attackers_in_system += 1
@@ -979,7 +981,9 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
-            if member[0][4] != region and member[0][6] != 1 and member[0][6] != 20:
+            if member[0][4] != region:
+                continue
+            if member[0][6] == 1 or member[0][6] == 20:
                 continue
             defender_fleet.append(member[0])
             defenders_in_system += 1
@@ -996,7 +1000,6 @@ class EveRpg:
         aggressor_damage = attacker_fleet_attack
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
-        active = 1
         damaged_ships = {}
         print('start')
         for x in range(int((attacker_fleet_hits + defender_fleet_hits) * 1.5)):
@@ -1005,7 +1008,6 @@ class EveRpg:
             aggressor = await self.weighted_choice(
                 [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
             if aggressor != attacker_fleet:
-                active = 2
                 non_aggressor = attacker_fleet
                 aggressor_damage = defender_fleet_attack
                 aggressor_tracking = (defender_fleet_tracking / defenders_in_system)
@@ -1131,7 +1133,9 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
-            if member[0][4] != region and member[0][6] != 1 and member[0][6] != 20:
+            if member[0][4] != region:
+                continue
+            if member[0][6] == 1 or member[0][6] == 20:
                 continue
             f_id.append(member[0][0])
             attacker_fleet.append(member[0])
