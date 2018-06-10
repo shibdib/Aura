@@ -80,30 +80,6 @@ async def create_tables():
                                         mission_details TEXT DEFAULT NULL
                                     ); """
         await create_table(db, eve_rpg_players_table)
-        # create killmail table
-        killmail_table = """ CREATE TABLE IF NOT EXISTS killmails (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        loser_discord_id INTEGER NOT NULL,
-                                        loser_game_id INTEGER NOT NULL,
-                                        loser_ship TEXT DEFAULT NULL,
-                                        loser_task INTEGER DEFAULT 1,
-                                        loser_modules TEXT DEFAULT NULL,
-                                        loser_corp INTEGER DEFAULT NULL,
-                                        loser_alliance INTEGER DEFAULT NULL,
-                                        killer_discord_id INTEGER DEFAULT NULL,
-                                        killer_game_id INTEGER DEFAULT NULL,
-                                        killer_ship TEXT DEFAULT DEFAULT NULL,
-                                        killer_task INTEGER DEFAULT 1,
-                                        killer_fleet TEXT DEFAULT NULL,
-                                        killer_corp INTEGER DEFAULT NULL,
-                                        killer_alliance INTEGER DEFAULT NULL,
-                                        killer_npc INTEGER DEFAULT NULL,
-                                        region INTEGER DEFAULT 0,
-                                        entry TEXT NOT NULL UNIQUE,
-                                        int INTEGER DEFAULT 0,
-                                        text TEXT DEFAULT NULL
-                                    ); """
-        await create_table(db, killmail_table)
     else:
         print('Database: Unable to connect to the database')
 
