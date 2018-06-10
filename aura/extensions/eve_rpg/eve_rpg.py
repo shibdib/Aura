@@ -994,6 +994,7 @@ class EveRpg:
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
         active = 1
+        damaged_ships = {}
         for x in range(int((attacker_fleet_hits + defender_fleet_hits) * 1.5)):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
@@ -1009,8 +1010,8 @@ class EveRpg:
             primary_ship = ast.literal_eval(primary[14])
             ship_details = await game_functions.get_ship(primary_ship['ship_type'])
             hit_points = ship_details['hit_points']
-            if 'ship_hp' in primary:
-                hit_points = primary['ship_hp']
+            if primary[0] in damaged_ships:
+                hit_points = damaged_ships[primary[0]]
             primary_attack, primary_defense, primary_maneuver, primary_tracking = \
                 await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
             transversal = 1
@@ -1018,7 +1019,7 @@ class EveRpg:
                 transversal = aggressor_tracking / primary_maneuver
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage < hit_points:
-                primary['hit_points'] = hit_points - damage
+                damaged_ships[primary[0]] = hit_points - damage
                 non_aggressor.append(primary)
                 if active == 1:
                     attacker_fleet = non_aggressor
@@ -1131,6 +1132,7 @@ class EveRpg:
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
         active = 1
+        damaged_ships = {}
         for x in range(int((attacker_fleet_hits + hit_points) * 1.5)):
             if len(attacker_fleet) == 0:
                 break
@@ -1146,14 +1148,14 @@ class EveRpg:
             primary_ship = ast.literal_eval(primary[14])
             ship_details = await game_functions.get_ship(primary_ship['ship_type'])
             hit_points = ship_details['hit_points']
-            if 'ship_hp' in primary:
-                hit_points = primary['ship_hp']
+            if primary[0] in damaged_ships:
+                hit_points = damaged_ships[primary[0]]
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = aggressor_tracking / primary_maneuver
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage < hit_points:
-                primary['hit_points'] = hit_points - damage
+                damaged_ships[primary[0]] = hit_points - damage
                 non_aggressor.append(primary)
                 if active == 1:
                     attacker_fleet = non_aggressor
