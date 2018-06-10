@@ -573,6 +573,7 @@ missions = {
 }
 
 npc = {
+    # High
     1: {'id': 1, 'name': 'Centii Fugitive', 'class': 0, 'hit_points': 2, 'attack': 1, 'defense': 1, 'maneuver': 8,
         'tracking': 15,
         'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/1238.jpg', 'isk': 3000},
@@ -581,6 +582,7 @@ npc = {
     3: {'id': 3, 'name': 'Centum Ravisher', 'class': 0, 'hit_points': 4, 'attack': 3, 'defense': 2, 'maneuver': 4,
         'tracking': 8,
         'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/1236.jpg', 'isk': 37500},
+    # Low
     4: {'id': 4, 'name': 'True Centii Enslaver', 'class': 1, 'hit_points': 2, 'attack': 3, 'defense': 1, 'maneuver': 13,
         'tracking': 15, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/1237.jpg', 'isk': 8625},
     5: {'id': 5, 'name': 'Centior Horror', 'class': 1, 'hit_points': 4, 'attack': 5, 'defense': 6, 'maneuver': 6,
@@ -590,6 +592,11 @@ npc = {
         'tracking': 8, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/1236.jpg', 'isk': 75000},
     7: {'id': 7, 'name': 'Centatis Specter', 'class': 1, 'hit_points': 8, 'attack': 9, 'defense': 6, 'maneuver': 2,
         'tracking': 7, 'image': 'https://image.eveonline.com/Type/606_64.png', 'isk': 135000},
+    18: {'id': 18, 'name': "True Sansha's Mutilator", 'class': 1, 'hit_points': 9, 'attack': 11, 'defense': 9, 'maneuver': 6,
+         'tracking': 4, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 712500},
+    19: {'id': 19, 'name': "True Sansha's Daemon", 'class': 1, 'hit_points': 12, 'attack': 12, 'defense': 9, 'maneuver': 8,
+        'tracking': 7, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/1237.jpg', 'isk': 1612500},
+    # Null
     8: {'id': 8, 'name': "Sansha's Berserker", 'class': 2, 'hit_points': 3, 'attack': 5, 'defense': 3, 'maneuver': 12,
         'tracking': 15, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/1237.jpg', 'isk': 12500},
     9: {'id': 9, 'name': 'True Centum Fiend', 'class': 2, 'hit_points': 6, 'attack': 12, 'defense': 8, 'maneuver': 7,
@@ -599,6 +606,26 @@ npc = {
     11: {'id': 11, 'name': 'True Centus Tyrant', 'class': 2, 'hit_points': 16, 'attack': 17, 'defense': 15,
          'maneuver': 1,
          'tracking': 3, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 1443750},
+    17: {'id': 17, 'name': "Sansha's Dread Lord", 'class': 2, 'hit_points': 14, 'attack': 16, 'defense': 13,
+         'maneuver': 1,
+         'tracking': 3, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 1443750},
+    20: {'id': 20, 'name': "True Sansha's Savage Lord", 'class': 2, 'hit_points': 18, 'attack': 19, 'defense': 17,
+         'maneuver': 2,
+         'tracking': 3, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 7125000},
+    21: {'id': 21, 'name': "True Sansha's Tyrant", 'class': 2, 'hit_points': 22, 'attack': 24, 'defense': 19,
+         'maneuver': 2,
+         'tracking': 5, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 13875000},
+    # Officers
+    22: {'id': 22, 'name': "Chelm Soran", 'class': 20, 'hit_points': 32, 'attack': 29, 'defense': 31,
+         'maneuver': 5,
+         'tracking': 14, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 33874512},
+    23: {'id': 23, 'name': "Selynne Mardakar", 'class': 29, 'hit_points': 26, 'attack': 22, 'defense': 25,
+         'maneuver': 4,
+         'tracking': 11, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 21679688},
+    24: {'id': 24, 'name': "Brokara Ryver", 'class': 20, 'hit_points': 22, 'attack': 24, 'defense': 19,
+         'maneuver': 2,
+         'tracking': 5, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/2295.jpg', 'isk': 17343750},
+    # Missions
     12: {'id': 12, 'name': 'Athran Agent', 'class': 10, 'hit_points': 2, 'attack': 2, 'defense': 1, 'maneuver': 12,
          'tracking': 16, 'image': 'http://games.chruker.dk/eve_online/graphics/ids/64/1858.jpg', 'isk': 3000},
     13: {'id': 13, 'name': "Khanid Wingman", 'class': 11, 'hit_points': 3, 'attack': 3, 'defense': 2, 'maneuver': 7,

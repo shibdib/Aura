@@ -83,8 +83,12 @@ async def get_ship_image(ship_id):
 async def get_npc(sec):
     possible_npc = []
     for key, npc in game_assets.npc.items():
-        if npc['class'] == sec:
-            possible_npc.append(npc)
+        if sec < 10:
+            if npc['class'] <= sec:
+                possible_npc.append(npc)
+        else:
+            if npc['class'] == sec:
+                possible_npc.append(npc)
     if len(possible_npc) > 0:
         return random.choice(possible_npc)
     else:
