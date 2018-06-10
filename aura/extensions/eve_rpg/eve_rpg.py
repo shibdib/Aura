@@ -1459,7 +1459,7 @@ class EveRpg:
             values = (str(ship), player[2],)
             return await db.execute_sql(sql, values)
 
-    async def pve_loot(self, player, chance, overseer=False, officer=True):
+    async def pve_loot(self, player, chance, overseer=False, officer=False):
         false = 200 - int(chance)
         loot_drop = await self.weighted_choice([(True, chance), (False, false)])
         if loot_drop is True or officer is True:
