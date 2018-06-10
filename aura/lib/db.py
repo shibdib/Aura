@@ -43,7 +43,7 @@ async def create_tables():
                                         fleet_id INTEGER NOT NULL UNIQUE,
                                         fleet_fc INTEGER NOT NULL,
                                         fleet_members INTEGER NOT NULL,
-                                        access INTEGER DEFAULT 2,
+                                        access INTEGER DEFAULT 2
                                     ); """
         await create_table(db, fleets_table)
         # create eve_rpg tables
