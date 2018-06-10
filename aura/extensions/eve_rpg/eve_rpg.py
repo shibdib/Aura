@@ -441,7 +441,7 @@ class EveRpg:
             if npc_hits <= 0:
                 await self.add_xp(player, random.randint(2, 10))
                 await self.add_isk(player, npc['isk'])
-                await self.update_journal(player, npc['isk'], '{} - Killed NPC {}'.format(player_task, npc['name']))
+                await self.update_journal(player, npc['isk'], '{} - {}'.format(player_task, npc['name']))
                 return
             if player_hits < (ship['hit_points'] * 0.75) and player_hit_percentage < defender_hit_percentage:
                 escape = await self.weighted_choice([(True, escape_chance), (False, 100 - escape_chance)])
