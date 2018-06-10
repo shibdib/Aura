@@ -35,6 +35,14 @@ class Fleets:
                 sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
                 values = (player[0][16],)
                 fleet_info = await db.select_var(sql, values)
+                if len(fleet_info) == 0:
+                    sql = ''' UPDATE eve_rpg_players
+                                SET fleet = (?)
+                                WHERE
+                                    player_id = (?); '''
+                    values = (None, ctx.author.id,)
+                    await db.execute_sql(sql, values)
+                    return await ctx.invoke(self.bot.get_command("fleet"), True)
                 if fleet_info[0][2] == player[0][0]:
                     new_access = 'Public'
                     if fleet_info[0][4] == 1:
