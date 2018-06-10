@@ -414,6 +414,7 @@ class Market:
                 other = ['__**Other**__']
                 lights = ['__**Light Drones**__']
                 mediums = ['__**Medium Drones**__']
+                heavies = ['__**Heavy Drones**__']
                 mining_drones = ['__**Mining Drones**__']
                 modules = game_assets.modules
                 accepted_modules = []
@@ -494,6 +495,17 @@ class Market:
                         module_selection_dict[module_number] = module['id']
                         accepted_modules.append(module_number)
                         module_number += 1
+                    elif module['class'] == 12:
+                        heavies.append(
+                            '**{}.** {} ({}/{}/{}/{}) - *Size: {}m3* - {} ISK'.format(module_number, module['name'],
+                                                                                      module['attack'],
+                                                                                      module['defense'],
+                                                                                      module['maneuver'],
+                                                                                      module['tracking'],
+                                                                                      module['size'], cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
                     elif module['class'] == 14:
                         mining_drones.append(
                             '**{}.** {} ({}) - *Size: {}m3* - {} ISK'.format(module_number, module['name'],
@@ -507,6 +519,7 @@ class Market:
                 merged_four = other
                 merged_drones = lights
                 merged_mediums = mediums
+                merged_heavies = heavies
                 merged_utility_drones = mining_drones
                 module_list = '\n'.join(merged)
                 module_list_two = '\n'.join(merged_two)
@@ -514,6 +527,7 @@ class Market:
                 module_list_four = '\n'.join(merged_four)
                 drone_list = '\n'.join(merged_drones)
                 medium_drone_list = '\n'.join(merged_mediums)
+                heavy_drone_list = '\n'.join(merged_heavies)
                 utility_drone_list = '\n'.join(merged_utility_drones)
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -533,6 +547,8 @@ class Market:
                                 value="{}\n".format(drone_list))
                 embed.add_field(name="Medium Drones",
                                 value="{}\n".format(medium_drone_list))
+                embed.add_field(name="Heavy Drones",
+                                value="{}\n".format(heavy_drone_list))
                 embed.add_field(name="Utility Drones",
                                 value="{}\n".format(utility_drone_list))
                 await ctx.author.send(embed=embed)
