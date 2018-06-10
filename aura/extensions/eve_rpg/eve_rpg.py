@@ -118,7 +118,7 @@ class EveRpg:
                         fleet_info = await db.select_var(sql, values)
                         fleet_array = ast.literal_eval(fleet_info[0][3])
                         if traveler[0] in fleet_array:
-                                return
+                            return
                     conflict = await self.weighted_choice([(True, 55 - defender_maneuver), (False, 55)])
                     if conflict is True:
                         camper_fleet = False
@@ -508,7 +508,8 @@ class EveRpg:
                 for player in payout_array:
                     await self.add_xp(player, random.randint(2, 10))
                     await self.add_isk(player, npc['isk'] / len(payout_array))
-                    await self.update_journal(player, npc['isk'] / len(payout_array), '{} - {}'.format(player_task, npc['name']))
+                    await self.update_journal(player, npc['isk'] / len(payout_array),
+                                              '{} - {}'.format(player_task, npc['name']))
                 if officer is True:
                     await self.pve_loot(player, 1, False, True)
                 return
@@ -1016,10 +1017,11 @@ class EveRpg:
                 await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
             transversal = 1
             if primary_maneuver > aggressor_tracking:
-                transversal = aggressor_tracking / primary_maneuver
+                transversal = (aggressor_tracking + 1) / primary_maneuver
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage < hit_points:
-                damaged_ships[primary[0]] = hit_points - damage
+                if damage > 0:
+                    damaged_ships[primary[0]] = hit_points - damage
                 non_aggressor.append(primary)
                 if active == 1:
                     attacker_fleet = non_aggressor
@@ -1045,11 +1047,9 @@ class EveRpg:
                 loser_name = self.bot.get_user(int(primary[2])).display_name
                 winner_ship_obj = ast.literal_eval(killing_blow[14])
                 winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
-                winner_task = await game_functions.get_task(int(killing_blow[6]))
                 loser_ship_obj = ast.literal_eval(primary[14])
                 loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
                 loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
-                loser_task = await game_functions.get_task(int(killing_blow[6]))
                 loser_modules = ''
                 loser_modules_array = []
                 dropped_mods = []
@@ -1081,11 +1081,12 @@ class EveRpg:
                                       "Total ISK Lost: {} ISK\n\n"
                                       "__**Final Blow**__\n"
                                       "**{}** flying a {}.\n\n"
-                                      "__**Other Killers**__".format(region_name, loser_name, loser_ship,
-                                                                     loser_task, loser_modules,
-                                                                     '{0:,.2f}'.format(float(isk_lost)),
-                                                                     winner_name, winner_ship, winner_task,
-                                                                     clean_names))
+                                      "**{}** Total Damage Dealt.\n\n"
+                                      "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
+                                                                         loser_modules,
+                                                                         '{0:,.2f}'.format(float(isk_lost)),
+                                                                         winner_name, winner_ship, damage,
+                                                                         clean_names))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
@@ -1152,10 +1153,11 @@ class EveRpg:
                 hit_points = damaged_ships[primary[0]]
             transversal = 1
             if primary_maneuver > aggressor_tracking:
-                transversal = aggressor_tracking / primary_maneuver
+                transversal = (aggressor_tracking + 1) / primary_maneuver
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage < hit_points:
-                damaged_ships[primary[0]] = hit_points - damage
+                if damage > 0:
+                    damaged_ships[primary[0]] = hit_points - damage
                 non_aggressor.append(primary)
                 if active == 1:
                     attacker_fleet = non_aggressor
@@ -1181,11 +1183,9 @@ class EveRpg:
                 loser_name = self.bot.get_user(int(primary[2])).display_name
                 winner_ship_obj = ast.literal_eval(killing_blow[14])
                 winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
-                winner_task = await game_functions.get_task(int(killing_blow[6]))
                 loser_ship_obj = ast.literal_eval(primary[14])
                 loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
                 loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
-                loser_task = await game_functions.get_task(int(killing_blow[6]))
                 loser_modules = ''
                 loser_modules_array = []
                 dropped_mods = []
@@ -1217,11 +1217,12 @@ class EveRpg:
                                       "Total ISK Lost: {} ISK\n\n"
                                       "__**Final Blow**__\n"
                                       "**{}** flying a {}.\n\n"
-                                      "__**Other Killers**__".format(region_name, loser_name, loser_ship,
-                                                                     loser_task, loser_modules,
-                                                                     '{0:,.2f}'.format(float(isk_lost)),
-                                                                     winner_name, winner_ship, winner_task,
-                                                                     clean_names))
+                                      "**{}** Total Damage Dealt.\n\n"
+                                      "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
+                                                                         loser_modules,
+                                                                         '{0:,.2f}'.format(float(isk_lost)),
+                                                                         winner_name, winner_ship, damage,
+                                                                         clean_names))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
