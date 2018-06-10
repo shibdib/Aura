@@ -439,6 +439,8 @@ class EveRpg:
                 member = await db.select_var(sql, values)
                 if member[0][4] != region_id:
                     continue
+                if member[0][6] != player[6] or int(player[6]) != 10:
+                    continue
                 payout_array.append(member[0])
                 member_ship = ast.literal_eval(member[0][14])
                 member_attack, member_defense, member_maneuver, member_tracking = \
