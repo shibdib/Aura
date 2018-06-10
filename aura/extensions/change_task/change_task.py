@@ -51,6 +51,10 @@ class ChangeTask:
                 mission_task = '**9.** Abandon Mission.\n'
         else:
             mission_task = '**9.** Request a Mission.\n'
+        if player[0][16] is not None:
+            fleet_task = '**5.** Fleet Options.\n'
+        else:
+            fleet_task = '**5.** Join Fleet.\n'
         if region_security != 'High':
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}{}\n\n"
@@ -59,7 +63,7 @@ class ChangeTask:
                                   "**PVP Tasks**\n"
                                   "**2.** Go on a solo PVP roam.\n"
                                   "**3.** Camp a gate in your current region.\n"
-                                  "**5.** Join a fleet.\n"
+                                  "{}"
                                   "**PVE Tasks**\n"
                                   "**6.** Kill belt rats.\n"
                                   "**7.** Run anomalies in the system.\n"
@@ -67,7 +71,7 @@ class ChangeTask:
                                   "{}"
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n"
-                                  "**11.** Mine a mining anomaly.\n".format(current_task, mission_destination,
+                                  "**11.** Mine a mining anomaly.\n".format(current_task, mission_destination, fleet_task,
                                                                             mission_task))
             accepted = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11]
         else:
@@ -77,12 +81,13 @@ class ChangeTask:
                                   "**1.** Dock in current region.\n"
                                   "**PVP Tasks**\n"
                                   "**4.** Try to gank someone.\n"
+                                  "{}"
                                   "**PVE Tasks**\n"
                                   "**6.** Kill belt rats.\n"
                                   "**8.** Do some exploration and run sites in the system.\n"
                                   "{}"
                                   "**Mining Tasks**\n"
-                                  "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination,
+                                  "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination, fleet_task,
                                                                             mission_task))
             accepted = [1, 4, 6, 8, 9, 10]
         await ctx.author.send(embed=embed)

@@ -38,11 +38,12 @@ async def create_tables():
                                     ); """
         await create_table(db, whitelist_table)
         # create fleets tables
-        fleets_table = """ CREATE TABLE IF NOT EXISTS fleets (
+        fleets_table = """ CREATE TABLE IF NOT EXISTS fleet_info (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                                         fleet_id INTEGER NOT NULL UNIQUE,
-                                        fleet_fc STRING NOT NULL,
-                                        fleet_members INTEGER NOT NULL
+                                        fleet_fc INTEGER NOT NULL,
+                                        fleet_members INTEGER NOT NULL,
+                                        access INTEGER DEFAULT 2,
                                     ); """
         await create_table(db, fleets_table)
         # create eve_rpg tables
@@ -70,7 +71,7 @@ async def create_tables():
                                         module_hangar TEXT DEFAULT NULL,
                                         ship TEXT DEFAULT 0,
                                         ship_hangar TEXT DEFAULT NULL,
-                                        fleet TEXT DEFAULT 0,
+                                        fleet INTEGER DEFAULT 0,
                                         destination INTEGER DEFAULT 0,
                                         home INTEGER DEFAULT 1,
                                         component_hangar TEXT DEFAULT NULL,
