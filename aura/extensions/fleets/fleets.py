@@ -36,13 +36,17 @@ class Fleets:
                 values = (player[0][16],)
                 fleet_info = await db.select_var(sql, values)
                 if fleet_info[0][2] == player[0][0]:
+                    new_access = 'Public'
+                    if fleet_info[0][4] == 1:
+                        new_access = 'Blues Only'
                     embed = make_embed(icon=ctx.bot.user.avatar)
                     embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
                     embed.add_field(name="Fleet Management".format(player_name),
                                     value="**1.** Disband Fleet\n"
                                           "**2.** Kick Member\n"
-                                          "**3.** Return to the main menu")
+                                          "**3.** Change Access to {}\n"
+                                          "**4.** Return to the main menu".format(new_access))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -55,6 +59,8 @@ class Fleets:
                     elif content == '2':
                         await self.kick_member(ctx, fleet_info[0])
                     elif content == '3':
+                        await self.change_access(ctx, fleet_info[0])
+                    elif content == '4':
                         await ctx.invoke(self.bot.get_command("me"), True)
                     elif '!!' not in content:
                         await ctx.author.send('**ERROR** - Not a valid choice.')
@@ -260,4 +266,17 @@ class Fleets:
         values = (None, fleet_member_dict[int(content)],)
         await db.execute_sql(sql, values)
         await ctx.author.send('**Success** - Member Kicked.')
+        await ctx.invoke(self.bot.get_command("me"), True)
+
+    async def change_access(self, ctx, fleet):
+        new_access = 1
+        if fleet[4] == 1:
+            new_access = 2
+        sql = ''' UPDATE fleet_info
+                    SET access = (?)
+                    WHERE
+                        fleet_id = (?); '''
+        values = (new_access, fleet[1],)
+        await db.execute_sql(sql, values)
+        await ctx.author.send('**Success** - Access Updated.')
         await ctx.invoke(self.bot.get_command("me"), True)
