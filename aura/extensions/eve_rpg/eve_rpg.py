@@ -1005,10 +1005,12 @@ class EveRpg:
             else:
                 killing_blow = random.choice(aggressor)
                 other_names = []
+                other_users = []
                 for on_mail in aggressor:
                     if on_mail == killing_blow:
                         continue
-                    other_names.append('{}'.format(self.bot.get_user(int(killing_blow[2])).display_name))
+                    other_users.append(on_mail)
+                    other_names.append('{}'.format(self.bot.get_user(int(on_mail[2])).display_name))
                 clean_names = '\n'.join(other_names)
                 if len(other_names) > 6:
                     clean_names = '\n{} fleet members.'
@@ -1067,6 +1069,11 @@ class EveRpg:
                 await self.add_loss(primary)
                 await self.add_kill(killing_blow, dropped_mods)
                 await self.add_xp(killing_blow, xp_gained)
+                await self.give_pvp_loot(killing_blow)
+                dropped_mods = []
+                for user in other_users:
+                    await self.add_kill(user, dropped_mods)
+                    await self.add_xp(user, xp_gained)
 
     async def fleet_versus_player(self, fleet_one, player, region):
         # Fleet stuff
@@ -1131,10 +1138,12 @@ class EveRpg:
             else:
                 killing_blow = random.choice(aggressor)
                 other_names = []
+                other_users = []
                 for on_mail in aggressor:
                     if on_mail == killing_blow:
                         continue
-                    other_names.append('{}'.format(self.bot.get_user(int(killing_blow[2])).display_name))
+                    other_users.append(on_mail)
+                    other_names.append('{}'.format(self.bot.get_user(int(on_mail[2])).display_name))
                 clean_names = '\n'.join(other_names)
                 if len(other_names) > 6:
                     clean_names = '\n{} fleet members.'
@@ -1193,6 +1202,10 @@ class EveRpg:
                 await self.add_loss(primary)
                 await self.add_kill(killing_blow, dropped_mods)
                 await self.add_xp(killing_blow, xp_gained)
+                dropped_mods = []
+                for user in other_users:
+                    await self.add_kill(user, dropped_mods)
+                    await self.add_xp(user, xp_gained)
 
     async def weighted_choice(self, items):
         """items is a list of tuples in the form (item, weight)"""
