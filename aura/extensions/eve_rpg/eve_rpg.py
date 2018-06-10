@@ -108,7 +108,32 @@ class EveRpg:
                 for camper in campers:
                     conflict = await self.weighted_choice([(True, 55 - defender_maneuver), (False, 55)])
                     if conflict is True:
-                        await self.solo_combat(camper, traveler)
+                        camper_fleet = False
+                        traveler_fleet = False
+                        if camper[16] is not None and camper[16] != 0:
+                            camper_fleet = True
+                        if traveler[16] is not None and traveler[16] != 0:
+                            traveler_fleet = True
+                        if traveler_fleet is False and camper_fleet is False:
+                            await self.solo_combat(camper, traveler)
+                        elif traveler_fleet is False and camper_fleet is True:
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (camper[16],)
+                            fleet_info = await db.select_var(sql, values)
+                            await self.fleet_versus_player(fleet_info[0], traveler, region_id)
+                        elif camper_fleet is False and traveler_fleet is True:
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (traveler[16],)
+                            fleet_info = await db.select_var(sql, values)
+                            await self.fleet_versus_player(fleet_info[0], camper, region_id)
+                        elif camper_fleet is True and traveler_fleet is True:
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (traveler[16],)
+                            fleet_one_info = await db.select_var(sql, values)
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (camper[16],)
+                            fleet_two_info = await db.select_var(sql, values)
+                            await self.fleet_versus_fleet(fleet_one_info[0], fleet_two_info[0], region_id)
                         return self.process_travel()
             destination_name = await game_functions.get_region(destination_id)
             sql = ''' UPDATE eve_rpg_players
@@ -534,7 +559,32 @@ class EveRpg:
                     if conflict is None:
                         break
                     elif conflict is True:
-                        await self.solo_combat(roamer, target)
+                        roamer_fleet = False
+                        target_fleet = False
+                        if roamer[16] is not None and roamer[16] != 0:
+                            roamer_fleet = True
+                        if target[16] is not None and target[16] != 0:
+                            target_fleet = True
+                        if target_fleet is False and roamer_fleet is False:
+                            await self.solo_combat(roamer, target)
+                        elif target_fleet is False and roamer_fleet is True:
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (roamer[16],)
+                            fleet_info = await db.select_var(sql, values)
+                            await self.fleet_versus_player(fleet_info[0], target, region_id)
+                        elif roamer_fleet is False and target_fleet is True:
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (target[16],)
+                            fleet_info = await db.select_var(sql, values)
+                            await self.fleet_versus_player(fleet_info[0], roamer, region_id)
+                        elif roamer_fleet is True and target_fleet is True:
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (target[16],)
+                            fleet_one_info = await db.select_var(sql, values)
+                            sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
+                            values = (roamer[16],)
+                            fleet_two_info = await db.select_var(sql, values)
+                            await self.fleet_versus_fleet(fleet_one_info[0], fleet_two_info[0], region_id)
                         break
 
     async def process_ganks(self):
