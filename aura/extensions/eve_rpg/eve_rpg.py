@@ -1041,6 +1041,13 @@ class EveRpg:
                         continue
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
+                if hit_points < ship_details['hit_points'] * 0.3:
+                    flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
+                    if flee is True:
+                        if primary not in attacker_fleet:
+                            defender_fleet.remove(primary)
+                        else:
+                            attacker_fleet.remove(primary)
                 continue
             else:
                 killing_blow = random.choice(aggressor)
@@ -1202,6 +1209,13 @@ class EveRpg:
                         continue
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
+                if hit_points < ship_details['hit_points'] * 0.3:
+                    flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
+                    if flee is True:
+                        if primary not in attacker_fleet:
+                            defender_fleet.remove(primary)
+                        else:
+                            attacker_fleet.remove(primary)
                 continue
             else:
                 killing_blow = random.choice(aggressor)
