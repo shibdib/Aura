@@ -44,7 +44,9 @@ class Corps:
                     values = (None, ctx.author.id,)
                     await db.execute_sql(sql, values)
                     return await ctx.invoke(self.bot.get_command("corp"))
-                pending_members = ast.literal_eval(corp_info[8])
+                pending_members = []
+                if corp_info[8] is not None:
+                    pending_members = ast.literal_eval(corp_info[8])
                 corp_members = ast.literal_eval(corp_info[7])
                 if corp_info[5] == player[0][0]:
                     embed = make_embed(icon=ctx.bot.user.avatar)
