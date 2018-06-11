@@ -33,8 +33,8 @@ class Corps:
             player_name = self.bot.get_user(int(player[0][2])).display_name
             if player[0][23] is not None:
                 corp_info = await game_functions.get_user_corp(player[0][23])
-                corp_officers = ast.literal_eval(corp_info[0][6])
-                if len(corp_info) == 0:
+                corp_officers = ast.literal_eval(corp_info[6])
+                if corp_info is None:
                     sql = ''' UPDATE eve_rpg_players
                                 SET corporation = (?)
                                 WHERE
@@ -42,9 +42,9 @@ class Corps:
                     values = (None, ctx.author.id,)
                     await db.execute_sql(sql, values)
                     return await ctx.invoke(self.bot.get_command("corp"))
-                pending_members = ast.literal_eval(corp_info[0][8])
-                corp_members = ast.literal_eval(corp_info[0][7])
-                if corp_info[0][5] == player[0][0]:
+                pending_members = ast.literal_eval(corp_info[8])
+                corp_members = ast.literal_eval(corp_info[7])
+                if corp_info[5] == player[0][0]:
                     embed = make_embed(icon=ctx.bot.user.avatar)
                     embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
@@ -64,13 +64,13 @@ class Corps:
                     msg = await self.bot.wait_for('message', check=check, timeout=120)
                     content = msg.content
                     if content == '1':
-                        await self.review_pending(ctx, corp_info[0])
+                        await self.review_pending(ctx, corp_info)
                     elif content == '2':
-                        await self.kick_member(ctx, corp_info[0])
+                        await self.kick_member(ctx, corp_info)
                     elif content == '3':
-                        await self.manage_officers(ctx, corp_info[0])
+                        await self.manage_officers(ctx, corp_info)
                     elif content == '4':
-                        await self.disband_corporation(ctx, corp_info[0])
+                        await self.disband_corporation(ctx, corp_info)
                     elif content == '5':
                         await ctx.invoke(self.bot.get_command("me"), True)
                     elif '!!' not in content:
@@ -97,9 +97,9 @@ class Corps:
                     msg = await self.bot.wait_for('message', check=check, timeout=120)
                     content = msg.content
                     if content == '1':
-                        await self.review_pending(ctx, corp_info[0])
+                        await self.review_pending(ctx, corp_info)
                     elif content == '2':
-                        await self.kick_member(ctx, corp_info[0])
+                        await self.kick_member(ctx, corp_info)
                     elif content == '3':
                         await ctx.invoke(self.bot.get_command("me"), True)
                     elif '!!' not in content:
@@ -213,7 +213,7 @@ class Corps:
         values = (unique_id, corp_name, ticker, player[0], str([player[0]]), str([player[4]]))
         await db.execute_sql(sql, values)
         await ctx.author.send('**Success** - Corporation created.')
-        await ctx.invoke(self.bot.get_command("corp"), True)
+        await ctx.invoke(self.bot.get_command("corp"))
 
     async def join_fleet(self, ctx, player):
         embed = make_embed(icon=ctx.bot.user.avatar)

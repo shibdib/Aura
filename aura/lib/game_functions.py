@@ -158,10 +158,10 @@ async def create_unique_id():
 
 
 async def get_user_corp(corp_id):
-    sql = ''' SELECT * FROM corporations WHERE `id` = (?) '''
+    sql = ''' SELECT * FROM corporations WHERE `corp_id` = (?) '''
     values = (corp_id,)
     corp_info = await db.select_var(sql, values)
     if len(corp_info) > 0:
-        return corp_info
+        return corp_info[0]
     else:
         return None
