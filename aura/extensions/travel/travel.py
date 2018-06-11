@@ -27,6 +27,9 @@ class Travel:
         sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
+        if player[0][25] is not None:
+            return await ctx.author.send('**ERROR** - Your hostile actions force us to deny you the ability to travel '
+                                         'for approximately {} more seconds.'.format(player[0][25] * 12))
         region_id = int(player[0][4])
         region_name = await game_functions.get_region(region_id)
         connected_regions = []

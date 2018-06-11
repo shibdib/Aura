@@ -21,6 +21,24 @@ async def tick_count():
     return current_tick
 
 
+async def combat_timer_management():
+    sql = ''' SELECT * FROM eve_rpg_players WHERE `combat_timer` != (?) '''
+    values = (None,)
+    timer_players = await db.select_var(sql, values)
+    if len(timer_players) == 0:
+        return
+    for player in timer_players:
+        new_timer = player[25] - 1
+        if new_timer <= 0:
+            new_timer = None
+        sql = ''' UPDATE eve_rpg_players
+                SET combat_timer = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (new_timer, player[2],)
+        await db.execute_sql(sql, values)
+
+
 async def refresh_player(player):
     sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
     values = (player[2],)

@@ -24,6 +24,7 @@ class EveRpg:
         while not self.bot.is_closed():
             try:
                 await game_functions.tick_count()
+                await game_functions.combat_timer_management()
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
@@ -803,6 +804,10 @@ class EveRpg:
             await game_functions.get_combat_attributes(attacker, attacker_ship_id)
         defender_attack, defender_defense, defender_maneuver, defender_tracking = \
             await game_functions.get_combat_attributes(defender, defender_ship_id)
+        # Give all participants a combat timer
+        merged_fleet = [attacker, defender]
+        for fleet_member in merged_fleet:
+            await self.add_combat_timer(fleet_member)
         pve_disadvantage = 1
         if 5 < int(defender[6]) < 11:
             pve_disadvantage = 0.93
@@ -995,6 +1000,10 @@ class EveRpg:
             defender_fleet_attack += member_attack
             defender_fleet_maneuver += member_maneuver
             defender_fleet_tracking += member_tracking
+        # Give all participants a combat timer
+        merged_fleet = attacker_fleet + defender_fleet
+        for fleet_member in merged_fleet:
+            await self.add_combat_timer(fleet_member)
         attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
         defender_initiative = 50 + (defender_fleet_maneuver / defenders_in_system)
         aggressor_damage = attacker_fleet_attack
@@ -1169,6 +1178,10 @@ class EveRpg:
         attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
         defender_initiative = 100 - attacker_initiative
         defender_fleet = [player]
+        # Give all participants a combat timer
+        merged_fleet = attacker_fleet + defender_fleet
+        for fleet_member in merged_fleet:
+            await self.add_combat_timer(fleet_member)
         aggressor_damage = attacker_fleet_attack
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
@@ -1419,6 +1432,15 @@ class EveRpg:
                 WHERE
                     player_id = (?); '''
         values = (int(player[11]) + 1, player[2],)
+        return await db.execute_sql(sql, values)
+
+    async def add_combat_timer(self, player):
+        player = await self.refresh_player(player)
+        sql = ''' UPDATE eve_rpg_players
+                SET combat_timer = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (5, player[2],)
         return await db.execute_sql(sql, values)
 
     async def destroy_ship(self, player):

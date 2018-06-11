@@ -60,7 +60,8 @@ async def create_tables():
                                         corp_offices TEXT DEFAULT NULL,
                                         corp_ship_hangar TEXT DEFAULT NULL,
                                         corp_module_hangar TEXT DEFAULT NULL,
-                                        wallet INTEGER DEFAULT 0
+                                        wallet INTEGER DEFAULT 0,
+                                        tax_rate INTEGER DEFAULT 0
                                     ); """
         await create_table(db, corps_table)
         # create eve_rpg tables
@@ -96,7 +97,8 @@ async def create_tables():
                                         blue_players TEXT DEFAULT NULL,
                                         mission_details TEXT DEFAULT NULL,
                                         corporation INTEGER DEFAULT NULL,
-                                        alliance INTEGER DEFAULT NULL
+                                        alliance INTEGER DEFAULT NULL,
+                                        combat_timer INTEGER DEFAULT NULL
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:
@@ -113,15 +115,15 @@ async def update_tables():
         current_version = version[0][0]
     if db is not None:
         result = 'DB Up To Date'
-        if int(current_version) < 3:
+        if int(current_version) < 4:
             result = 'Updated to DB version 3'
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `corporation` INTEGER DEFAULT NULL; '''
+            sql = ''' ALTER TABLE corporations ADD COLUMN `tax_rate` INTEGER DEFAULT NULL; '''
             await execute_sql(sql)
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `alliance` INTEGER DEFAULT NULL; '''
+            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `combat_timer` INTEGER DEFAULT NULL; '''
             await execute_sql(sql)
         sql = ''' REPLACE INTO data(entry,int)
                   VALUES(?,?) '''
-        values = ('db_version', 3)
+        values = ('db_version', 4)
         await execute_sql(sql, values)
         return result
 

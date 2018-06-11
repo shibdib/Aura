@@ -108,6 +108,10 @@ class ChangeTask:
         elif content == '9':
             await self.process_mission(ctx, player[0])
         elif int(content) in accepted:
+            if content == '1' and player[0][25] is not None:
+                return await ctx.author.send(
+                    '**ERROR** - Your hostile actions have forced us to deny docking access for'
+                    ' approximately {} more seconds.'.format(player[0][25] * 12))
             sql = ''' UPDATE eve_rpg_players
                     SET task = (?)
                     WHERE
