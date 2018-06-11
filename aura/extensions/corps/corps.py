@@ -33,7 +33,9 @@ class Corps:
             player_name = self.bot.get_user(int(player[0][2])).display_name
             if player[0][23] is not None:
                 corp_info = await game_functions.get_user_corp(player[0][23])
-                corp_officers = ast.literal_eval(corp_info[6])
+                corp_officers = []
+                if corp_info[6] is not None:
+                    corp_officers = ast.literal_eval(corp_info[6])
                 if corp_info is None:
                     sql = ''' UPDATE eve_rpg_players
                                 SET corporation = (?)
