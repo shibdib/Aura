@@ -1026,7 +1026,7 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
-            damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
+            damage = (aggressor_damage * transversal) - primary_defense
             if damage <= 0:
                 continue
             if damage < hit_points:
@@ -1187,7 +1187,7 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
-            damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
+            damage = (aggressor_damage * transversal) - primary_defense
             if damage <= 0:
                 continue
             if damage < hit_points:
