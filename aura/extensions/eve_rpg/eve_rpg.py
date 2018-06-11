@@ -1024,8 +1024,8 @@ class EveRpg:
             primary_attack, primary_defense, primary_maneuver, primary_tracking = \
                 await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
             transversal = 1
-            if primary_maneuver > aggressor_tracking:
-                transversal = (aggressor_tracking + 1) / primary_maneuver
+            if (primary_maneuver * 0.5) > aggressor_tracking:
+                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.5)
             damage = (aggressor_damage * transversal) - primary_defense
             if damage <= 0:
                 continue
@@ -1159,6 +1159,8 @@ class EveRpg:
             attacker_fleet_attack += member_attack
             attacker_fleet_maneuver += member_maneuver
             attacker_fleet_tracking += member_tracking
+        if attackers_in_system == 0:
+            return
         primary_ship = ast.literal_eval(player[14])
         ship = await game_functions.get_ship(primary_ship['ship_type'])
         hit_points = ship['hit_points']
@@ -1192,8 +1194,8 @@ class EveRpg:
             if primary[0] in damaged_ships:
                 hit_points = damaged_ships[primary[0]]
             transversal = 1
-            if primary_maneuver > aggressor_tracking:
-                transversal = (aggressor_tracking + 1) / primary_maneuver
+            if (primary_maneuver * 0.5) > aggressor_tracking:
+                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.5)
             damage = (aggressor_damage * transversal) - primary_defense
             if damage <= 0:
                 continue
