@@ -829,8 +829,8 @@ class EveRpg:
             attacker_damage = attacker_attack / defender_defense
         if attacker_maneuver > defender_tracking:
             defender_damage *= (defender_tracking / attacker_maneuver)
-        if attacker_maneuver > defender_tracking:
-            attacker_damage *= (defender_tracking / attacker_maneuver)
+        if defender_maneuver > attacker_tracking:
+            attacker_damage *= (attacker_tracking / defender_maneuver)
         for x in range(int((attacker_hits + defender_hits) * 1.5)):
             combat = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
             if combat == attacker:
