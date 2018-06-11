@@ -62,7 +62,7 @@ async def create_tables():
                                         corp_module_hangar TEXT DEFAULT NULL,
                                         wallet INTEGER DEFAULT 0
                                     ); """
-        await create_table(db, fleets_table)
+        await create_table(db, corps_table)
         # create eve_rpg tables
         eve_rpg_channels_table = """ CREATE TABLE IF NOT EXISTS eve_rpg_channels (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
