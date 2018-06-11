@@ -189,8 +189,6 @@ class Corps:
                               "Corp Ticker: [{}]\n\n"
                               "**1.** Confirm\n"
                               "**2.** Cancel\n\n"
-                              "*Tickers should not exceed 5 characters.*\n\n"
-                              "*Vulgar tickers will result in GM action.*\n\n"
                               "Type **!!me** to cancel this action.".format(corp_name, ticker))
         await ctx.author.send(embed=embed)
 
@@ -200,7 +198,7 @@ class Corps:
         msg = await self.bot.wait_for('message', check=check, timeout=120)
         if msg.content == '!!me' or msg.content != '1':
             return await ctx.invoke(self.bot.get_command("me"), True)
-        if int(50000000) > int(float(player[0][5])):
+        if int(50000000) > int(float(player[5])):
             await ctx.author.send('**Not Enough Isk**')
             return await ctx.invoke(self.bot.get_command("me"), True)
         sql = ''' UPDATE eve_rpg_players
