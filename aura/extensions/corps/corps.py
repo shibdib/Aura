@@ -8,7 +8,7 @@ from aura.lib import game_functions
 from aura.utils import make_embed
 
 
-class Fleets:
+class Corps:
     def __init__(self, bot):
         self.bot = bot
         self.session = bot.session
