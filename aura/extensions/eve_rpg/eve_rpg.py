@@ -181,7 +181,7 @@ class EveRpg:
                 npc = 90
             #  PVE Rolls
             encounter = await self.weighted_choice(
-                [(True, npc / len(system_ratters) * 0.5), (False, 100 - (npc / len(system_ratters) * 0.5))])
+                [(True, npc), (False, npc - (npc / len(system_ratters)))])
             if encounter is True:
                 return await self.process_pve_combat(ratter)
 
@@ -203,7 +203,7 @@ class EveRpg:
                 npc = 99
             #  PVE Rolls
             encounter = await self.weighted_choice(
-                [(True, npc / len(system_ratters) * 0.5), (False, 100 - (npc / len(system_ratters) * 0.5))])
+                [(True, npc), (False, npc - (npc / len(system_ratters)))])
             if encounter is True:
                 return await self.process_pve_combat(ratter)
 
