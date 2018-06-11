@@ -1028,7 +1028,7 @@ class EveRpg:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage <= 0:
-                damage = 1
+                continue
             if damage < hit_points:
                 killing_blow = random.choice(aggressor)
                 # Fleet check
@@ -1189,7 +1189,7 @@ class EveRpg:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage <= 0:
-                damage = 1
+                continue
             if damage < hit_points:
                 killing_blow = random.choice(aggressor)
                 # Fleet check
