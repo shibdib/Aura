@@ -183,7 +183,7 @@ class EveRpg:
             encounter = await self.weighted_choice(
                 [(True, npc), (False, npc - (npc / len(system_ratters)) + 1)])
             if encounter is True:
-                return await self.process_pve_combat(ratter)
+                await self.process_pve_combat(ratter)
 
     async def process_anomaly_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 '''
@@ -205,7 +205,7 @@ class EveRpg:
             encounter = await self.weighted_choice(
                 [(True, npc), (False, npc - (npc / len(system_ratters)) + 1)])
             if encounter is True:
-                return await self.process_pve_combat(ratter)
+                await self.process_pve_combat(ratter)
 
     async def process_belt_mining(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 10 '''
@@ -237,7 +237,7 @@ class EveRpg:
                 if possible_npc is not False:
                     encounter = await self.weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
                     if encounter is True:
-                        return await self.process_pve_combat(miner)
+                        await self.process_pve_combat(miner)
                 #  Ship multi
                 miner_ship = ast.literal_eval(miner[14])
                 ship_id = miner_ship['ship_type']
@@ -291,7 +291,7 @@ class EveRpg:
             complete_mission = await self.weighted_choice([(True, 20), (False, 30 * mission_details['level'])])
             enounter = await self.weighted_choice([(True, 70), (False, 30)])
             if enounter is True and complete_mission is False:
-                return await self.process_pve_combat(mission_runner, mission_details['level'])
+                await self.process_pve_combat(mission_runner, mission_details['level'])
             else:
                 if complete_mission is False:
                     continue
