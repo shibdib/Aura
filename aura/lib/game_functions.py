@@ -106,13 +106,12 @@ async def get_combat_attributes(player, ship_id, npc=False):
             equipped_modules = ast.literal_eval(player[12])
             checked_modules = []
             for item in equipped_modules:
-                module_info = await get_module(item)
-                checked_modules.append(module_info['class'])
-                current_count = checked_modules.count(module_info['class'])
+                module = await get_module(int(item))
+                checked_modules.append(module['class'])
+                current_count = checked_modules.count(module['class'])
                 efficiency = 1
                 if current_count > 1:
                     efficiency = 1 - (0.5 * (0.45 * (current_count - 1)) ** 2)
-                module = await get_module(int(item))
                 if 'size' not in module:
                     attack = int(float((attack * (module['attack'] * efficiency)) + attack))
                     defense = int(float((defense * (module['defense'] * efficiency)) + defense))
