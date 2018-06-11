@@ -372,7 +372,7 @@ class Fleets:
         await ctx.author.send('**Success** - Access Updated.')
         await ctx.invoke(self.bot.get_command("me"), True)
 
-    @_fleets.group(name='chat')
+    @_corps.group(name='chat')
     @checks.has_account()
     async def _chat(self, ctx, *, message: str):
         """Talk in fleet chat."""
