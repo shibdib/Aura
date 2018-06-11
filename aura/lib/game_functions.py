@@ -22,8 +22,8 @@ async def tick_count():
 
 
 async def combat_timer_management():
-    sql = ''' SELECT * FROM eve_rpg_players WHERE `combat_timer` != (?) '''
-    values = (None,)
+    sql = ''' SELECT * FROM eve_rpg_players WHERE `combat_timer` > (?) '''
+    values = (0,)
     timer_players = await db.select_var(sql, values)
     if len(timer_players) == 0:
         return
