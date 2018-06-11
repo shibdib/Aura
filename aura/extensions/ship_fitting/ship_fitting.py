@@ -37,7 +37,7 @@ class ShipFitting:
         custom_name = ''
         rename_ship = '**n.** Name Your Ship'
         if 'custom_name' in player_ship_obj:
-            custom_name = '- {}'.format(ship['custom_name'])
+            custom_name = '- {}'.format(player_ship_obj['custom_name'])
             rename_ship = '**n.** Rename Your Ship'
         drone_size = 0
         clean_equipped_modules = ''
