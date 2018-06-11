@@ -106,8 +106,9 @@ async def get_combat_attributes(player, ship_id, npc=False):
             equipped_modules = ast.literal_eval(player[12])
             checked_modules = []
             for item in equipped_modules:
-                checked_modules.append(int(item))
-                current_count = checked_modules.count(int(item))
+                module_info = await get_module(item)
+                checked_modules.append(module_info['class'])
+                current_count = checked_modules.count(module_info['class'])
                 efficiency = 1
                 if current_count > 1:
                     efficiency = 1 - (0.5 * (0.45 * (current_count - 1)) ** 2)

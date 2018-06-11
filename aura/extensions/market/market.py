@@ -457,7 +457,7 @@ class Market:
                         module_selection_dict[module_number] = module['id']
                         accepted_modules.append(module_number)
                         module_number += 1
-                    elif module['class'] == 2:
+                    elif module['class'] == 2 or module['class'] == 7:
                         defense.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module_number, module['name'],
                                                                                       module['attack'] * 100,
                                                                                       module['defense'] * 100,
@@ -466,7 +466,7 @@ class Market:
                         module_selection_dict[module_number] = module['id']
                         accepted_modules.append(module_number)
                         module_number += 1
-                    elif module['class'] == 3:
+                    elif module['class'] == 3 or module['class'] == 8:
                         maneuver.append('**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module_number, module['name'],
                                                                                        module['attack'] * 100,
                                                                                        module['defense'] * 100,
