@@ -33,6 +33,12 @@ class ShipFitting:
         region_name = await game_functions.get_region(region_id)
         player_ship_obj = ast.literal_eval(player[0][14])
         ship = await game_functions.get_ship(int(player_ship_obj['ship_type']))
+        # check if ship has a custom name set
+        custom_name = ''
+        rename_ship = '**n.** Name Your Ship'
+        if 'custom_name' in player_ship_obj:
+            custom_name = '- {}'.format(ship['custom_name'])
+            rename_ship = '**n.** Rename Your Ship'
         drone_size = 0
         clean_equipped_modules = ''
         clean_equipped_drones = ''
@@ -93,8 +99,8 @@ class ShipFitting:
             clean_equipped_drones = '\n'.join(equipped_drones_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(player[0], int(player_ship_obj['ship_type']))
-        value = '**{}** - {}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current ' \
-                'Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], module_count, ship['slots'],
+        value = '**{}** {}\n*{}*\n{}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current ' \
+                'Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], custom_name, rename_ship, module_count, ship['slots'],
                                                                   killmarks, insured, ship_attack, ship_defense,
                                                                   ship_maneuver, ship_tracking)
         if player[0][12] is not None:
@@ -157,6 +163,35 @@ class ShipFitting:
             return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+        if msg.content == 'n':
+            if custom_name == '':
+                custom_name = ship['name']
+            embed = make_embed(icon=ctx.bot.user.avatar)
+            embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            embed.add_field(name="Rename Ship",
+                            value="__Current Name:__ {}\n\n"
+                                  "If you'd like to rename it reply with the name. If you'd like to return to the menu "
+                                  "reply with **!!me**".format(custom_name))
+            await ctx.author.send(embed=embed)
+
+            def check(m):
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+            if msg.content == '!!me':
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                player_ship_obj['custom_name'] = msg.content[:15]
+                sql = ''' UPDATE eve_rpg_players
+                        SET ship = (?)
+                        WHERE
+                            player_id = (?); '''
+                values = (str(player_ship_obj), ctx.author.id,)
+                await db.execute_sql(sql, values)
+                await ctx.author.send('**Changes Complete**')
+                return await ctx.invoke(self.bot.get_command("me"), True)
+
         module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
         if type(module_array) is list:
             remove_prop_mods = []

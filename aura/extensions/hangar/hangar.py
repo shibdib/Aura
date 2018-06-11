@@ -58,8 +58,11 @@ class Hangar:
             for ship in ship_hangar[player[0][4]]:
                 owned_ship_ids.append(ship_number)
                 ship['selection'] = ship_number
+                custom_name = ''
+                if 'custom_name' in ship:
+                    custom_name = '- {}'.format(ship['custom_name'])
                 ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
-                stored_ships_array.append('{}. {}'.format(ship_number, ship_name))
+                stored_ships_array.append('{}. {} {}'.format(ship_number, ship_name, custom_name))
                 ship_number += 1
             stored_ships = '\n'.join(stored_ships_array)
             embed = make_embed(icon=ctx.bot.user.avatar)
