@@ -1001,12 +1001,16 @@ class EveRpg:
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
         damaged_ships = {}
-        print('start')
+        aggressor = await self.weighted_choice(
+            [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
+        not_first_round = None
         for x in range(int((attacker_fleet_hits + defender_fleet_hits) * 1.5)):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            aggressor = await self.weighted_choice(
-                [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
+            if not_first_round is True:
+                aggressor = await self.weighted_choice(
+                    [(attacker_fleet, 50), (defender_fleet, 50)])
+            not_first_round = True
             if aggressor != attacker_fleet:
                 non_aggressor = attacker_fleet
                 aggressor_damage = defender_fleet_attack
@@ -1022,12 +1026,9 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
-            print('trans - {}'.format(transversal))
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage <= 0:
                 damage = 1
-            print('dam - {}'.format(damage))
-            print('hp - {}'.format(hit_points))
             if damage < hit_points:
                 killing_blow = random.choice(aggressor)
                 # Fleet check
@@ -1042,7 +1043,6 @@ class EveRpg:
                     damaged_ships[primary[0]] = hit_points - damage
                 continue
             else:
-                non_aggressor.remove(primary)
                 killing_blow = random.choice(aggressor)
                 # Fleet check
                 if killing_blow[16] is not None and killing_blow[16] != 0:
@@ -1052,6 +1052,10 @@ class EveRpg:
                     fleet_array = ast.literal_eval(fleet_info[0][3])
                     if primary[0] in fleet_array:
                         continue
+                if primary not in attacker_fleet:
+                    defender_fleet.remove(primary)
+                else:
+                    attacker_fleet.remove(primary)
                 other_names = []
                 other_users = []
                 for on_mail in aggressor:
@@ -1159,18 +1163,18 @@ class EveRpg:
         aggressor_damage = attacker_fleet_attack
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
-        active = 1
         damaged_ships = {}
-        print(f_id)
-        print(player[0])
-        print('start fvp')
+        aggressor = await self.weighted_choice(
+            [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
+        not_first_round = None
         for x in range(int((attacker_fleet_hits + hit_points) * 1.5)):
+            if not_first_round is True:
+                aggressor = await self.weighted_choice(
+                    [(attacker_fleet, 50), (defender_fleet, 50)])
+            not_first_round = True
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            aggressor = await self.weighted_choice(
-                [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
             if aggressor != attacker_fleet:
-                active = 2
                 non_aggressor = attacker_fleet
                 aggressor_damage = primary_attack
                 aggressor_tracking = primary_tracking
@@ -1183,15 +1187,9 @@ class EveRpg:
             transversal = 1
             if primary_maneuver > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / primary_maneuver
-            primary_name = self.bot.get_user(int(primary[2])).display_name
-            print('prim - {}'.format(primary_name))
-            print('trans - {}'.format(transversal))
             damage = (aggressor_damage * transversal) - (primary_defense + hit_points)
             if damage <= 0:
                 damage = 1
-            print('dam - {}'.format(damage))
-            print('hp - {}'.format(hit_points))
-            print(active)
             if damage < hit_points:
                 killing_blow = random.choice(aggressor)
                 # Fleet check
@@ -1206,9 +1204,6 @@ class EveRpg:
                     damaged_ships[primary[0]] = hit_points - damage
                 continue
             else:
-                non_aggressor.remove(primary)
-                print(active)
-                print(aggressor)
                 killing_blow = random.choice(aggressor)
                 # Fleet check
                 if killing_blow[16] is not None and killing_blow[16] != 0:
@@ -1218,6 +1213,10 @@ class EveRpg:
                     fleet_array = ast.literal_eval(fleet_info[0][3])
                     if primary[0] in fleet_array:
                         continue
+                if primary not in attacker_fleet:
+                    defender_fleet.remove(primary)
+                else:
+                    attacker_fleet.remove(primary)
                 other_names = []
                 other_users = []
                 for on_mail in aggressor:
