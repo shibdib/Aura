@@ -2,6 +2,7 @@ from discord.ext import commands
 
 from aura.core import checks
 from aura.lib import db
+from aura.lib import game_functions
 from aura.utils import make_embed
 
 
@@ -36,6 +37,9 @@ class Local:
                 if user is None:
                     continue
                 user_name = self.bot.get_user(int(user[2])).display_name
+                if user[23] is not None:
+                    corp_info = await game_functions.get_user_corp(user[23])
+                    user_name = '{} [{}]'.format(user_name, corp_info[4])
                 docked = ''
                 if user[6] == 1:
                     docked = '**Docked**'
