@@ -900,10 +900,16 @@ class EveRpg:
                             'you managed to break tackle and cloak.'.format(defender_ship_info['name'],
                                                                             defender_user.display_name,
                                                                             attacker_ship_info['name']))
-        winner_name = self.bot.get_user(int(winner[2])).display_name
         region_id = int(winner[4])
         region_name = await game_functions.get_region(int(region_id))
-        loser_name = self.bot.get_user(int(loser[2])).display_name
+        winner_name = winner_user.display_name
+        if winner[23] is not None:
+            corp_info = await game_functions.get_user_corp(winner[23])
+            winner_name = '{} [{}]'.format(winner_name, corp_info[4])
+        loser_name = loser_user.display_name
+        if loser[23] is not None:
+            corp_info = await game_functions.get_user_corp(loser[23])
+            loser_name = '{} [{}]'.format(loser_name, corp_info[4])
         winner_ship_obj = ast.literal_eval(winner[14])
         winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
         winner_task = await game_functions.get_task(int(winner[6]))
@@ -1107,7 +1113,13 @@ class EveRpg:
                     clean_names = '\n{} fleet members.'.format(len(other_names))
                 winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
                 winner_name = winner_user.display_name
+                if killing_blow[23] is not None:
+                    corp_info = await game_functions.get_user_corp(killing_blow[23])
+                    winner_name = '{} [{}]'.format(winner_name, corp_info[4])
                 loser_name = self.bot.get_user(int(primary[2])).display_name
+                if primary[23] is not None:
+                    corp_info = await game_functions.get_user_corp(primary[23])
+                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
                 winner_ship_obj = ast.literal_eval(killing_blow[14])
                 winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
                 loser_ship_obj = ast.literal_eval(primary[14])
@@ -1173,6 +1185,9 @@ class EveRpg:
             member_ship = ast.literal_eval(attacker_killed[14])
             ship_details = await game_functions.get_ship(member_ship['ship_type'])
             loser_name = self.bot.get_user(int(attacker_killed[2])).display_name
+            if attacker_killed[23] is not None:
+                corp_info = await game_functions.get_user_corp(attacker_killed[23])
+                loser_name = '{} [{}]'.format(loser_name, corp_info[4])
             dead_attackers.append('{} - *{}*'.format(loser_name, ship_details['name']))
         attackers_lost = '\n'.join(dead_attackers)
         dead_defenders = []
@@ -1180,6 +1195,9 @@ class EveRpg:
             member_ship = ast.literal_eval(defender_killed[14])
             ship_details = await game_functions.get_ship(member_ship['ship_type'])
             loser_name = self.bot.get_user(int(defender_killed[2])).display_name
+            if defender_killed[23] is not None:
+                corp_info = await game_functions.get_user_corp(defender_killed[23])
+                loser_name = '{} [{}]'.format(loser_name, corp_info[4])
             dead_defenders.append('{} - *{}*'.format(loser_name, ship_details['name']))
         defenders_lost = '\n'.join(dead_defenders)
         embed = make_embed(icon=self.bot.user.avatar)
@@ -1353,7 +1371,13 @@ class EveRpg:
                     clean_names = '\n{} fleet members.'.format(len(other_names))
                 winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
                 winner_name = winner_user.display_name
+                if killing_blow[23] is not None:
+                    corp_info = await game_functions.get_user_corp(killing_blow[23])
+                    winner_name = '{} [{}]'.format(winner_name, corp_info[4])
                 loser_name = self.bot.get_user(int(primary[2])).display_name
+                if primary[23] is not None:
+                    corp_info = await game_functions.get_user_corp(primary[23])
+                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
                 winner_ship_obj = ast.literal_eval(killing_blow[14])
                 winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
                 loser_ship_obj = ast.literal_eval(primary[14])
@@ -1418,6 +1442,9 @@ class EveRpg:
             member_ship = ast.literal_eval(attacker_killed[14])
             ship_details = await game_functions.get_ship(member_ship['ship_type'])
             loser_name = self.bot.get_user(int(attacker_killed[2])).display_name
+            if attacker_killed[23] is not None:
+                corp_info = await game_functions.get_user_corp(attacker_killed[23])
+                loser_name = '{} [{}]'.format(loser_name, corp_info[4])
             dead_attackers.append('{} - *{}*'.format(loser_name, ship_details['name']))
         attackers_lost = '\n'.join(dead_attackers)
         dead_defenders = []
@@ -1425,6 +1452,9 @@ class EveRpg:
             member_ship = ast.literal_eval(defender_killed[14])
             ship_details = await game_functions.get_ship(member_ship['ship_type'])
             loser_name = self.bot.get_user(int(defender_killed[2])).display_name
+            if defender_killed[23] is not None:
+                corp_info = await game_functions.get_user_corp(defender_killed[23])
+                loser_name = '{} [{}]'.format(loser_name, corp_info[4])
             dead_defenders.append('{} - *{}*'.format(loser_name, ship_details['name']))
         defenders_lost = '\n'.join(dead_defenders)
         embed = make_embed(icon=self.bot.user.avatar)
