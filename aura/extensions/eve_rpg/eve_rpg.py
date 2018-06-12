@@ -1204,11 +1204,11 @@ class EveRpg:
         embed.set_footer(icon_url=self.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Fleet Battle Report",
-                        value="__Region:__ {}\n"
-                              "__Total Players Involved:__ {}\n"
-                              "__Ships Destroyed:__ {}\n"
-                              "__Total ISK Lost:__ {} ISK\n"
-                              "__Total Damage Done:__ {}\n".format(region_name,
+                        value="Region: {}\n"
+                              "Total Players Involved: {}\n"
+                              "Ships Destroyed: {}\n"
+                              "Total ISK Lost: {} ISK\n"
+                              "Total Damage Done: {}\n".format(region_name,
                                                                        len(attacker_fleet) + len(defender_fleet),
                                                                        len(dead_attackers) + len(dead_defenders),
                                                                        '{0:,.2f}'.format(float(
@@ -1216,15 +1216,15 @@ class EveRpg:
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
         embed.add_field(name="Fleet One Losses",
-                        value="__ISK Lost:__ {}\n"
-                              "__Total Damage Received:__ {}\n\n"
-                              "__Losses__"
+                        value="ISK Lost: {}\n"
+                              "Total Damage Received: {}\n\n"
+                              "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
-                        value="__ISK Lost:__ {}\n"
-                              "__Total Damage Received:__ {}\n\n"
-                              "__Losses__"
+                        value="ISK Lost: {}\n"
+                              "Total Damage Received: {}\n\n"
+                              "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
                         inline=False)
         for fleet_member in merged_fleet:
@@ -1461,11 +1461,11 @@ class EveRpg:
         embed.set_footer(icon_url=self.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Fleet Battle Report",
-                        value="__Region:__ {}\n"
-                              "__Total Players Involved:__ {}\n"
-                              "__Ships Destroyed:__ {}\n"
-                              "__Total ISK Lost:__ {} ISK\n"
-                              "__Total Damage Done:__ {}\n".format(region_name,
+                        value="Region: {}\n"
+                              "Total Players Involved: {}\n"
+                              "Ships Destroyed: {}\n"
+                              "Total ISK Lost: {} ISK\n"
+                              "Total Damage Done: {}\n".format(region_name,
                                                                        len(attacker_fleet) + len(defender_fleet),
                                                                        len(dead_attackers) + len(dead_defenders),
                                                                        '{0:,.2f}'.format(float(
@@ -1473,15 +1473,15 @@ class EveRpg:
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
         embed.add_field(name="Fleet One Losses",
-                        value="__ISK Lost:__ {}\n"
-                              "__Total Damage Received:__ {}\n\n"
-                              "__Losses__"
+                        value="ISK Lost: {}\n"
+                              "Total Damage Received: {}\n\n"
+                              "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
-                        value="__ISK Lost:__ {}\n"
-                              "__Total Damage Received:__ {}\n\n"
-                              "__Losses__"
+                        value="ISK Lost: {}\n"
+                              "Total Damage Received: {}\n\n"
+                              "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
                         inline=False)
         for fleet_member in merged_fleet:
