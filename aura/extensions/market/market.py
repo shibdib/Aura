@@ -368,7 +368,7 @@ class Market:
                                     cost += module_item['isk']
                                 fit['cost'] = int(float(ship['isk'])) + int(float(cost))
                                 ship_fits.append('**{}.** {} - {} ISK'.format(fit_number, fit['fit_name'],
-                                                                              '{0:,.2f}'.format(float(cost))))
+                                                                              '{0:,.2f}'.format(float(fit['cost']))))
                                 ship_fits_dict[fit_number] = fit
                                 fit_number += 1
                         if len(ship_fits) > 0:
