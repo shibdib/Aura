@@ -1126,8 +1126,12 @@ class EveRpg:
                 for on_mail in aggressor:
                     if on_mail == killing_blow:
                         continue
+                    on_mail_name = self.bot.get_user(int(on_mail[2])).display_name
+                    if on_mail[23] is not None:
+                        corp_info = await game_functions.get_user_corp(on_mail[23])
+                        on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
                     other_users.append(on_mail)
-                    other_names.append('{}'.format(self.bot.get_user(int(on_mail[2])).display_name))
+                    other_names.append('{}'.format(on_mail_name))
                 clean_names = '\n'.join(other_names)
                 if len(other_names) > 6:
                     clean_names = '\n{} fleet members.'.format(len(other_names))
@@ -1390,8 +1394,12 @@ class EveRpg:
                 for on_mail in aggressor:
                     if on_mail == killing_blow:
                         continue
+                    on_mail_name = self.bot.get_user(int(on_mail[2])).display_name
+                    if on_mail[23] is not None:
+                        corp_info = await game_functions.get_user_corp(on_mail[23])
+                        on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
                     other_users.append(on_mail)
-                    other_names.append('{}'.format(self.bot.get_user(int(on_mail[2])).display_name))
+                    other_names.append('{}'.format(on_mail_name))
                 clean_names = '\n'.join(other_names)
                 if len(other_names) > 6:
                     clean_names = '\n{} fleet members.'.format(len(other_names))
