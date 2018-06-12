@@ -182,15 +182,18 @@ class EveRpg:
             values = (region_id,)
             system_ratters = await db.select_var(sql, values)
             npc = 45
+            isk_multi = 0.25
             if region_security == 'Low':
                 npc = 55
+                isk_multi = 0.5
             elif region_security == 'Null':
                 npc = 75
+                isk_multi = 0.65
             #  PVE Rolls
             encounter = await self.weighted_choice(
                 [(True, npc / len(system_ratters)), (False, 100 - npc + 1)])
             if encounter is True:
-                await self.process_pve_combat(ratter)
+                await self.process_pve_combat(ratter, isk_multi)
 
     async def process_anomaly_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 '''
@@ -295,10 +298,10 @@ class EveRpg:
             mission_details = ast.literal_eval(mission_runner[22])
             isk = mission_details['reward']
             #  PVE Rolls
-            complete_mission = await self.weighted_choice([(True, 20), (False, 30 * mission_details['level'])])
+            complete_mission = await self.weighted_choice([(True, 15), (False, 30 * mission_details['level'])])
             enounter = await self.weighted_choice([(True, 70), (False, 30)])
             if enounter is True and complete_mission is False:
-                await self.process_pve_combat(mission_runner, mission_details['level'])
+                await self.process_pve_combat(mission_runner, 1, mission_details['level'])
             else:
                 if complete_mission is False:
                     continue
@@ -436,7 +439,7 @@ class EveRpg:
                 else:
                     await player.send('**Failure** The AI defeated you, looking for a new site.')
 
-    async def process_pve_combat(self, player, mission=False):
+    async def process_pve_combat(self, player, isk_multi=1, mission=False):
         region_id = int(player[4])
         player_user = self.bot.get_user(player[2])
         player_task = await game_functions.get_task(int(player[6]))
@@ -514,7 +517,7 @@ class EveRpg:
             if npc_hits <= 0:
                 for player in payout_array:
                     await self.add_xp(player, random.randint(2, 10))
-                    await self.add_isk(player, npc['isk'] / len(payout_array))
+                    await self.add_isk(player, int(float((npc['isk'] * isk_multi))) / len(payout_array))
                     await self.update_journal(player, npc['isk'] / len(payout_array),
                                               '{} - {}'.format(player_task, npc['name']))
                 if officer is True:
