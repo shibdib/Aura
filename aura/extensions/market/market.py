@@ -353,6 +353,27 @@ class Market:
                 content = msg.content
                 if int(content) in accepted_options:
                     ship = await game_functions.get_ship(ship_assigned_number[int(content)])
+                    saved_fits = ''
+                    saved_fits_option = ''
+                    if player[0][26] is not None:
+                        players_saved_fits = ast.literal_eval(player[0][26])
+                        ship_fits = []
+                        ship_fits_dict = {}
+                        fit_number = 1
+                        for fit in players_saved_fits:
+                            if fit['ship_type'] == ship['id']:
+                                cost = 0
+                                for module in fit['modules']:
+                                    module_item = await game_functions.get_module(module)
+                                    cost += module_item['isk']
+                                fit['cost'] = int(float(ship['isk'])) + int(float(cost))
+                                ship_fits.append('**{}.** {} - {} ISK'.format(fit_number, fit['fit_name'],
+                                                                              '{0:,.2f}'.format(float(cost))))
+                                ship_fits_dict[fit_number] = fit
+                                fit_number += 1
+                        if len(ship_fits) > 0:
+                            saved_fits = '\n'.join(ship_fits)
+                            saved_fits_option = '**4.** Purchase with a saved fit.'
                     cost = '{0:,.2f}'.format(float(ship['isk']))
                     if int(float(ship['isk'])) > int(float(player[0][5])):
                         return await ctx.author.send('**Not Enough Isk**')
@@ -364,7 +385,8 @@ class Market:
                                     value="Are you sure you want to buy a **{}** for {} ISK\n\n"
                                           "**1.** Yes.\n"
                                           "**2.** No.\n"
-                                          "**3.** Yes and make it my active ship.\n".format(ship['name'], cost))
+                                          "**3.** Yes and make it my active ship.\n"
+                                          "{}".format(ship['name'], cost, saved_fits_option))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -425,6 +447,50 @@ class Market:
                         await db.execute_sql(sql, values)
                         await ctx.author.send(
                             '**{} Purchase Complete, It Is Now Your Active Ship**'.format(ship['name']))
+                    elif content == '4':
+                        embed = make_embed(icon=self.bot.user.avatar)
+                        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                         text="Aura - EVE Text RPG")
+                        embed.set_thumbnail(url="{}".format(ship['image']))
+                        embed.add_field(name="Choose Fit",
+                                        value="Which Fit Do You Want\n\n"
+                                              "{}".format(saved_fits))
+                        await ctx.author.send(embed=embed)
+
+                        def check(m):
+                            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                        msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+                        content = msg.content
+                        if content in ship_fits_dict:
+                            fitting = ship_fits_dict[content]
+                            total_cost = fitting['cost']
+                            if total_cost > player[0][5]:
+                                await ctx.author.send('**ERROR** - Not enough ISK.')
+                                return await ctx.invoke(self.bot.get_command("me"), True)
+                            new_ship = {'id': new_id, 'ship_type': ship['id'], 'modules': fitting['modules']}
+                            if player[0][15] is None:
+                                current_hangar = {player[0][4]: [new_ship]}
+                            elif player[0][4] not in ast.literal_eval(player[0][15]):
+                                current_hangar = ast.literal_eval(player[0][15])
+                                current_hangar[player[0][4]] = [new_ship]
+                            else:
+                                current_hangar = ast.literal_eval(player[0][15])
+                                current_hangar[player[0][4]].append(new_ship)
+                            sql = ''' UPDATE eve_rpg_players
+                                    SET ship = (?),
+                                        modules = (?),
+                                        ship_hangar = (?),
+                                        isk = (?),
+                                        task = 1
+                                    WHERE
+                                        player_id = (?); '''
+                            remaining_isk = int(float(player[0][5])) - int(float(total_cost))
+                            values = (str(new_ship), None, str(current_hangar), remaining_isk, ctx.author.id,)
+                            await db.execute_sql(sql, values)
+                            await ctx.author.send(
+                                '**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
+                                'Region**'.format(ship['name']))
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 await ctx.author.send('**ERROR** - Not a valid choice.')
                 if content.find('!!') == -1:

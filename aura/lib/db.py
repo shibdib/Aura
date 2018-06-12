@@ -98,7 +98,8 @@ async def create_tables():
                                         mission_details TEXT DEFAULT NULL,
                                         corporation INTEGER DEFAULT NULL,
                                         alliance INTEGER DEFAULT NULL,
-                                        combat_timer INTEGER DEFAULT NULL
+                                        combat_timer INTEGER DEFAULT NULL,
+                                        saved_fits TEXT DEFAULT NULL
                                     ); """
         await create_table(db, eve_rpg_players_table)
     else:
@@ -115,15 +116,13 @@ async def update_tables():
         current_version = version[0][0]
     if db is not None:
         result = 'DB Up To Date'
-        if int(current_version) < 4:
-            result = 'Updated to DB version 3'
-            sql = ''' ALTER TABLE corporations ADD COLUMN `tax_rate` INTEGER DEFAULT NULL; '''
-            await execute_sql(sql)
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `combat_timer` INTEGER DEFAULT NULL; '''
+        if int(current_version) < 5:
+            result = 'Updated to DB version 5'
+            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `saved_fits` TEXT DEFAULT NULL; '''
             await execute_sql(sql)
         sql = ''' REPLACE INTO data(entry,int)
                   VALUES(?,?) '''
-        values = ('db_version', 4)
+        values = ('db_version', 5)
         await execute_sql(sql, values)
         return result
 

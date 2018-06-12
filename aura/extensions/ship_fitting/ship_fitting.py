@@ -99,7 +99,7 @@ class ShipFitting:
             clean_equipped_drones = '\n'.join(equipped_drones_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(player[0], int(player_ship_obj['ship_type']))
-        value = '**{}** {}\n*{}*\n{}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current ' \
+        value = '**{}** {}\n*{}*\n**s.** To save this fit.\n{}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current ' \
                 'Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], custom_name, rename_ship, module_count, ship['slots'],
                                                                   killmarks, insured, ship_attack, ship_defense,
                                                                   ship_maneuver, ship_tracking)
@@ -190,6 +190,38 @@ class ShipFitting:
                 values = (str(player_ship_obj), ctx.author.id,)
                 await db.execute_sql(sql, values)
                 await ctx.author.send('**Changes Complete**')
+                return await ctx.invoke(self.bot.get_command("me"), True)
+        if msg.content == 's':
+            embed = make_embed(icon=ctx.bot.user.avatar)
+            embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            embed.add_field(name="Save Fitting",
+                            value="What would you like to name this fit?\n\n"
+                                  "*Once you save a fit for a ship, whenever you go to purchase that ship again you "
+                                  "will get an option to buy the ship already fit with your saved fitting.*")
+            await ctx.author.send(embed=embed)
+
+            def check(m):
+                return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+            msg = await self.bot.wait_for('message', check=check, timeout=120.0)
+            if msg.content == '!!me':
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                saved_fit = {'modules': player_ship_obj['modules'], 'ship_type': player_ship_obj['ship_type'],
+                             'fit_name': msg.content[:15]}
+                if player[0][26] is not None:
+                    players_saved_fits = ast.literal_eval(player[0][26])
+                    players_saved_fits.append(saved_fit)
+                else:
+                    players_saved_fits = [saved_fit]
+                sql = ''' UPDATE eve_rpg_players
+                        SET saved_fits = (?)
+                        WHERE
+                            player_id = (?); '''
+                values = (str(players_saved_fits), ctx.author.id,)
+                await db.execute_sql(sql, values)
+                await ctx.author.send('**Fit Saved For Future Purchase**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
 
         module_array = list(set(ast.literal_eval('[{}]'.format(msg.content))))
