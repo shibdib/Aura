@@ -31,6 +31,9 @@ class ManageSelf:
             values = (ctx.message.author.id,)
             player = await db.select_var(sql, values)
             player_name = self.bot.get_user(int(player[0][2])).display_name
+            if player[0][23] is not None:
+                corp_info = await game_functions.get_user_corp(player[0][23])
+                player_name = '{} [{}]'.format(player_name, corp_info[0][4])
             region_id = int(player[0][4])
             sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
             values = (region_id,)
@@ -68,7 +71,8 @@ class ManageSelf:
                                       "**10.** Change your clone to here.\n"
                                       "**11.** View Local.\n"
                                       "**12.** View Your Wallet.\n"
-                                      "**13.** Manage your contacts.\n".format(
+                                      "**13.** Manage your contacts.\n"
+                                      "**14.** Corporation Management.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     module_cargo_option, component_cargo_option))
             if redirect is True:
@@ -88,7 +92,8 @@ class ManageSelf:
                                       "**10.** Change your clone to here.\n"
                                       "**11.** View Local.\n"
                                       "**12.** View Your Wallet.\n"
-                                      "**13.** Manage your contacts.\n".format(
+                                      "**13.** Manage your contacts.\n"
+                                      "**14.** Corporation Management.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
                                     module_cargo_option, component_cargo_option))
             await ctx.author.send(embed=embed)
@@ -124,6 +129,8 @@ class ManageSelf:
                 await ctx.invoke(self.bot.get_command("wallet"))
             elif content == '13':
                 await ctx.invoke(self.bot.get_command("contacts"))
+            elif content == '14':
+                await ctx.invoke(self.bot.get_command("corp"))
             else:
                 return
 

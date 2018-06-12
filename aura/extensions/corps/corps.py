@@ -73,9 +73,9 @@ class Corps:
                     elif content == '2':
                         await self.kick_member(ctx, corp_info)
                     elif content == '3':
-                        await self.manage_officers(ctx, corp_info)
+                        await ctx.author.send('**ERROR** - Not added yet.')
                     elif content == '4':
-                        await self.disband_corporation(ctx, corp_info)
+                        await ctx.author.send('**ERROR** - Not added yet.')
                     elif content == '5':
                         await ctx.invoke(self.bot.get_command("me"), True)
                     elif '!!' not in content:
@@ -115,7 +115,30 @@ class Corps:
                     else:
                         return
                 else:
-                    await ctx.invoke(self.bot.get_command("me"), True)
+                    embed = make_embed(icon=ctx.bot.user.avatar)
+                    embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    embed.add_field(name="Corporation Management".format(player_name),
+                                    value="__**Corporation Info**__\n"
+                                          "Corp ID: {}\n"
+                                          "Member Count: {}\n\n"
+                                          "**1.** Leave Corp\n"
+                                          "**2.** Return to the main menu".format(corp_info[1], len(corp_members)))
+                    await ctx.author.send(embed=embed)
+
+                    def check(m):
+                        return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+                    msg = await self.bot.wait_for('message', check=check, timeout=120)
+                    content = msg.content
+                    if content == '1':
+                        await self.leave_corp(ctx, player, corp_info)
+                    elif content == '2':
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    elif content.find('!!') == -1:
+                        return await ctx.invoke(self.bot.get_command("me"), True)
+                    else:
+                        return
             else:
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -255,22 +278,22 @@ class Corps:
         await ctx.author.send('**Success** - Applied to {}.'.format(corp[0][3]))
         return await ctx.invoke(self.bot.get_command("me"), True)
 
-    async def leave_fleet(self, ctx, player, fleet):
+    async def leave_corp(self, ctx, player, corp):
         sql = ''' UPDATE eve_rpg_players
-                    SET fleet = (?)
+                    SET corp = (?)
                     WHERE
                         id = (?); '''
         values = (None, player[0],)
         await db.execute_sql(sql, values)
-        members = ast.literal_eval(fleet[3])
+        members = ast.literal_eval(corp[3])
         members.remove(player[0])
-        sql = ''' UPDATE fleet_info
-                    SET fleet_members = (?)
+        sql = ''' UPDATE corporations
+                    SET members = (?)
                     WHERE
-                        fleet_id = (?); '''
-        values = (str(members), fleet[1])
+                        corp_id = (?); '''
+        values = (str(members), corp[1])
         await db.execute_sql(sql, values)
-        await ctx.author.send('**Success** - Left Fleet.')
+        await ctx.author.send('**Success** - Left {}.'.format(corp[3]))
         await ctx.invoke(self.bot.get_command("me"), True)
 
     async def disband_fleet(self, ctx, fleet):
@@ -295,6 +318,7 @@ class Corps:
         member_number = 1
         member_count = 0
         members = ast.literal_eval(corp[3])
+        embed = make_embed(icon=ctx.bot.user.avatar)
         for member_id in members:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
@@ -303,12 +327,19 @@ class Corps:
             corp_member_dict[member_number] = member[0][0]
             corp_member_array.append('**{}.** {}'.format(member_number, member_name))
             member_number += 1
-        clean_members = '\n'.join(corp_member_array)
-        embed = make_embed(icon=ctx.bot.user.avatar)
+            member_count += 1
+            if member_count >= 10:
+                member_count = 0
+                clean_members = '\n'.join(corp_member_array)
+                embed.add_field(name="Kick Member",
+                                value="{}".format(clean_members))
+                corp_member_array = []
+        if len(corp_member_array) > 0:
+            clean_members = '\n'.join(corp_member_array)
+            embed.add_field(name="Kick Member",
+                            value="{}".format(clean_members))
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
-        embed.add_field(name="Kick Member",
-                        value="{}".format(clean_members))
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -316,21 +347,21 @@ class Corps:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120)
         content = msg.content
-        if int(content) not in fleet_member_dict:
+        if int(content) not in corp_member_dict:
             await ctx.author.send('**ERROR** - Incorrect Selection.')
             return await ctx.invoke(self.bot.get_command("me"), True)
         sql = ''' UPDATE eve_rpg_players
-                    SET fleet = (?)
+                    SET corp = (?)
                     WHERE
                         id = (?); '''
-        values = (None, fleet_member_dict[int(content)],)
+        values = (None, corp_member_dict[int(content)],)
         await db.execute_sql(sql, values)
-        members.remove(fleet_member_dict[int(content)])
-        sql = ''' UPDATE fleet_info
-                    SET fleet_members = (?)
+        members.remove(corp_member_dict[int(content)])
+        sql = ''' UPDATE corporations
+                    SET members = (?)
                     WHERE
-                        fleet_id = (?); '''
-        values = (str(members), fleet[1])
+                        corp_id = (?); '''
+        values = (str(members), corp[1])
         await db.execute_sql(sql, values)
         await ctx.author.send('**Success** - Member Kicked.')
         await ctx.invoke(self.bot.get_command("me"), True)
