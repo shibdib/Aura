@@ -1230,16 +1230,20 @@ class EveRpg:
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
         embed.add_field(name="Fleet One Losses",
-                        value="ISK Lost: {} ISK\n"
+                        value="Fleet Size: {} Players\n"
+                              "Total Losses: {}\n"
+                              "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
+                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
-                        value="ISK Lost: {} ISK\n"
+                        value="Fleet Size: {} Players\n"
+                              "Total Losses: {}\n"
+                              "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
+                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
                         inline=False)
         for fleet_member in merged_fleet:
             user = self.bot.get_user(fleet_member[2])
@@ -1487,16 +1491,20 @@ class EveRpg:
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
         embed.add_field(name="Fleet One Losses",
-                        value="ISK Lost: {} ISK\n"
+                        value="Fleet Size: {} Players\n"
+                              "Total Losses: {}\n"
+                              "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
+                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
-                        value="ISK Lost: {} ISK\n"
+                        value="Fleet Size: {} Players\n"
+                              "Total Losses: {}\n"
+                              "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
+                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
                         inline=False)
         for fleet_member in merged_fleet:
             user = self.bot.get_user(fleet_member[2])
