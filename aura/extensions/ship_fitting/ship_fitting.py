@@ -208,7 +208,8 @@ class ShipFitting:
             if msg.content == '!!me':
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
-                saved_fit = {'modules': player_ship_obj['modules'], 'ship_type': player_ship_obj['ship_type'],
+                modules = ast.literal_eval(player[0][12])
+                saved_fit = {'modules': modules, 'ship_type': player_ship_obj['ship_type'],
                              'fit_name': msg.content[:15]}
                 if player[0][26] is not None:
                     players_saved_fits = ast.literal_eval(player[0][26])
