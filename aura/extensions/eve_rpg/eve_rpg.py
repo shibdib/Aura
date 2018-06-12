@@ -955,12 +955,15 @@ class EveRpg:
         await self.give_pvp_loot(winner)
 
     async def fleet_versus_fleet(self, fleet_one, fleet_two, region):
+        region_name = await game_functions.get_region(int(region))
         # Fleet stuff
         attacker_fleet_attack, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits, defender_fleet_attack, \
         defender_fleet_maneuver, defender_fleet_tracking, defender_fleet_hits = 0, 0, 0, 0, 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
         attacker_fleet_lost = []
+        attacker_isk_lost = 0
+        attacker_damage_dealt = 0
         attackers_in_system = 0
         for member_id in attacker_fleet_array:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
@@ -983,6 +986,8 @@ class EveRpg:
         defender_fleet_array = ast.literal_eval(fleet_two[3])
         defender_fleet = []
         defender_fleet_lost = []
+        defender_isk_lost = 0
+        defender_damage_dealt = 0
         defenders_in_system = 0
         for member_id in defender_fleet_array:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
@@ -1038,6 +1043,10 @@ class EveRpg:
             if (primary_maneuver * 0.5) > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.5)
             damage = (aggressor_damage * transversal) - primary_defense
+            if primary not in attacker_fleet:
+                defender_damage_dealt += damage
+            else:
+                attacker_damage_dealt += damage
             if damage <= 0:
                 continue
             if damage < hit_points:
@@ -1086,12 +1095,6 @@ class EveRpg:
                     fleet_array = ast.literal_eval(fleet_info[0][3])
                     if primary[0] in fleet_array:
                         continue
-                if primary not in attacker_fleet:
-                    defender_fleet.remove(primary)
-                    defender_fleet_lost.append(primary)
-                else:
-                    attacker_fleet.remove(primary)
-                    attacker_fleet_lost.append(primary)
                 other_names = []
                 other_users = []
                 for on_mail in aggressor:
@@ -1104,8 +1107,6 @@ class EveRpg:
                     clean_names = '\n{} fleet members.'.format(len(other_names))
                 winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
                 winner_name = winner_user.display_name
-                region_id = int(killing_blow[4])
-                region_name = await game_functions.get_region(int(region_id))
                 loser_name = self.bot.get_user(int(primary[2])).display_name
                 winner_ship_obj = ast.literal_eval(killing_blow[14])
                 winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
@@ -1131,6 +1132,14 @@ class EveRpg:
                     loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
                 xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
                 isk_lost = module_value + loser_ship_info['isk']
+                if primary not in attacker_fleet:
+                    defender_fleet.remove(primary)
+                    defender_fleet_lost.append(primary)
+                    defender_isk_lost += isk_lost
+                else:
+                    attacker_fleet.remove(primary)
+                    attacker_fleet_lost.append(primary)
+                    attacker_isk_lost += isk_lost
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -1161,12 +1170,56 @@ class EveRpg:
                 for user in other_users:
                     await self.add_kill(user, dropped_mods)
                     await self.add_xp(user, xp_gained)
+        dead_attackers = []
+        for attacker_killed in attacker_fleet_lost:
+            member_ship = ast.literal_eval(attacker_killed[14])
+            ship_details = await game_functions.get_ship(member_ship['ship_type'])
+            loser_name = self.bot.get_user(int(attacker_killed[2])).display_name
+            dead_attackers.append('{} - *{}*'.format(loser_name, ship_details['name']))
+        attackers_lost = '\n'.join(dead_attackers)
+        dead_defenders = []
+        for defender_killed in defender_fleet_lost:
+            member_ship = ast.literal_eval(defender_killed[14])
+            ship_details = await game_functions.get_ship(member_ship['ship_type'])
+            loser_name = self.bot.get_user(int(defender_killed[2])).display_name
+            dead_defenders.append('{} - *{}*'.format(loser_name, ship_details['name']))
+        defenders_lost = '\n'.join(dead_defenders)
+        embed = make_embed(icon=self.bot.user.avatar)
+        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Fleet Battle Report",
+                        value="**Region:** {}\n"
+                              "**Total Players Involved:** {}\n"
+                              "**Ships Destroyed:** {}\n"
+                              "**Total ISK Lost:** {} ISK\n"
+                              "**Total Damage Done:** {} ISK\n".format(region_name,
+                                                                       len(attacker_fleet) + len(defender_fleet),
+                                                                       len(dead_attackers) + len(dead_defenders),
+                                                                       '{0:,.2f}'.format(float(
+                                                                           attacker_isk_lost + defender_isk_lost)),
+                                                                       attacker_damage_dealt + defender_damage_dealt))
+        embed.add_field(name="Fleet One Losses",
+                        value="**ISK Lost:** {}\n"
+                              "**Total Damage Received:** {}\n\n"
+                              "{}".format(attacker_isk_lost, defender_damage_dealt, attackers_lost))
+        embed.add_field(name="Fleet Two Losses",
+                        value="**ISK Lost:** {}\n"
+                              "**Total Damage Received:** {}\n\n"
+                              "{}".format(defender_isk_lost, attacker_damage_dealt, defenders_lost))
+        for fleet_member in merged_fleet:
+            user = self.bot.get_user(fleet_member[2])
+            await user.send(embed=embed)
+        await self.send_global(embed, True)
 
     async def fleet_versus_player(self, fleet_one, player, region):
+        region_name = await game_functions.get_region(int(region))
         # Fleet stuff
         attacker_fleet_attack, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits = 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
+        attacker_fleet_lost = []
+        attacker_isk_lost = 0
+        attacker_damage_dealt = 0
         f_id = []
         attackers_in_system = 0
         for member_id in attacker_fleet_array:
@@ -1198,6 +1251,9 @@ class EveRpg:
         attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
         defender_initiative = 100 - attacker_initiative
         defender_fleet = [player]
+        defender_fleet_lost = []
+        defender_isk_lost = 0
+        defender_damage_dealt = 0
         # Give all participants a combat timer
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
@@ -1230,6 +1286,10 @@ class EveRpg:
             if (primary_maneuver * 0.5) > aggressor_tracking:
                 transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.5)
             damage = (aggressor_damage * transversal) - primary_defense
+            if primary not in attacker_fleet:
+                defender_damage_dealt += damage
+            else:
+                attacker_damage_dealt += damage
             if damage <= 0:
                 continue
             if damage < hit_points:
@@ -1278,10 +1338,6 @@ class EveRpg:
                     fleet_array = ast.literal_eval(fleet_info[0][3])
                     if primary[0] in fleet_array:
                         continue
-                if primary not in attacker_fleet:
-                    defender_fleet.remove(primary)
-                else:
-                    attacker_fleet.remove(primary)
                 other_names = []
                 other_users = []
                 for on_mail in aggressor:
@@ -1294,8 +1350,6 @@ class EveRpg:
                     clean_names = '\n{} fleet members.'.format(len(other_names))
                 winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
                 winner_name = winner_user.display_name
-                region_id = int(killing_blow[4])
-                region_name = await game_functions.get_region(int(region_id))
                 loser_name = self.bot.get_user(int(primary[2])).display_name
                 winner_ship_obj = ast.literal_eval(killing_blow[14])
                 winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
@@ -1321,6 +1375,14 @@ class EveRpg:
                     loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
                 xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
                 isk_lost = module_value + loser_ship_info['isk']
+                if primary not in attacker_fleet:
+                    defender_fleet.remove(primary)
+                    defender_fleet_lost.append(primary)
+                    defender_isk_lost += isk_lost
+                else:
+                    attacker_fleet.remove(primary)
+                    attacker_fleet_lost.append(primary)
+                    attacker_isk_lost += isk_lost
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -1350,6 +1412,46 @@ class EveRpg:
                 for user in other_users:
                     await self.add_kill(user, dropped_mods)
                     await self.add_xp(user, xp_gained)
+        dead_attackers = []
+        for attacker_killed in attacker_fleet_lost:
+            member_ship = ast.literal_eval(attacker_killed[14])
+            ship_details = await game_functions.get_ship(member_ship['ship_type'])
+            loser_name = self.bot.get_user(int(attacker_killed[2])).display_name
+            dead_attackers.append('{} - *{}*'.format(loser_name, ship_details['name']))
+        attackers_lost = '\n'.join(dead_attackers)
+        dead_defenders = []
+        for defender_killed in defender_fleet_lost:
+            member_ship = ast.literal_eval(defender_killed[14])
+            ship_details = await game_functions.get_ship(member_ship['ship_type'])
+            loser_name = self.bot.get_user(int(defender_killed[2])).display_name
+            dead_defenders.append('{} - *{}*'.format(loser_name, ship_details['name']))
+        defenders_lost = '\n'.join(dead_defenders)
+        embed = make_embed(icon=self.bot.user.avatar)
+        embed.set_footer(icon_url=self.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Fleet Battle Report",
+                        value="**Region:** {}\n"
+                              "**Total Players Involved:** {}\n"
+                              "**Ships Destroyed:** {}\n"
+                              "**Total ISK Lost:** {} ISK\n"
+                              "**Total Damage Done:** {} ISK\n".format(region_name,
+                                                                       len(attacker_fleet) + len(defender_fleet),
+                                                                       len(dead_attackers) + len(dead_defenders),
+                                                                       '{0:,.2f}'.format(float(
+                                                                           attacker_isk_lost + defender_isk_lost)),
+                                                                       attacker_damage_dealt + defender_damage_dealt))
+        embed.add_field(name="Fleet One Losses",
+                        value="**ISK Lost:** {}\n"
+                              "**Total Damage Received:** {}\n\n"
+                              "{}".format(attacker_isk_lost, defender_damage_dealt, attackers_lost))
+        embed.add_field(name="Fleet Two Losses",
+                        value="**ISK Lost:** {}\n"
+                              "**Total Damage Received:** {}\n\n"
+                              "{}".format(defender_isk_lost, attacker_damage_dealt, defenders_lost))
+        for fleet_member in merged_fleet:
+            user = self.bot.get_user(fleet_member[2])
+            await user.send(embed=embed)
+        await self.send_global(embed, True)
 
     async def weighted_choice(self, items):
         """items is a list of tuples in the form (item, weight)"""
