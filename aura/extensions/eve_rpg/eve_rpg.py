@@ -1050,8 +1050,10 @@ class EveRpg:
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             if not_first_round is True:
-                aggressor = await self.weighted_choice(
-                    [(attacker_fleet, 50), (defender_fleet, 50)])
+                if aggressor != attacker_fleet:
+                    aggressor = defender_fleet
+                else:
+                    aggressor = attacker_fleet
             not_first_round = True
             if aggressor != attacker_fleet:
                 non_aggressor = attacker_fleet
@@ -1317,9 +1319,13 @@ class EveRpg:
             [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
         not_first_round = None
         for x in range(int(((attacker_fleet_hits / 2) + hit_points) * 1.25)):
+            if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
+                break
             if not_first_round is True:
-                aggressor = await self.weighted_choice(
-                    [(attacker_fleet, 50), (defender_fleet, 50)])
+                if aggressor != attacker_fleet:
+                    aggressor = defender_fleet
+                else:
+                    aggressor = attacker_fleet
             not_first_round = True
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
