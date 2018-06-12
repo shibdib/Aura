@@ -1152,12 +1152,10 @@ class EveRpg:
                                       "Total ISK Lost: {} ISK\n\n"
                                       "__**Final Blow**__\n"
                                       "**{}** flying a {}.\n\n"
-                                      "**{}** Total Damage Dealt.\n\n"
                                       "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
                                                                          loser_modules,
                                                                          '{0:,.2f}'.format(float(isk_lost)),
-                                                                         winner_name, winner_ship, damage,
-                                                                         clean_names))
+                                                                         winner_name, winner_ship, clean_names))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
@@ -1192,7 +1190,7 @@ class EveRpg:
                               "**Total Players Involved:** {}\n"
                               "**Ships Destroyed:** {}\n"
                               "**Total ISK Lost:** {} ISK\n"
-                              "**Total Damage Done:** {} ISK\n".format(region_name,
+                              "**Total Damage Done:** {}\n".format(region_name,
                                                                        len(attacker_fleet) + len(defender_fleet),
                                                                        len(dead_attackers) + len(dead_defenders),
                                                                        '{0:,.2f}'.format(float(
@@ -1395,12 +1393,10 @@ class EveRpg:
                                       "Total ISK Lost: {} ISK\n\n"
                                       "__**Final Blow**__\n"
                                       "**{}** flying a {}.\n\n"
-                                      "**{}** Total Damage Dealt.\n\n"
                                       "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
                                                                          loser_modules,
                                                                          '{0:,.2f}'.format(float(isk_lost)),
-                                                                         winner_name, winner_ship, damage,
-                                                                         clean_names))
+                                                                         winner_name, winner_ship, clean_names))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
                 await self.send_global(embed, True)
@@ -1434,7 +1430,7 @@ class EveRpg:
                               "**Total Players Involved:** {}\n"
                               "**Ships Destroyed:** {}\n"
                               "**Total ISK Lost:** {} ISK\n"
-                              "**Total Damage Done:** {} ISK\n".format(region_name,
+                              "**Total Damage Done:** {}\n".format(region_name,
                                                                        len(attacker_fleet) + len(defender_fleet),
                                                                        len(dead_attackers) + len(dead_defenders),
                                                                        '{0:,.2f}'.format(float(
