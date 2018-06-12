@@ -111,7 +111,7 @@ class EveRpg:
                     if camper[21] is not None:
                         blue_array = ast.literal_eval(camper[21])
                         if traveler[0] in blue_array:
-                            return
+                            continue
                     # Fleet check
                     if camper[16] is not None and camper[16] != 0:
                         sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
@@ -119,7 +119,7 @@ class EveRpg:
                         fleet_info = await db.select_var(sql, values)
                         fleet_array = ast.literal_eval(fleet_info[0][3])
                         if traveler[0] in fleet_array:
-                            return
+                            continue
                     conflict = await self.weighted_choice([(True, 55 - defender_maneuver), (False, 55)])
                     if conflict is True:
                         camper_fleet = False
@@ -148,7 +148,7 @@ class EveRpg:
                             values = (camper[16],)
                             fleet_two_info = await db.select_var(sql, values)
                             await self.fleet_versus_fleet(fleet_one_info[0], fleet_two_info[0], region_id)
-                        return self.process_travel()
+                        await self.process_travel()
             destination_name = await game_functions.get_region(destination_id)
             sql = ''' UPDATE eve_rpg_players
                     SET region = (?),
@@ -960,6 +960,7 @@ class EveRpg:
         defender_fleet_maneuver, defender_fleet_tracking, defender_fleet_hits = 0, 0, 0, 0, 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
+        attacker_fleet_lost = []
         attackers_in_system = 0
         for member_id in attacker_fleet_array:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
@@ -981,6 +982,7 @@ class EveRpg:
             attacker_fleet_tracking += member_tracking
         defender_fleet_array = ast.literal_eval(fleet_two[3])
         defender_fleet = []
+        defender_fleet_lost = []
         defenders_in_system = 0
         for member_id in defender_fleet_array:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
@@ -1086,8 +1088,10 @@ class EveRpg:
                         continue
                 if primary not in attacker_fleet:
                     defender_fleet.remove(primary)
+                    defender_fleet_lost.append(primary)
                 else:
                     attacker_fleet.remove(primary)
+                    attacker_fleet_lost.append(primary)
                 other_names = []
                 other_users = []
                 for on_mail in aggressor:
