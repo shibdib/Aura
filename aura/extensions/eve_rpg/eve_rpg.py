@@ -531,6 +531,10 @@ class EveRpg:
         module_value = 0
         loser_modules = ''
         loser_modules_array = []
+        loser_name = player_user.display_name
+        if player[23] is not None:
+            corp_info = await game_functions.get_user_corp(player[23])
+            loser_name = '{} [{}]'.format(loser_name, corp_info[4])
         if player[12] is not None:
             modules = ast.literal_eval(player[12])
             for module in modules:
@@ -551,7 +555,7 @@ class EveRpg:
                               "**{}** flying a {} was killed while they were {}.{}\n\n"
                               "Total ISK Lost: {} ISK\n\n"
                               "__**Final Blow**__\n"
-                              "**{}**\n\n".format(region_name, player_user.display_name, ship['name'], player_task,
+                              "**{}**\n\n".format(region_name, loser_name, ship['name'], player_task,
                                                   loser_modules, '{0:,.2f}'.format(float(module_value)), npc['name']))
         await self.add_loss(player)
         await player_user.send(embed=embed)
