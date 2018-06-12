@@ -420,7 +420,10 @@ class Corps:
         if int(content) not in pending_member_dict:
             await ctx.author.send('**ERROR** - Incorrect Selection.')
             return await ctx.invoke(self.bot.get_command("me"), True)
-        applicant = pending_member_dict[int(content)]
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+        values = (int(pending_member_dict[int(content)]),)
+        applicant = await db.select_var(sql, values)
+        applicant = applicant[0]
         applicant_user = self.bot.get_user(int(applicant[2]))
         applicant_name = applicant_user.display_name
         embed = make_embed(icon=ctx.bot.user.avatar)
