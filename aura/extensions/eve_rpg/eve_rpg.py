@@ -887,7 +887,7 @@ class EveRpg:
             modules = ast.literal_eval(loser[12])
             for module in modules:
                 module_item = await game_functions.get_module(module)
-                if module_item['id'] == 40 and escape is False:
+                if (module_item['id'] == 40 or module_item['id'] == 41) and escape is False:
                     escape = await self.weighted_choice([(True, 50), (False, 50)])
                     if escape is True:
                         await winner_user.send(
@@ -1050,13 +1050,29 @@ class EveRpg:
                         continue
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
-                if hit_points < ship_details['hit_points'] * 0.3:
+                if hit_points < ship_details['hit_points'] * 0.4:
                     flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
                     if flee is True:
                         if primary not in attacker_fleet:
                             defender_fleet.remove(primary)
+                            continue
                         else:
                             attacker_fleet.remove(primary)
+                            continue
+                    # Handle Cloak
+                    if primary[12] is not None:
+                        modules = ast.literal_eval(primary[12])
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            if module_item['id'] == 40 or module_item['id'] == 41:
+                                escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                if escape is True:
+                                    if primary not in attacker_fleet:
+                                        defender_fleet.remove(primary)
+                                        continue
+                                    else:
+                                        attacker_fleet.remove(primary)
+                                        continue
                 continue
             else:
                 killing_blow = random.choice(aggressor)
@@ -1224,13 +1240,29 @@ class EveRpg:
                         continue
                 if damage > 0:
                     damaged_ships[primary[0]] = hit_points - damage
-                if hit_points < ship_details['hit_points'] * 0.3:
+                if hit_points < ship_details['hit_points'] * 0.4:
                     flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
                     if flee is True:
                         if primary not in attacker_fleet:
                             defender_fleet.remove(primary)
+                            continue
                         else:
                             attacker_fleet.remove(primary)
+                            continue
+                    # Handle Cloak
+                    if primary[12] is not None:
+                        modules = ast.literal_eval(primary[12])
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            if module_item['id'] == 40 or module_item['id'] == 41:
+                                escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                if escape is True:
+                                    if primary not in attacker_fleet:
+                                        defender_fleet.remove(primary)
+                                        continue
+                                    else:
+                                        attacker_fleet.remove(primary)
+                                        continue
                 continue
             else:
                 killing_blow = random.choice(aggressor)
