@@ -33,7 +33,7 @@ class ManageSelf:
             player_name = self.bot.get_user(int(player[0][2])).display_name
             if player[0][23] is not None:
                 corp_info = await game_functions.get_user_corp(player[0][23])
-                player_name = '{} [{}]'.format(player_name, corp_info[0][4])
+                player_name = '{} [{}]'.format(player_name, corp_info[4])
             region_id = int(player[0][4])
             sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
             values = (region_id,)
