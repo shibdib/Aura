@@ -355,10 +355,10 @@ class Market:
                     ship = await game_functions.get_ship(ship_assigned_number[int(content)])
                     saved_fits = ''
                     saved_fits_option = ''
+                    ship_fits_dict = {}
                     if player[0][26] is not None:
                         players_saved_fits = ast.literal_eval(player[0][26])
                         ship_fits = []
-                        ship_fits_dict = {}
                         fit_number = 1
                         for fit in players_saved_fits:
                             if fit['ship_type'] == ship['id']:
@@ -396,7 +396,7 @@ class Market:
                     new_id = await game_functions.create_unique_id()
                     new_ship = {'id': new_id, 'ship_type': ship['id']}
                     content = msg.content
-                    if content != '1' and content != '3':
+                    if content != '1' and content != '3' and content != '4':
                         await ctx.author.send('**Purchase Canceled**')
                     if content == '1':
                         if player[0][15] is None:
@@ -462,8 +462,8 @@ class Market:
 
                         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
                         content = msg.content
-                        if content in ship_fits_dict:
-                            fitting = ship_fits_dict[content]
+                        if int(content) in ship_fits_dict:
+                            fitting = ship_fits_dict[int(content)]
                             total_cost = fitting['cost']
                             if total_cost > player[0][5]:
                                 await ctx.author.send('**ERROR** - Not enough ISK.')
@@ -491,6 +491,8 @@ class Market:
                             await ctx.author.send(
                                 '**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
                                 'Region**'.format(ship['name']))
+                        else:
+                            await ctx.author.send('**ERROR** - Not a valid choice.')
                     return await ctx.invoke(self.bot.get_command("me"), True)
                 await ctx.author.send('**ERROR** - Not a valid choice.')
                 if content.find('!!') == -1:
