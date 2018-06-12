@@ -280,7 +280,7 @@ class Corps:
 
     async def leave_corp(self, ctx, player, corp):
         sql = ''' UPDATE eve_rpg_players
-                    SET corp = (?)
+                    SET corporation = (?)
                     WHERE
                         id = (?); '''
         values = (None, player[0],)
@@ -313,9 +313,9 @@ class Corps:
         content = msg.content
         if content == '1':
             sql = ''' UPDATE eve_rpg_players
-                        SET corp = (?)
+                        SET corporation = (?)
                         WHERE
-                            corp = (?); '''
+                            corporation = (?); '''
             values = (None, corp[1],)
             await db.execute_sql(sql, values)
             sql = ''' DELETE FROM 
@@ -372,7 +372,7 @@ class Corps:
             await ctx.author.send('**ERROR** - Incorrect Selection.')
             return await ctx.invoke(self.bot.get_command("me"), True)
         sql = ''' UPDATE eve_rpg_players
-                    SET corp = (?)
+                    SET corporation = (?)
                     WHERE
                         id = (?); '''
         values = (None, corp_member_dict[int(content)],)
@@ -442,7 +442,7 @@ class Corps:
         content = msg.content
         if content == '1':
             sql = ''' UPDATE eve_rpg_players
-                        SET corp = (?)
+                        SET corporation = (?)
                         WHERE
                             id = (?); '''
             values = (corp[1], pending_member_dict[int(content)],)
@@ -490,7 +490,7 @@ class Corps:
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
         sender = self.bot.get_user(int(player[0][2])).display_name
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `corp` = (?) '''
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `corporation` = (?) '''
         values = (int(player[0][23]),)
         fleet_players = await db.select_var(sql, values)
         for user in fleet_players:
