@@ -105,9 +105,8 @@ class ShipFitting:
                                                                   ship_maneuver, ship_tracking)
         if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__\n{}'.format(value, clean_equipped_modules)
-        if len(remove_drones_commands) > 0:
-            value = '{}\n\n**{}m3/{}m3 Drone Bay**\n__Equipped Drones__\n{}'.format(value, drone_size, ship['drone_bay'],
-                                                                                    clean_equipped_drones)
+        value = '{}\n\n**{}m3/{}m3 Drone Bay**\n__Equipped Drones__\n{}'.format(value, drone_size, ship['drone_bay'],
+                                                                                clean_equipped_drones)
         embed = make_embed(icon=ctx.bot.user.avatar)
         ship_image = await game_functions.get_ship_image(int(player_ship_obj['ship_type']))
         embed.set_thumbnail(url="{}".format(ship_image))
