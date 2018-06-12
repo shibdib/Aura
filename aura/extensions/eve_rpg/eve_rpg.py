@@ -109,7 +109,8 @@ class EveRpg:
                 for camper in campers:
                     # Corp check
                     if camper[23] is not None:
-                        corp_array = ast.literal_eval(camper[23])
+                        corp_info = await game_functions.get_user_corp(camper[23])
+                        corp_array = ast.literal_eval(corp_info[23])
                         if traveler[0] in corp_array:
                             continue
                     # Blue check
@@ -585,7 +586,8 @@ class EveRpg:
                 for target in potential_targets:
                     # Corp check
                     if roamer[23] is not None:
-                        corp_array = ast.literal_eval(roamer[23])
+                        corp_info = await game_functions.get_user_corp(roamer[23])
+                        corp_array = ast.literal_eval(corp_info[23])
                         if target[0] in corp_array:
                             continue
                     # Blue check
