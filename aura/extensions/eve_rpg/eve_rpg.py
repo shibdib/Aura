@@ -1081,7 +1081,7 @@ class EveRpg:
                     other_names.append('{}'.format(self.bot.get_user(int(on_mail[2])).display_name))
                 clean_names = '\n'.join(other_names)
                 if len(other_names) > 6:
-                    clean_names = '\n{} fleet members.'
+                    clean_names = '\n{} fleet members.'.format(len(other_names))
                 winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
                 winner_name = winner_user.display_name
                 region_id = int(killing_blow[4])
@@ -1255,7 +1255,7 @@ class EveRpg:
                     other_names.append('{}'.format(self.bot.get_user(int(on_mail[2])).display_name))
                 clean_names = '\n'.join(other_names)
                 if len(other_names) > 6:
-                    clean_names = '\n{} fleet members.'
+                    clean_names = '\n{} fleet members.'.format(len(other_names))
                 winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
                 winner_name = winner_user.display_name
                 region_id = int(killing_blow[4])
