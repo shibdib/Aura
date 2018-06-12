@@ -462,7 +462,7 @@ class Corps:
                             members = (?)
                         WHERE
                             corp_id = (?); '''
-            values = (enter_pending, str(current_members), int(content))
+            values = (enter_pending, str(current_members), int(corp[1]))
             await db.execute_sql(sql, values)
             return
         elif content == '2':
