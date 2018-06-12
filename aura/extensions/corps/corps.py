@@ -317,7 +317,7 @@ class Corps:
         corp_member_array = []
         member_number = 1
         member_count = 0
-        members = ast.literal_eval(corp[3])
+        members = ast.literal_eval(corp[7])
         embed = make_embed(icon=ctx.bot.user.avatar)
         for member_id in members:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
@@ -466,9 +466,9 @@ class Corps:
         values = (ctx.message.author.id,)
         player = await db.select_var(sql, values)
         sender = self.bot.get_user(int(player[0][2])).display_name
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `fleet` = (?) '''
-        values = (int(player[0][16]),)
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `corp` = (?) '''
+        values = (int(player[0][23]),)
         fleet_players = await db.select_var(sql, values)
         for user in fleet_players:
             user = self.bot.get_user(int(user[2]))
-            await user.send('**Fleet** {}: {}'.format(sender, message))
+            await user.send('**Corp** {}: {}'.format(sender, message))
