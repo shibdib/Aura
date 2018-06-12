@@ -1050,7 +1050,7 @@ class EveRpg:
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             if not_first_round is True:
-                if aggressor != attacker_fleet:
+                if aggressor == attacker_fleet:
                     aggressor = defender_fleet
                 else:
                     aggressor = attacker_fleet
@@ -1322,7 +1322,7 @@ class EveRpg:
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             if not_first_round is True:
-                if aggressor != attacker_fleet:
+                if aggressor == attacker_fleet:
                     aggressor = defender_fleet
                 else:
                     aggressor = attacker_fleet
