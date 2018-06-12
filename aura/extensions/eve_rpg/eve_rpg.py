@@ -107,6 +107,11 @@ class EveRpg:
                 await game_functions.get_combat_attributes(traveler, defender_ship_id)
             if len(campers) is not 0:
                 for camper in campers:
+                    # Corp check
+                    if camper[23] is not None:
+                        corp_array = ast.literal_eval(camper[23])
+                        if traveler[0] in corp_array:
+                            continue
                     # Blue check
                     if camper[21] is not None:
                         blue_array = ast.literal_eval(camper[21])
@@ -578,6 +583,11 @@ class EveRpg:
                 continue
             else:
                 for target in potential_targets:
+                    # Corp check
+                    if roamer[23] is not None:
+                        corp_array = ast.literal_eval(roamer[23])
+                        if target[0] in corp_array:
+                            continue
                     # Blue check
                     if roamer[21] is not None:
                         blue_array = ast.literal_eval(roamer[21])
