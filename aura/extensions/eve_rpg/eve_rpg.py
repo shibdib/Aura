@@ -1003,6 +1003,7 @@ class EveRpg:
             attacker_fleet_attack += member_attack
             attacker_fleet_maneuver += member_maneuver
             attacker_fleet_tracking += member_tracking
+        attacker_count = len(attacker_fleet)
         defender_fleet_array = ast.literal_eval(fleet_two[3])
         defender_fleet = []
         defender_fleet_lost = []
@@ -1027,6 +1028,7 @@ class EveRpg:
             defender_fleet_attack += member_attack
             defender_fleet_maneuver += member_maneuver
             defender_fleet_tracking += member_tracking
+        defender_count = len(defender_fleet)
         # Give all participants a combat timer
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
@@ -1223,7 +1225,7 @@ class EveRpg:
                               "Ships Destroyed: {}\n"
                               "Total ISK Lost: {} ISK\n"
                               "Total Damage Done: {}\n".format(region_name,
-                                                                       len(attacker_fleet) + len(defender_fleet),
+                                                                       defender_count + attacker_count,
                                                                        len(dead_attackers) + len(dead_defenders),
                                                                        '{0:,.2f}'.format(float(
                                                                            attacker_isk_lost + defender_isk_lost)),
@@ -1235,7 +1237,7 @@ class EveRpg:
                               "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
+                              "{}".format(attacker_count, len(dead_attackers), '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
                         value="Fleet Size: {} Players\n"
@@ -1243,7 +1245,7 @@ class EveRpg:
                               "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
+                              "{}".format(defender_count, len(dead_defenders), '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
                         inline=False)
         for fleet_member in merged_fleet:
             user = self.bot.get_user(fleet_member[2])
@@ -1282,6 +1284,7 @@ class EveRpg:
             attacker_fleet_tracking += member_tracking
         if attackers_in_system == 0:
             return
+        attacker_count = len(attacker_fleet)
         primary_ship = ast.literal_eval(player[14])
         ship = await game_functions.get_ship(primary_ship['ship_type'])
         hit_points = ship['hit_points']
@@ -1290,6 +1293,7 @@ class EveRpg:
         attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
         defender_initiative = 100 - attacker_initiative
         defender_fleet = [player]
+        defender_count = len(defender_fleet)
         defender_fleet_lost = []
         defender_isk_lost = 0
         defender_damage_dealt = 0
@@ -1484,7 +1488,7 @@ class EveRpg:
                               "Ships Destroyed: {}\n"
                               "Total ISK Lost: {} ISK\n"
                               "Total Damage Done: {}\n".format(region_name,
-                                                                       len(attacker_fleet) + len(defender_fleet),
+                                                                       defender_count + attacker_count,
                                                                        len(dead_attackers) + len(dead_defenders),
                                                                        '{0:,.2f}'.format(float(
                                                                            attacker_isk_lost + defender_isk_lost)),
@@ -1496,7 +1500,7 @@ class EveRpg:
                               "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
+                              "{}".format(attacker_count, len(dead_attackers), '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
                         value="Fleet Size: {} Players\n"
@@ -1504,7 +1508,7 @@ class EveRpg:
                               "ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
-                              "{}".format(len(attacker_fleet), len(dead_attackers), '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
+                              "{}".format(defender_count, len(dead_defenders), '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
                         inline=False)
         for fleet_member in merged_fleet:
             user = self.bot.get_user(fleet_member[2])
