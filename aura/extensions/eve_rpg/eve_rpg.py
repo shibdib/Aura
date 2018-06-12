@@ -1220,13 +1220,13 @@ class EveRpg:
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
         embed.add_field(name="Fleet One Losses",
-                        value="ISK Lost: {}\n"
+                        value="ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
-                        value="ISK Lost: {}\n"
+                        value="ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
@@ -1477,13 +1477,13 @@ class EveRpg:
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
         embed.add_field(name="Fleet One Losses",
-                        value="ISK Lost: {}\n"
+                        value="ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
                         inline=False)
         embed.add_field(name="Fleet Two Losses",
-                        value="ISK Lost: {}\n"
+                        value="ISK Lost: {} ISK\n"
                               "Total Damage Received: {}\n\n"
                               "__Losses__\n"
                               "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
