@@ -75,7 +75,7 @@ class Corps:
                     elif content == '3':
                         await ctx.author.send('**ERROR** - Not added yet.')
                     elif content == '4':
-                        await ctx.author.send('**ERROR** - Not added yet.')
+                        await self.disband_corp(ctx, corp_info)
                     elif content == '5':
                         await ctx.invoke(self.bot.get_command("me"), True)
                     elif '!!' not in content:
@@ -296,21 +296,42 @@ class Corps:
         await ctx.author.send('**Success** - Left {}.'.format(corp[3]))
         await ctx.invoke(self.bot.get_command("me"), True)
 
-    async def disband_fleet(self, ctx, fleet):
-        sql = ''' UPDATE eve_rpg_players
-                    SET fleet = (?)
-                    WHERE
-                        fleet = (?); '''
-        values = (None, fleet[1],)
-        await db.execute_sql(sql, values)
-        sql = ''' DELETE FROM 
-                        `fleet_info`
-                    WHERE
-                        `fleet_fc` = (?) '''
-        values = (int(fleet[2]),)
-        await db.execute_sql(sql, values)
-        await ctx.author.send('**Success** - Fleet disbanded.')
-        await ctx.invoke(self.bot.get_command("me"), True)
+    async def disband_corp(self, ctx, corp):
+        embed = make_embed(icon=ctx.bot.user.avatar)
+        embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Disband Corp",
+                        value="Are you sure you want to disband {}?\n\n"
+                              "**1.** Yes\n"
+                              "**2.** No".format(corp[3]))
+        await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+        msg = await self.bot.wait_for('message', check=check, timeout=120)
+        content = msg.content
+        if content == '1':
+            sql = ''' UPDATE eve_rpg_players
+                        SET corp = (?)
+                        WHERE
+                            corp = (?); '''
+            values = (None, corp[1],)
+            await db.execute_sql(sql, values)
+            sql = ''' DELETE FROM 
+                            `corporations`
+                        WHERE
+                            `corp_id` = (?) '''
+            values = (int(corp[1]),)
+            await db.execute_sql(sql, values)
+            await ctx.author.send('**Success** - Corp disbanded.')
+            await ctx.invoke(self.bot.get_command("me"), True)
+        elif '!!' not in content:
+            await ctx.author.send('**ERROR** - Not a valid choice.')
+            if content.find('!!') == -1:
+                return await ctx.invoke(self.bot.get_command("me"), True)
+            else:
+                return
 
     async def kick_member(self, ctx, corp):
         corp_member_dict = {}
