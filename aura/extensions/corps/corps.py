@@ -449,16 +449,19 @@ class Corps:
             await db.execute_sql(sql, values)
             await ctx.author.send('**Member Added**')
             await applicant_user.send('**You have been added to the corporation {}**'.format(corp[3]))
+            current_members = ast.literal_eval(corp[7])
+            current_members.apend(applicant[0])
             pending_members = ast.literal_eval(corp[8])
             pending_members.remove(applicant[0])
             pending_members = str(list(set(pending_members)))
             if len(pending_members) == 0:
                 pending_members = None
             sql = ''' UPDATE corporations
-                        SET pending_members = (?)
+                        SET pending_members = (?),
+                            members = (?)
                         WHERE
                             corp_id = (?); '''
-            values = (str(pending_members), int(content))
+            values = (str(pending_members), str(current_members), int(content))
             await db.execute_sql(sql, values)
             return
         elif content == '2':
