@@ -1197,20 +1197,18 @@ class EveRpg:
                                                                            attacker_isk_lost + defender_isk_lost)),
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
-        if len(attackers_lost) > 0:
-            embed.add_field(name="Fleet One Losses",
-                            value="__ISK Lost:__ {}\n"
-                                  "__Total Damage Received:__ {}\n\n"
-                                  "__Losses__"
-                                  "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
-                            inline=False)
-        if len(defenders_lost) > 0:
-            embed.add_field(name="Fleet Two Losses",
-                            value="__ISK Lost:__ {}\n"
-                                  "__Total Damage Received:__ {}\n\n"
-                                  "__Losses__"
-                                  "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
-                            inline=False)
+        embed.add_field(name="Fleet One Losses",
+                        value="__ISK Lost:__ {}\n"
+                              "__Total Damage Received:__ {}\n\n"
+                              "__Losses__"
+                              "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
+                        inline=False)
+        embed.add_field(name="Fleet Two Losses",
+                        value="__ISK Lost:__ {}\n"
+                              "__Total Damage Received:__ {}\n\n"
+                              "__Losses__"
+                              "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
+                        inline=False)
         for fleet_member in merged_fleet:
             user = self.bot.get_user(fleet_member[2])
             await user.send(embed=embed)
@@ -1444,20 +1442,18 @@ class EveRpg:
                                                                            attacker_isk_lost + defender_isk_lost)),
                                                                        attacker_damage_dealt + defender_damage_dealt),
                         inline=False)
-        if len(attackers_lost) > 0:
-            embed.add_field(name="Fleet One Losses",
-                            value="__ISK Lost:__ {}\n"
-                                  "__Total Damage Received:__ {}\n\n"
-                                  "__Losses__"
-                                  "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
-                            inline=False)
-        if len(defenders_lost) > 0:
-            embed.add_field(name="Fleet Two Losses",
-                            value="__ISK Lost:__ {}\n"
-                                  "__Total Damage Received:__ {}\n\n"
-                                  "__Losses__"
-                                  "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
-                            inline=False)
+        embed.add_field(name="Fleet One Losses",
+                        value="__ISK Lost:__ {}\n"
+                              "__Total Damage Received:__ {}\n\n"
+                              "__Losses__"
+                              "{}".format('{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt, attackers_lost),
+                        inline=False)
+        embed.add_field(name="Fleet Two Losses",
+                        value="__ISK Lost:__ {}\n"
+                              "__Total Damage Received:__ {}\n\n"
+                              "__Losses__"
+                              "{}".format('{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt, defenders_lost),
+                        inline=False)
         for fleet_member in merged_fleet:
             user = self.bot.get_user(fleet_member[2])
             await user.send(embed=embed)

@@ -54,12 +54,13 @@ class Corps:
                                      text="Aura - EVE Text RPG")
                     embed.add_field(name="Corporation Management".format(player_name),
                                     value="__**Corporation Info**__\n"
+                                          "Corp ID: {}\n"
                                           "Member Count: {}\n\n"
                                           "**1.** Review Pending Members ({} Waiting)\n"
                                           "**2.** Kick Member\n"
                                           "**3.** Manage Officers\n"
                                           "**4.** Disband Corporation\n"
-                                          "**5.** Return to the main menu".format(len(corp_members), len(pending_members)))
+                                          "**5.** Return to the main menu".format(corp_info[1], len(corp_members), len(pending_members)))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -89,10 +90,11 @@ class Corps:
                                      text="Aura - EVE Text RPG")
                     embed.add_field(name="Corporation Management".format(player_name),
                                     value="__**Corporation Info**__\n"
+                                          "Corp ID: {}\n"
                                           "Member Count: {}\n\n"
                                           "**1.** Review Pending Members ({} Waiting)\n"
                                           "**2.** Kick Member\n"
-                                          "**3.** Return to the main menu".format(len(corp_members), len(pending_members)))
+                                          "**3.** Return to the main menu".format(corp_info[1], len(corp_members), len(pending_members)))
                     await ctx.author.send(embed=embed)
 
                     def check(m):
@@ -206,11 +208,12 @@ class Corps:
             await ctx.author.send('**Not Enough Isk**')
             return await ctx.invoke(self.bot.get_command("me"), True)
         sql = ''' UPDATE eve_rpg_players
-                    SET corporation = (?)
+                    SET corporation = (?),
+                        isk = (?)
                     WHERE
                         player_id = (?); '''
         unique_id = await game_functions.create_unique_id()
-        values = (unique_id, ctx.author.id,)
+        values = (unique_id, int(float(player[5])) - int(50000000), ctx.author.id,)
         await db.execute_sql(sql, values)
         sql = ''' REPLACE INTO corporations(corp_id,name,ticker,ceo,members,corp_offices)
                   VALUES(?,?,?,?,?,?) '''
@@ -219,13 +222,12 @@ class Corps:
         await ctx.author.send('**Success** - Corporation created.')
         await ctx.invoke(self.bot.get_command("corp"))
 
-    async def join_fleet(self, ctx, player):
+    async def join_corp(self, ctx, player):
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
         embed.add_field(name="Join Fleet",
-                        value="What is the player ID of the FC?\n\n"
-                              "*Users can find their player ID on the top of their !!me menu*")
+                        value="What is the corp ID for the corp you'd like to join?\n\n")
         await ctx.author.send(embed=embed)
 
         def check(m):
@@ -233,54 +235,25 @@ class Corps:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120)
         content = msg.content
-        sql = ''' SELECT * FROM fleet_info WHERE `fleet_fc` = (?) '''
+        sql = ''' SELECT * FROM corporations WHERE `corp_id` = (?) '''
         values = (int(content),)
-        fleet = await db.select_var(sql, values)
-        if len(fleet) == 0:
-            await ctx.author.send('**ERROR** - No fleet found.')
+        corp = await db.select_var(sql, values)
+        if len(corp) == 0:
+            await ctx.author.send('**ERROR** - No corporation found.')
             return await ctx.invoke(self.bot.get_command("me"), True)
-        if fleet[0][4] == 1:
-            members = ast.literal_eval(fleet[0][3])
-            members.append(player[0])
-            sql = ''' UPDATE eve_rpg_players
-                        SET fleet = (?)
-                        WHERE
-                            player_id = (?); '''
-            values = (fleet[0][1], ctx.author.id,)
-            await db.execute_sql(sql, values)
-            sql = ''' UPDATE fleet_info
-                        SET fleet_members = (?)
-                        WHERE
-                            fleet_id = (?); '''
-            values = (str(members), fleet[0][1])
-            await db.execute_sql(sql, values)
-            await ctx.author.send('**Success** - Fleet created.')
-            return await ctx.invoke(self.bot.get_command("me"), True)
-        if fleet[0][4] == 2:
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
-            values = (int(content),)
-            fc = await db.select_var(sql, values)
-            if fc[0][21] is not None:
-                blue_array = ast.literal_eval(fc[0][21])
-                if player[0] in blue_array:
-                    members = ast.literal_eval(fleet[0][3])
-                    members.append(player[0])
-                    sql = ''' UPDATE eve_rpg_players
-                                SET fleet = (?)
-                                WHERE
-                                    player_id = (?); '''
-                    values = (fleet[0][1], ctx.author.id,)
-                    await db.execute_sql(sql, values)
-                    sql = ''' UPDATE fleet_info
-                                SET fleet_members = (?)
-                                WHERE
-                                    fleet_id = (?); '''
-                    values = (str(members), fleet[0][1])
-                    await db.execute_sql(sql, values)
-                    await ctx.author.send('**Success** - Joined Fleet.')
-                    return await ctx.invoke(self.bot.get_command("me"), True)
-            await ctx.author.send('**Failure** - FC has set the fleet to only accept blues.')
-            return await ctx.invoke(self.bot.get_command("me"), True)
+        pending_members = []
+        if corp[0][8] is not None:
+            pending_members = ast.literal_eval(corp[0][8])
+        pending_members.append(player[0])
+        pending_members = list(set(pending_members))
+        sql = ''' UPDATE corporations
+                    SET pending_members = (?)
+                    WHERE
+                        corp_id = (?); '''
+        values = (str(pending_members), int(content))
+        await db.execute_sql(sql, values)
+        await ctx.author.send('**Success** - Applied to {}.'.format(corp[0][3]))
+        return await ctx.invoke(self.bot.get_command("me"), True)
 
     async def leave_fleet(self, ctx, player, fleet):
         sql = ''' UPDATE eve_rpg_players
@@ -316,20 +289,21 @@ class Corps:
         await ctx.author.send('**Success** - Fleet disbanded.')
         await ctx.invoke(self.bot.get_command("me"), True)
 
-    async def kick_member(self, ctx, fleet):
-        fleet_member_dict = {}
-        fleet_member_array = []
+    async def kick_member(self, ctx, corp):
+        corp_member_dict = {}
+        corp_member_array = []
         member_number = 1
-        members = ast.literal_eval(fleet[3])
+        member_count = 0
+        members = ast.literal_eval(corp[3])
         for member_id in members:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
             values = (int(member_id),)
             member = await db.select_var(sql, values)
             member_name = self.bot.get_user(int(member[0][2])).display_name
-            fleet_member_dict[member_number] = member[0][0]
-            fleet_member_array.append('**{}.** {}'.format(member_number, member_name))
+            corp_member_dict[member_number] = member[0][0]
+            corp_member_array.append('**{}.** {}'.format(member_number, member_name))
             member_number += 1
-        clean_members = '\n'.join(fleet_member_array)
+        clean_members = '\n'.join(corp_member_array)
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                          text="Aura - EVE Text RPG")
@@ -361,23 +335,97 @@ class Corps:
         await ctx.author.send('**Success** - Member Kicked.')
         await ctx.invoke(self.bot.get_command("me"), True)
 
-    async def change_access(self, ctx, fleet):
-        new_access = 1
-        if fleet[4] == 1:
-            new_access = 2
-        sql = ''' UPDATE fleet_info
-                    SET access = (?)
-                    WHERE
-                        fleet_id = (?); '''
-        values = (new_access, fleet[1],)
-        await db.execute_sql(sql, values)
-        await ctx.author.send('**Success** - Access Updated.')
-        await ctx.invoke(self.bot.get_command("me"), True)
+    async def review_pending(self, ctx, corp):
+        if corp[8] is not None:
+            pending_members = ast.literal_eval(corp[8])
+        else:
+            await ctx.author.send('**ERROR** - No pending applications.')
+            return await ctx.invoke(self.bot.get_command("me"), True)
+        pending_member_dict = {}
+        pending_member_array = []
+        member_number = 1
+        for pending in pending_members:
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+            values = (int(pending),)
+            member = await db.select_var(sql, values)
+            member_name = self.bot.get_user(int(member[0][2])).display_name
+            pending_member_dict[member_number] = member[0][0]
+            pending_member_array.append('**{}.** {}'.format(member_number, member_name))
+            member_number += 1
+        clean_members = '\n'.join(pending_member_array)
+        embed = make_embed(icon=ctx.bot.user.avatar)
+        embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Manage Pending Applications",
+                        value="{}".format(clean_members))
+        await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+        msg = await self.bot.wait_for('message', check=check, timeout=120)
+        content = msg.content
+        if int(content) not in pending_member_dict:
+            await ctx.author.send('**ERROR** - Incorrect Selection.')
+            return await ctx.invoke(self.bot.get_command("me"), True)
+        applicant = pending_member_dict[int(content)]
+        applicant_user = self.bot.get_user(int(applicant[2]))
+        applicant_name = applicant_user.display_name
+        embed = make_embed(icon=ctx.bot.user.avatar)
+        embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Manage Pending Applications",
+                        value="**Applicant:** {}\n\n"
+                              "**1.** Approve\n"
+                              "**2.** Deny\n".format(applicant_name))
+        await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+        msg = await self.bot.wait_for('message', check=check, timeout=120)
+        content = msg.content
+        if content == '1':
+            sql = ''' UPDATE eve_rpg_players
+                        SET corp = (?)
+                        WHERE
+                            id = (?); '''
+            values = (corp[1], pending_member_dict[int(content)],)
+            await db.execute_sql(sql, values)
+            await ctx.author.send('**Member Added**')
+            await applicant_user.send('**You have been added to the corporation {}**'.format(corp[3]))
+            pending_members = ast.literal_eval(corp[8])
+            pending_members.remove(applicant[0])
+            pending_members = str(list(set(pending_members)))
+            if len(pending_members) == 0:
+                pending_members = None
+            sql = ''' UPDATE corporations
+                        SET pending_members = (?)
+                        WHERE
+                            corp_id = (?); '''
+            values = (str(pending_members), int(content))
+            await db.execute_sql(sql, values)
+            return
+        elif content == '2':
+            pending_members = ast.literal_eval(corp[8])
+            pending_members.remove(applicant[0])
+            pending_members = str(list(set(pending_members)))
+            if len(pending_members) == 0:
+                pending_members = None
+            sql = ''' UPDATE corporations
+                        SET pending_members = (?)
+                        WHERE
+                            corp_id = (?); '''
+            values = (str(pending_members), int(content))
+            await db.execute_sql(sql, values)
+            await ctx.author.send('**Member Denied**')
+            await applicant_user.send('**Your application to {} has been denied.**'.format(corp[3]))
+            return
 
     @_corps.group(name='chat')
     @checks.has_account()
     async def _chat(self, ctx, *, message: str):
-        """Talk in fleet chat."""
+        """Talk in corp chat."""
         if ctx.guild is not None:
             try:
                 await ctx.message.delete()
