@@ -280,7 +280,7 @@ class EveRpg:
                 xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
-                await self.update_journal(miner, isk, 'Belt Mining')
+                await self.update_journal(miner, isk * multiplier, 'Belt Mining')
 
     async def process_missions(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 '''
@@ -518,7 +518,7 @@ class EveRpg:
                 for player in payout_array:
                     await self.add_xp(player, random.randint(2, 10))
                     await self.add_isk(player, int(float((npc['isk'] * isk_multi))) / len(payout_array))
-                    await self.update_journal(player, npc['isk'] / len(payout_array),
+                    await self.update_journal(player, int(float((npc['isk'] * isk_multi))) / len(payout_array),
                                               '{} - {}'.format(player_task, npc['name']))
                 if officer is True:
                     await self.pve_loot(player, 1, False, True)
