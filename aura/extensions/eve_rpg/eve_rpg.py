@@ -1031,6 +1031,8 @@ class EveRpg:
             defender_fleet_maneuver += member_maneuver
             defender_fleet_tracking += member_tracking
         defender_count = len(defender_fleet)
+        if attackers_in_system == 0 or defenders_in_system == 0:
+            return
         # Give all participants a combat timer
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
