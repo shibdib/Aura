@@ -21,6 +21,15 @@ async def tick_count():
     return current_tick
 
 
+async def get_tick():
+    sql = ''' SELECT int FROM data WHERE `entry` = 'tick_number' '''
+    current_tick_array = await db.select(sql)
+    current_tick = None
+    if len(current_tick_array) > 0:
+        current_tick = int(current_tick_array[0][0])
+    return current_tick
+
+
 async def combat_timer_management():
     sql = ''' SELECT * FROM eve_rpg_players WHERE `combat_timer` > (?) '''
     values = (0,)
@@ -196,3 +205,36 @@ async def get_user_corp(corp_id):
     else:
         return None
 
+
+async def track_npc_kills(region):
+    sql = ''' SELECT * FROM region_info WHERE `region_id` = (?) '''
+    values = (region,)
+    region_info = await db.select_var(sql, values)
+    current_hourly = region_info[0][7]
+    current_hourly += 1
+    current_daily = region_info[0][8]
+    current_daily += 1
+    sql = ''' UPDATE region_info
+            SET npc_kills_hour = (?),
+                npc_kills_previous_day = (?)
+            WHERE
+                region_id = (?); '''
+    values = (current_hourly, current_daily, region,)
+    await db.execute_sql(sql, values)
+
+
+async def track_player_kills(region):
+    sql = ''' SELECT * FROM region_info WHERE `region_id` = (?) '''
+    values = (region,)
+    region_info = await db.select_var(sql, values)
+    current_hourly = region_info[0][9]
+    current_hourly += 1
+    current_daily = region_info[0][10]
+    current_daily += 1
+    sql = ''' UPDATE region_info
+            SET player_kills_hour = (?),
+                player_kills_previous_day = (?)
+            WHERE
+                region_id = (?); '''
+    values = (current_hourly, current_daily, region,)
+    await db.execute_sql(sql, values)

@@ -55,10 +55,14 @@ async def create_tables():
                                         pirate_anomaly INTEGER DEFAULT 0,
                                         mining_anomaly INTEGER DEFAULT 0,
                                         incursion INTEGER DEFAULT 0,
-                                        npc_kills_hour INTEGER DEFAULT 0,
-                                        npc_kills_day INTEGER DEFAULT 0,
+                                        npc_kills_hour TEXT DEFAULT NULL,
+                                        npc_kills_day TEXT DEFAULT NULL,
                                         player_kills_hour INTEGER DEFAULT 0,
-                                        player_kills_day INTEGER DEFAULT 0
+                                        player_kills_day INTEGER DEFAULT 0,
+                                        npc_kills_previous_hour INTEGER DEFAULT 0,
+                                        npc_kills_previous_day INTEGER DEFAULT 0,
+                                        player_kills_previous_hour INTEGER DEFAULT 0,
+                                        player_kills_previous_day INTEGER DEFAULT 0
                                     ); """
         await create_table(db, regions_table)
         # create corps tables
@@ -131,13 +135,19 @@ async def update_tables():
         current_version = version[0][0]
     if db is not None:
         result = 'DB Up To Date'
-        if int(current_version) < 5:
-            result = 'Updated to DB version 5'
-            sql = ''' ALTER TABLE eve_rpg_players ADD COLUMN `saved_fits` TEXT DEFAULT NULL; '''
+        if int(current_version) < 6:
+            result = 'Updated to DB version 6'
+            sql = ''' ALTER TABLE region_info ADD COLUMN `npc_kills_previous_hour` INTEGER DEFAULT 0; '''
+            await execute_sql(sql)
+            sql = ''' ALTER TABLE region_info ADD COLUMN `npc_kills_previous_day` INTEGER DEFAULT 0; '''
+            await execute_sql(sql)
+            sql = ''' ALTER TABLE region_info ADD COLUMN `player_kills_previous_hour` INTEGER DEFAULT 0; '''
+            await execute_sql(sql)
+            sql = ''' ALTER TABLE region_info ADD COLUMN `player_kills_previous_day` INTEGER DEFAULT 0; '''
             await execute_sql(sql)
         sql = ''' REPLACE INTO data(entry,int)
                   VALUES(?,?) '''
-        values = ('db_version', 5)
+        values = ('db_version', 6)
         await execute_sql(sql, values)
         return result
 

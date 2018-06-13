@@ -28,6 +28,7 @@ class EveRpg:
                 await game_functions.tick_count()
                 await game_functions.combat_timer_management()
                 await self.process_special_regions()
+                await self.process_region_stats()
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
@@ -149,6 +150,39 @@ class EveRpg:
                                           'has been defeated and you are now floating in space.')
         else:
             self.pirate_anomaly_counter += 1
+
+    async def process_region_stats(self):
+        current_tick = await game_functions.get_tick()
+        if current_tick % 300 == 0:
+            sql = "SELECT * FROM region_info"
+            regions = await db.select(sql)
+            for region in regions:
+                current_hourly_npc = region[7]
+                current_hourly_player = region[9]
+                sql = ''' UPDATE region_info
+                        SET npc_kills_previous_hour = (?),
+                            player_kills_previous_hour = (?),
+                            npc_kills_hour = 0,
+                            player_kills_hour = 0
+                        WHERE
+                            region_id = (?); '''
+                values = (current_hourly_npc, current_hourly_player, region[1],)
+                await db.execute_sql(sql, values)
+        if current_tick % 7200 == 0:
+            sql = "SELECT * FROM region_info"
+            regions = await db.select(sql)
+            for region in regions:
+                current_day_npc = region[8]
+                current_day_player = region[10]
+                sql = ''' UPDATE region_info
+                        SET npc_kills_previous_day = (?),
+                            player_kills_previous_day = (?),
+                            npc_kills_day = 0,
+                            player_kills_day = 0
+                        WHERE
+                            region_id = (?); '''
+                values = (current_day_npc, current_day_player, region[1],)
+                await db.execute_sql(sql, values)
 
     async def process_travel(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 20 '''
@@ -576,6 +610,7 @@ class EveRpg:
                 break
             if npc_hits <= 0:
                 for player in payout_array:
+                    await game_functions.track_npc_kills(region_id)
                     await self.add_xp(player, random.randint(2, 10))
                     await self.add_isk(player, int(float((npc['isk'] * isk_multi))) / len(payout_array))
                     await self.update_journal(player, int(float((npc['isk'] * isk_multi))) / len(payout_array),
@@ -1032,6 +1067,7 @@ class EveRpg:
                                                                         winner_name, winner_ship, winner_task))
         await winner_user.send(embed=embed)
         await loser_user.send(embed=embed)
+        await game_functions.track_player_kills(region_id)
         await self.send_global(embed, True)
         await self.destroy_ship(loser)
         await self.add_loss(loser)
@@ -1259,6 +1295,7 @@ class EveRpg:
                                                                          winner_name, winner_ship, clean_names))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
+                await game_functions.track_player_kills(region)
                 await self.send_global(embed, True)
                 await self.destroy_ship(primary)
                 await self.add_loss(primary)
@@ -1536,6 +1573,7 @@ class EveRpg:
                                                                          winner_name, winner_ship, clean_names))
                 await winner_user.send(embed=embed)
                 await loser_user.send(embed=embed)
+                await game_functions.track_player_kills(region)
                 await self.send_global(embed, True)
                 await self.destroy_ship(primary)
                 await self.add_loss(primary)
