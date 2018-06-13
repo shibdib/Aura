@@ -105,12 +105,12 @@ class EveRpg:
             self.user_check_counter += 1
 
     async def process_special_regions(self):
-        sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != `High`"
+        sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != 'High'"
         active_pirate_anomalies = await db.select(sql)
         if len(active_pirate_anomalies) < 10:
             self.anomaly_counter = 0
             if len(active_pirate_anomalies) < 10:
-                sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != `High`"
+                sql = "SELECT * FROM region_info WHERE `pirate_anomaly` == 0 AND `region_security` != 'High'"
                 potential_pirate_anomalies = await db.select(sql)
                 random.shuffle(potential_pirate_anomalies)
                 trimmed_list = potential_pirate_anomalies[:10 - len(active_pirate_anomalies)]

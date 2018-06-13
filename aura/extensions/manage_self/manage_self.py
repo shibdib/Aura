@@ -39,6 +39,10 @@ class ManageSelf:
             values = (region_id,)
             local_players = await db.select_var(sql, values)
             region_name = await game_functions.get_region(region_id)
+            region_info = await game_functions.get_region_info(region_id)
+            pirate_anomaly_text = ''
+            if region_info[4] != 0:
+                pirate_anomaly_text = "**Pirate Anomalies Present In This Region**\n"
             current_task = await game_functions.get_task(int(player[0][6]))
             player_ship_obj = ast.literal_eval(player[0][14])
             module_cargo_option = ''
@@ -57,7 +61,7 @@ class ManageSelf:
             if redirect is False:
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
+                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n{}\n"
                                       "*User interface initiated.... Select desired action below......*\n\n"
                                       "**1.** Change task.\n"
                                       "**2.** Travel to a new region.\n"
@@ -74,7 +78,7 @@ class ManageSelf:
                                       "**13.** Manage your contacts.\n"
                                       "**14.** Corporation Management.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    module_cargo_option, component_cargo_option))
+                                    pirate_anomaly_text, module_cargo_option, component_cargo_option))
             if redirect is True:
                 timeout = None
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),

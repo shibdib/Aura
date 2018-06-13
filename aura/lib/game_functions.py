@@ -58,6 +58,13 @@ async def get_region_security(region_id):
     return game_assets.region_security[region_id]
 
 
+async def get_region_info(region_id):
+    sql = ''' SELECT * FROM region_info WHERE `region_id` = (?) '''
+    values = (region_id,)
+    region = await db.select_var(sql, values)
+    return region[0]
+
+
 async def get_task(task_id):
     return game_assets.tasks[task_id]
 

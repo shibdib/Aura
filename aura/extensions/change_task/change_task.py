@@ -36,6 +36,12 @@ class ChangeTask:
             return await ctx.invoke(self.bot.get_command("me"), True)
         region_id = int(player[0][4])
         region_security = await game_functions.get_region_security(region_id)
+        region_info = await game_functions.get_region_info(region_id)
+        pirate_anomaly = False
+        pirate_anomaly_text = ''
+        if region_info[4] != 0:
+            pirate_anomaly = True
+            pirate_anomaly_text = "**7.** Run the combat anomalies in this region\n"
         current_task = await game_functions.get_task(int(player[0][6]))
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -67,13 +73,15 @@ class ChangeTask:
                                   "**PVE Tasks**\n"
                                   "**6.** Kill belt rats.\n"
                                   "**7.** Run anomalies in the system.\n"
-                                  "**8.** Do some exploration and run sites in the system.\n"
+                                  "{}"
                                   "{}"
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n"
                                   "**11.** Mine a mining anomaly.\n".format(current_task, mission_destination, fleet_task,
-                                                                            mission_task))
-            accepted = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11]
+                                                                            pirate_anomaly_text, mission_task))
+            accepted = [1, 2, 3, 5, 6, 8, 9, 10, 11]
+            if pirate_anomaly is True:
+                accepted.append(7)
         else:
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}{}\n\n"
