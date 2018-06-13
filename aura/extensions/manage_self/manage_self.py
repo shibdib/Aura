@@ -61,7 +61,7 @@ class ManageSelf:
             if redirect is False:
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n{}\n"
+                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n{}"
                                       "*User interface initiated.... Select desired action below......*\n\n"
                                       "**1.** Change task.\n"
                                       "**2.** Travel to a new region.\n"
@@ -82,24 +82,10 @@ class ManageSelf:
             if redirect is True:
                 timeout = None
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
-                                value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n"
-                                      "**1.** Change task.\n"
-                                      "**2.** Travel to a new region.\n"
-                                      "**3.** Modify current ship.\n"
-                                      "**4.** Change into another ship.\n"
-                                      "**5.** Visit the regional market.\n"
-                                      "**6.** View your asset list.\n"
-                                      "**7.** Insure your ship.\n"
-                                      "{}"
-                                      "{}"
-                                      "**10.** Change your clone to here.\n"
-                                      "**11.** View Local.\n"
-                                      "**12.** View Your Wallet.\n"
-                                      "**13.** Manage your contacts.\n"
-                                      "**14.** Corporation Management.\n".format(
+                                value="**Current Region** - {}\n**Local Count** - {}\n\n{}"
+                                      "**m.** Open Full Menu.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    module_cargo_option, component_cargo_option))
+                                    pirate_anomaly_text))
             await ctx.author.send(embed=embed)
 
             def check(m):
@@ -107,7 +93,9 @@ class ManageSelf:
 
             msg = await self.bot.wait_for('message', check=check, timeout=timeout)
             content = msg.content
-            if content == '1':
+            if content == 'm':
+                await ctx.invoke(self.bot.get_command("me"))
+            elif content == '1':
                 await ctx.invoke(self.bot.get_command("task"))
             elif content == '2':
                 await ctx.invoke(self.bot.get_command("travel"))
