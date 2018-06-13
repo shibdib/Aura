@@ -46,6 +46,21 @@ async def create_tables():
                                         access INTEGER DEFAULT 2
                                     ); """
         await create_table(db, fleets_table)
+        # create regions tables
+        regions_table = """ CREATE TABLE IF NOT EXISTS region_info (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        region_id INTEGER NOT NULL UNIQUE,
+                                        region_security TEXT NOT NULL,
+                                        mineral INTEGER DEFAULT NULL,
+                                        pirate_anomaly INTEGER DEFAULT 0,
+                                        mining_anomaly INTEGER DEFAULT 0,
+                                        incursion INTEGER DEFAULT 0,
+                                        npc_kills_hour INTEGER DEFAULT 0,
+                                        npc_kills_day INTEGER DEFAULT 0,
+                                        player_kills_hour INTEGER DEFAULT 0,
+                                        player_kills_day INTEGER DEFAULT 0
+                                    ); """
+        await create_table(db, regions_table)
         # create corps tables
         corps_table = """ CREATE TABLE IF NOT EXISTS corporations (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,

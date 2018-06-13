@@ -4,6 +4,7 @@ import datetime
 import random
 
 from aura.lib import db
+from aura.lib import game_assets
 from aura.lib import game_functions
 from aura.utils import make_embed
 
@@ -17,6 +18,7 @@ class EveRpg:
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.tick_loop())
         self.user_check_counter = 0
+        self.anomaly_counter = 0
 
     async def tick_loop(self):
         await self.bot.wait_until_ready()
@@ -77,6 +79,17 @@ class EveRpg:
                             player_id = (?); '''
                 values = (player[2],)
                 await db.execute_sql(sql, values)
+        # Make sure regions are in the db
+        for key, region in game_assets.regions.items():
+            sql = "SELECT * FROM region_info WHERE `region_id` = (?)"
+            values = (key,)
+            region = await db.select_var(sql, values)
+            if len(region) == 0:
+                sec_status = await game_functions.get_region_security(key)
+                sql = ''' REPLACE INTO region_info(region_id,region_security)
+                          VALUES(?,?) '''
+                values = (key, sec_status)
+                await db.execute_sql(sql, values)
 
     async def process_users(self):
         if self.user_check_counter >= 100:
@@ -89,6 +102,26 @@ class EveRpg:
                     continue
         else:
             self.user_check_counter += 1
+
+    async def process_special_regions(self):
+        sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != `High`"
+        active_pirate_anomalies = await db.select(sql)
+        if len(active_pirate_anomalies) < 10:
+            self.anomaly_counter = 0
+            if len(active_pirate_anomalies) < 10:
+                sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != `High`"
+                potential_pirate_anomalies = await db.select(sql)
+                random.shuffle(potential_pirate_anomalies)
+                trimmed_list = potential_pirate_anomalies[:10 - len(active_pirate_anomalies)]
+                for new_anomaly in trimmed_list:
+                    sql = ''' UPDATE region_info
+                            SET pirate_anomaly = 1
+                            WHERE
+                                region_id = (?); '''
+                    values = (new_anomaly[1],)
+                    await db.execute_sql(sql, values)
+        else:
+            self.anomaly_counter += 1
 
     async def process_travel(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 20 '''
