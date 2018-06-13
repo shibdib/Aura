@@ -924,6 +924,15 @@ class EveRpg:
                     await self.send_global(embed, True)
 
     async def solo_combat(self, attacker, defender):
+        # Give all participants a combat timer
+        merged_fleet = [attacker, defender]
+        for fleet_member in merged_fleet:
+            await self.add_combat_timer(fleet_member)
+        # Set PVE debuff
+        pve_disadvantage = 1
+        if 5 < int(defender[6]) < 11:
+            pve_disadvantage = 0.93
+        # Get Ship Info
         attacker_user, defender_user = self.bot.get_user(attacker[2]), self.bot.get_user(defender[2])
         attacker_ship, defender_ship = ast.literal_eval(attacker[14]), ast.literal_eval(defender[14])
         attacker_ship_id, defender_ship_id = attacker_ship['ship_type'], defender_ship['ship_type']
@@ -931,21 +940,9 @@ class EveRpg:
             await game_functions.get_combat_attributes(attacker, attacker_ship_id)
         defender_attack, defender_defense, defender_maneuver, defender_tracking = \
             await game_functions.get_combat_attributes(defender, defender_ship_id)
-        # Give all participants a combat timer
-        merged_fleet = [attacker, defender]
-        for fleet_member in merged_fleet:
-            await self.add_combat_timer(fleet_member)
-        pve_disadvantage = 1
-        if 5 < int(defender[6]) < 11:
-            pve_disadvantage = 0.93
-        player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 1.5) + (
-                attacker_defense * 1.25) + attacker_maneuver + attacker_tracking
-        player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack * 1.5) + (
-                defender_defense * 1.25) + defender_maneuver + defender_tracking) * pve_disadvantage
         attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
         defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
         attacker_hits, defender_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
-        winner = None
         attacker_catch, defender_escape = attacker_attack / 2 + attacker_tracking, defender_defense / 2 + defender_maneuver
         defender_catch, attacker_escape = defender_attack / 2 + defender_tracking, attacker_defense / 2 + attacker_maneuver
         if defender_maneuver == 0:
@@ -953,19 +950,33 @@ class EveRpg:
         if attacker_maneuver == 0:
             attacker_escape = 0
         # Combat
-        escape = False
-        attacker_damage, defender_damage = 1, 1
-        if attacker_defense > defender_attack:
-            defender_damage = defender_attack / attacker_defense
-        if defender_defense > attacker_attack:
-            attacker_damage = attacker_attack / defender_defense
-        if attacker_maneuver > defender_tracking:
-            defender_damage *= (defender_tracking / attacker_maneuver)
-        if defender_maneuver > attacker_tracking:
-            attacker_damage *= (attacker_tracking / defender_maneuver)
+        escape, winner, initial_round = False, None, False
+        transversal = 1
+        if (defender_maneuver * 0.67) > attacker_tracking:
+            transversal = (attacker_tracking + 1) / ((defender_maneuver + 0.1) * 0.5)
+        attacker_damage = (attacker_attack * transversal) - defender_defense
+        if attacker_damage <= 0:
+            attacker_damage = 0.1
+        transversal = 1
+        if (attacker_maneuver * 0.67) > defender_tracking:
+            transversal = (defender_tracking + 1) / ((attacker_maneuver + 0.1) * 0.5)
+        defender_damage = (attacker_attack * transversal) - defender_defense
+        if defender_damage <= 0:
+            defender_damage = 0.1
+        # Set first turn initiative
+        player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 0.5) + (
+                attacker_defense * 0.4) + attacker_maneuver + attacker_tracking
+        player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack * 0.5) + (
+                defender_defense * 0.4) + defender_maneuver + defender_tracking) * pve_disadvantage
+        initiative = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
         for x in range(int((attacker_hits + defender_hits) * 1.5)):
-            combat = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
-            if combat == attacker:
+            if initial_round is True:
+                if initiative == attacker:
+                    initiative = defender
+                else:
+                    initiative = attacker
+            initial_round = True
+            if initiative == attacker:
                 defender_hits -= attacker_damage
             else:
                 attacker_hits -= defender_damage
