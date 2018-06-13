@@ -27,6 +27,7 @@ class EveRpg:
             try:
                 await game_functions.tick_count()
                 await game_functions.combat_timer_management()
+                await self.process_special_regions()
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
