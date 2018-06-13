@@ -478,15 +478,13 @@ class Market:
                                 current_hangar = ast.literal_eval(player[0][15])
                                 current_hangar[player[0][4]].append(new_ship)
                             sql = ''' UPDATE eve_rpg_players
-                                    SET ship = (?),
-                                        modules = (?),
-                                        ship_hangar = (?),
+                                    SET ship_hangar = (?),
                                         isk = (?),
                                         task = 1
                                     WHERE
                                         player_id = (?); '''
                             remaining_isk = int(float(player[0][5])) - int(float(total_cost))
-                            values = (str(new_ship), None, str(current_hangar), remaining_isk, ctx.author.id,)
+                            values = (str(current_hangar), remaining_isk, ctx.author.id,)
                             await db.execute_sql(sql, values)
                             await ctx.author.send(
                                 '**{} Purchase Complete, It Is Now Stored In Your Ship Hangar For This '
