@@ -375,7 +375,7 @@ ships = {  # Noob
          'tracking': 3,
          'image': 'https://image.eveonline.com/Type/22546_64.png', 'pve_multi': 9, 'isk': 297386539, 'slots': 5,
          'drone_bay': 50},
-    91: {'id': 90, 'name': 'Hulk', 'class': 23, 'hit_points': 9, 'attack': 0, 'defense': 8, 'maneuver': 2,
+    91: {'id': 91, 'name': 'Hulk', 'class': 23, 'hit_points': 9, 'attack': 0, 'defense': 8, 'maneuver': 2,
          'tracking': 1,
          'image': 'https://image.eveonline.com/Type/22544_64.png', 'pve_multi': 3, 'isk': 382481286, 'slots': 5,
          'drone_bay': 25},
