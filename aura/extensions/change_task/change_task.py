@@ -290,7 +290,7 @@ class ChangeTask:
             accepted.append(4)
             pirate_anomaly_text = "**4.** In the pirate anomaly.\n"
         mining_anomaly_text = ""
-        if region_info[4] != 0:
+        if region_info[5] != 0:
             accepted.append(5)
             mining_anomaly_text = "**5.** In the ore anomaly.\n"
         embed = make_embed(icon=ctx.bot.user.avatar)
