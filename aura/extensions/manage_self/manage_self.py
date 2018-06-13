@@ -61,7 +61,7 @@ class ManageSelf:
             if redirect is False:
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n**Current Ship** - {}\n"
-                                      "**Current Task** - {}\n**Wallet Balance** - {}\n\n{}"
+                                      "**Current Task** - {}\n**Wallet Balance** - {}\n**i.** For Regional Stats\n\n{}"
                                       "**1.** Change task.\n"
                                       "**2.** Travel to a new region.\n"
                                       "**3.** Modify current ship.\n"
@@ -93,6 +93,30 @@ class ManageSelf:
             content = msg.content
             if content == 'm':
                 await ctx.invoke(self.bot.get_command("me"))
+            elif content == 'i':
+                pve_kills_hour, pve_kills_day, pvp_kills_hour, pvp_kills_day, pve_kills_last_hour, pve_kills_yesterday, pvp_kills_last_hour, pvp_kills_yesterday = await game_functions.get_region_kill_info(
+                    region_id)
+                embed = make_embed(icon=self.bot.user.avatar)
+                embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                 text="Aura - EVE Text RPG")
+                embed.add_field(name="Regional Data For {}".format(region_name),
+                                value='Local Count - {}\n'
+                                      '__Hourly Kill Data__\n'
+                                      'NPC Kills Last Hour/Prior Hour - {}/{}\n'
+                                      'Player Kills Last Hour/Prior Hour = {}/{}\n'
+                                      '__Daily Kill Data__\n'
+                                      'NPC Kills Last Day/Prior Day - {}/{}\n'
+                                      'Player Kills Last Day/Prior Day = {}/{}\n'.format(len(local_players),
+                                                                                         pve_kills_hour,
+                                                                                         pve_kills_last_hour,
+                                                                                         pvp_kills_hour,
+                                                                                         pvp_kills_last_hour,
+                                                                                         pve_kills_day,
+                                                                                         pve_kills_yesterday,
+                                                                                         pvp_kills_day,
+                                                                                         pvp_kills_yesterday))
+                await ctx.author.send(embed=embed)
+                await ctx.invoke(self.bot.get_command("me"), True)
             elif content == '1':
                 await ctx.invoke(self.bot.get_command("task"))
             elif content == '2':

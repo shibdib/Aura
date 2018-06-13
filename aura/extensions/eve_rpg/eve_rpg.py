@@ -261,8 +261,14 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `region` = (?) '''
             values = (destination_id,)
             local_players = await db.select_var(sql, values)
-            await player.send('You have arrived in {}\n\nLocal Count - {}'.format(destination_name,
-                                                                                  len(local_players)))
+            pve_kills_hour, pve_kills_day, pvp_kills_hour, pvp_kills_day, pve_kills_last_hour, pve_kills_yesterday, pvp_kills_last_hour, pvp_kills_yesterday = await game_functions.get_region_kill_info(
+                destination_id)
+            await player.send('You have arrived in {}\n\n'
+                              'Local Count - {}\n'
+                              'NPC Kills Last Hour/Prior Hour - {}/{}\n'
+                              'Player Kills Last Hour/Prior Hour = {}/{}'.format(destination_name, len(local_players),
+                                                                                 pve_kills_hour, pve_kills_last_hour,
+                                                                                 pvp_kills_hour, pvp_kills_last_hour))
 
     async def process_belt_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 6 '''

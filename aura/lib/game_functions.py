@@ -206,6 +206,14 @@ async def get_user_corp(corp_id):
         return None
 
 
+async def get_region_kill_info(region):
+    sql = ''' SELECT * FROM region_info WHERE `region_id` = (?) '''
+    values = (region,)
+    region_info = await db.select_var(sql, values)
+    return region_info[0][7], region_info[0][8], region_info[0][9], region_info[0][10], region_info[0][11], \
+           region_info[0][12], region_info[0][13], region_info[0][14]
+
+
 async def track_npc_kills(region):
     sql = ''' SELECT * FROM region_info WHERE `region_id` = (?) '''
     values = (region,)
