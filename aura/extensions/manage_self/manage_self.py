@@ -100,11 +100,11 @@ class ManageSelf:
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
                 embed.add_field(name="Regional Data For {}".format(region_name),
-                                value='Local Count - {}\n'
+                                value='Local Count - {}\n\n'
                                       '__Hourly Kill Data__\n'
                                       'NPC Kills Last Hour/Prior Hour - {}/{}\n'
-                                      'Player Kills Last Hour/Prior Hour = {}/{}\n'
-                                      '__Daily Kill Data__\n'
+                                      'Player Kills Last Hour/Prior Hour - {}/{}\n'
+                                      '__Daily Kill Data__\n\n'
                                       'NPC Kills Last Day/Prior Day - {}/{}\n'
                                       'Player Kills Last Day/Prior Day - {}/{}\n'.format(len(local_players),
                                                                                          pve_kills_hour,
