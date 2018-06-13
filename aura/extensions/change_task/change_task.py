@@ -41,7 +41,7 @@ class ChangeTask:
         pirate_anomaly_text = ''
         if region_info[4] != 0:
             pirate_anomaly = True
-            pirate_anomaly_text = "**7.** Run the combat anomalies in this region\n"
+            pirate_anomaly_text = "**7.** Run the combat anomalies in this region.\n"
         current_task = await game_functions.get_task(int(player[0][6]))
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -104,7 +104,7 @@ class ChangeTask:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '11' or content == '7' or content == '8':
+        if content == '11' or content == '8':
             await ctx.author.send('**Not Yet Implemented**')
             if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)
