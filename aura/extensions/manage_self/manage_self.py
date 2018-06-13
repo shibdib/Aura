@@ -106,7 +106,7 @@ class ManageSelf:
                                       'Player Kills Last Hour/Prior Hour = {}/{}\n'
                                       '__Daily Kill Data__\n'
                                       'NPC Kills Last Day/Prior Day - {}/{}\n'
-                                      'Player Kills Last Day/Prior Day = {}/{}\n'.format(len(local_players),
+                                      'Player Kills Last Day/Prior Day - {}/{}\n'.format(len(local_players),
                                                                                          pve_kills_hour,
                                                                                          pve_kills_last_hour,
                                                                                          pvp_kills_hour,

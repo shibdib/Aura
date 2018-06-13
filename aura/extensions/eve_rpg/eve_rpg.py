@@ -263,10 +263,10 @@ class EveRpg:
             local_players = await db.select_var(sql, values)
             pve_kills_hour, pve_kills_day, pvp_kills_hour, pvp_kills_day, pve_kills_last_hour, pve_kills_yesterday, pvp_kills_last_hour, pvp_kills_yesterday = await game_functions.get_region_kill_info(
                 destination_id)
-            await player.send('You have arrived in {}\n\n'
+            await player.send('**You have arrived in {}**\n\n'
                               'Local Count - {}\n'
                               'NPC Kills Last Hour/Prior Hour - {}/{}\n'
-                              'Player Kills Last Hour/Prior Hour = {}/{}'.format(destination_name, len(local_players),
+                              'Player Kills Last Hour/Prior Hour - {}/{}'.format(destination_name, len(local_players),
                                                                                  pve_kills_hour, pve_kills_last_hour,
                                                                                  pvp_kills_hour, pvp_kills_last_hour))
 
