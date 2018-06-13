@@ -42,7 +42,7 @@ class ManageSelf:
             region_info = await game_functions.get_region_info(region_id)
             pirate_anomaly_text = ''
             if region_info[4] != 0:
-                pirate_anomaly_text = "**Pirate Anomalies Present In This Region**\n"
+                pirate_anomaly_text = "*Pirate Anomalies Present In This Region*\n\n"
             current_task = await game_functions.get_task(int(player[0][6]))
             player_ship_obj = ast.literal_eval(player[0][14])
             module_cargo_option = ''
