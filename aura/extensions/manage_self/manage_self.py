@@ -84,8 +84,7 @@ class ManageSelf:
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n\n{}"
                                       "**m.** Open Full Menu.\n".format(
-                                    region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    pirate_anomaly_text))
+                                    region_name, len(local_players), pirate_anomaly_text))
             await ctx.author.send(embed=embed)
 
             def check(m):
