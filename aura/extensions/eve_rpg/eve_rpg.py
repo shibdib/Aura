@@ -133,6 +133,20 @@ class EveRpg:
                             region_id = (?); '''
                 values = (reset_anomaly[1],)
                 await db.execute_sql(sql, values)
+                sql = "SELECT * FROM eve_rpg_players WHERE `region` == (?) AND `task` == 7"
+                values = (reset_anomaly[1],)
+                anomaly_runners = await db.select_var(sql, values)
+                if len(anomaly_runners) > 0:
+                    for runner in anomaly_runners:
+                        sql = ''' UPDATE eve_rpg_players
+                                SET task = 21
+                                WHERE
+                                    id = (?); '''
+                        values = (runner[0],)
+                        await db.execute_sql(sql, values)
+                        player = self.bot.get_user(runner[2])
+                        await player.send('**Notice** The pirates have fled the system, the anomaly you were running '
+                                          'has been defeated and you are now floating in space.')
         else:
             self.pirate_anomaly_counter += 1
 
