@@ -67,7 +67,7 @@ class ChangeTask:
                                   "**Dock**\n"
                                   "**1.** Dock in current region.\n"
                                   "**PVP Tasks**\n"
-                                  "**2.** Go on a solo PVP roam.\n"
+                                  "**2.** Hunt for players.\n"
                                   "**3.** Camp a gate in your current region.\n"
                                   "{}"
                                   "**PVE Tasks**\n"
@@ -112,6 +112,8 @@ class ChangeTask:
                 return
         elif content == '5':
             return await ctx.invoke(self.bot.get_command("fleet"))
+        elif content == '2' and int(content) in accepted:
+            await self.hunting_options(ctx, player[0])
         elif content == '9':
             await self.process_mission(ctx, player[0])
         elif int(content) in accepted:
@@ -164,7 +166,7 @@ class ChangeTask:
                                 value="Are you sure you want to abandon this mission?\n\n"
                                       "It will cost you {} ISK\n\n"
                                       "**1.** Yes\n"
-                                      "**2.** Non".format('{0:,.2f}'.format(float(mission_details['failure']))))
+                                      "**2.** No".format('{0:,.2f}'.format(float(mission_details['failure']))))
                 await ctx.author.send(embed=embed)
 
                 def check(m):
@@ -277,4 +279,46 @@ class ChangeTask:
                             value="Start heading towards {}, once in system visit the "
                                   "tasks menu to enter the site".format(region_name))
             await ctx.author.send(embed=embed)
+            return await ctx.invoke(self.bot.get_command("me"), True)
+
+    async def hunting_options(self, ctx, player):
+        region_id = int(player[4])
+        region_info = await game_functions.get_region_info(region_id)
+        accepted = [1, 2, 3]
+        pirate_anomaly_text = ""
+        if region_info[4] != 0:
+            accepted.append(4)
+            pirate_anomaly_text = "**4.** In the pirate anomaly.\n"
+        mining_anomaly_text = ""
+        if region_info[4] != 0:
+            accepted.append(5)
+            mining_anomaly_text = "**5.** In the ore anomaly.\n"
+        embed = make_embed(icon=ctx.bot.user.avatar)
+        embed.set_footer(icon_url=ctx.bot.user.avatar_url,
+                         text="Aura - EVE Text RPG")
+        embed.add_field(name="Choose Target",
+                        value="Where do you want to look for targets?\n\n"
+                              "**1.** In the belts.\n"
+                              "**2.** On the gates.\n"
+                              "**3.** At safe spots.\n"
+                              "{}{}".format(pirate_anomaly_text, mining_anomaly_text))
+        await ctx.author.send(embed=embed)
+
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.author.dm_channel
+
+        msg = await self.bot.wait_for('message', check=check, timeout=120)
+        content = int(msg.content)
+        if content in accepted:
+            sql = ''' UPDATE eve_rpg_players
+                    SET task = (?)
+                    WHERE
+                        player_id = (?); '''
+            values = (int(content) + 30, ctx.author.id,)
+            await db.execute_sql(sql, values)
+            player = await game_functions.refresh_player(player)
+            new_task = await game_functions.get_task(int(player[6]))
+            await ctx.author.send('**Task Updated** - You are now *{}*.'.format(new_task))
+            return await ctx.invoke(self.bot.get_command("me"), True)
+        else:
             return await ctx.invoke(self.bot.get_command("me"), True)

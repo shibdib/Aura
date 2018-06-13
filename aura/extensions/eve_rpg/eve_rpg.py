@@ -9,6 +9,40 @@ from aura.lib import game_functions
 from aura.utils import make_embed
 
 
+async def process_region_stats():
+    current_tick = await game_functions.get_tick()
+    if current_tick % 300 == 0:
+        sql = "SELECT * FROM region_info"
+        regions = await db.select(sql)
+        for region in regions:
+            current_hourly_npc = region[7]
+            current_hourly_player = region[9]
+            sql = ''' UPDATE region_info
+                    SET npc_kills_previous_hour = (?),
+                        player_kills_previous_hour = (?),
+                        npc_kills_hour = 0,
+                        player_kills_hour = 0
+                    WHERE
+                        region_id = (?); '''
+            values = (current_hourly_npc, current_hourly_player, region[1],)
+            await db.execute_sql(sql, values)
+    if current_tick % 7200 == 0:
+        sql = "SELECT * FROM region_info"
+        regions = await db.select(sql)
+        for region in regions:
+            current_day_npc = region[8]
+            current_day_player = region[10]
+            sql = ''' UPDATE region_info
+                    SET npc_kills_previous_day = (?),
+                        player_kills_previous_day = (?),
+                        npc_kills_day = 0,
+                        player_kills_day = 0
+                    WHERE
+                        region_id = (?); '''
+            values = (current_day_npc, current_day_player, region[1],)
+            await db.execute_sql(sql, values)
+
+
 class EveRpg:
     def __init__(self, bot):
         self.bot = bot
@@ -28,7 +62,7 @@ class EveRpg:
                 await game_functions.tick_count()
                 await game_functions.combat_timer_management()
                 await self.process_special_regions()
-                await self.process_region_stats()
+                await process_region_stats()
                 await self.process_travel()
                 await self.process_belt_ratting()
                 await self.process_missions()
@@ -134,7 +168,7 @@ class EveRpg:
                             region_id = (?); '''
                 values = (reset_anomaly[1],)
                 await db.execute_sql(sql, values)
-                sql = "SELECT * FROM eve_rpg_players WHERE `region` == (?) AND `task` == 7"
+                sql = "SELECT * FROM eve_rpg_players WHERE `region` == (?) AND (`task` == 7 OR `task` == 34)"
                 values = (reset_anomaly[1],)
                 anomaly_runners = await db.select_var(sql, values)
                 if len(anomaly_runners) > 0:
@@ -146,43 +180,10 @@ class EveRpg:
                         values = (runner[0],)
                         await db.execute_sql(sql, values)
                         player = self.bot.get_user(runner[2])
-                        await player.send('**Notice** The pirates have fled the system, the anomaly you were running '
+                        await player.send('**Notice** The pirates have fled the system, the anomaly you were in '
                                           'has been defeated and you are now floating in space.')
         else:
             self.pirate_anomaly_counter += 1
-
-    async def process_region_stats(self):
-        current_tick = await game_functions.get_tick()
-        if current_tick % 300 == 0:
-            sql = "SELECT * FROM region_info"
-            regions = await db.select(sql)
-            for region in regions:
-                current_hourly_npc = region[7]
-                current_hourly_player = region[9]
-                sql = ''' UPDATE region_info
-                        SET npc_kills_previous_hour = (?),
-                            player_kills_previous_hour = (?),
-                            npc_kills_hour = 0,
-                            player_kills_hour = 0
-                        WHERE
-                            region_id = (?); '''
-                values = (current_hourly_npc, current_hourly_player, region[1],)
-                await db.execute_sql(sql, values)
-        if current_tick % 7200 == 0:
-            sql = "SELECT * FROM region_info"
-            regions = await db.select(sql)
-            for region in regions:
-                current_day_npc = region[8]
-                current_day_player = region[10]
-                sql = ''' UPDATE region_info
-                        SET npc_kills_previous_day = (?),
-                            player_kills_previous_day = (?),
-                            npc_kills_day = 0,
-                            player_kills_day = 0
-                        WHERE
-                            region_id = (?); '''
-                values = (current_day_npc, current_day_player, region[1],)
-                await db.execute_sql(sql, values)
 
     async def process_travel(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 20 '''
@@ -674,7 +675,7 @@ class EveRpg:
         return await self.destroy_ship(player)
 
     async def process_roams(self):
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 2 '''
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 31 OR `task` = 32 OR `task` = 33 OR `task` = 34 OR `task` = 35 '''
         roamers = await db.select(sql)
         if roamers is None or len(roamers) is 0:
             return
@@ -707,11 +708,17 @@ class EveRpg:
                         fleet_array = ast.literal_eval(fleet_info[0][3])
                         if target[0] in fleet_array:
                             continue
-                    target_aggression = 20
-                    if 1 < int(target[6]) < 5:
-                        target_aggression = 45
-                    if int(target[6]) == 9:
-                        target_aggression = 8
+                    target_aggression = 4
+                    if roamer[6] == 31 and (target[6] == 6 or target[6] == 10):
+                        target_aggression = 20
+                    elif roamer[6] == 32 and target[6] == 20:
+                        target_aggression = 20
+                    elif roamer[6] == 33 and target[6] == 21:
+                        target_aggression = 20
+                    elif roamer[6] == 34 and target[6] == 7:
+                        target_aggression = 20
+                    elif roamer[6] == 35 and target[6] == 11:
+                        target_aggression = 20
                     conflict = await self.weighted_choice([(True, target_aggression), (None, 100 - target_aggression)])
                     if conflict is None:
                         break
@@ -1687,14 +1694,8 @@ class EveRpg:
         await db.execute_sql(sql, values)
         return self.logger.info('eve_rpg - Bad Channel removed successfully')
 
-    async def refresh_player(self, player):
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `player_id` = (?) '''
-        values = (player[2],)
-        new_player = await db.select_var(sql, values)
-        return new_player[0]
-
     async def add_xp(self, player, xp_gained):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         if player[9] + xp_gained < 100 * player[8]:
             sql = ''' UPDATE eve_rpg_players
                     SET xp = (?)
@@ -1711,7 +1712,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_isk(self, player, isk):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         sql = ''' UPDATE eve_rpg_players
                 SET isk = (?)
                 WHERE
@@ -1740,7 +1741,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_kill(self, player, mods):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         sql = ''' UPDATE eve_rpg_players
                 SET kills=?,
                     ship=?
@@ -1761,7 +1762,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_loss(self, player):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         sql = ''' UPDATE eve_rpg_players
                 SET losses = (?)
                 WHERE
@@ -1770,7 +1771,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def add_combat_timer(self, player):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         sql = ''' UPDATE eve_rpg_players
                 SET combat_timer = (?)
                 WHERE
@@ -1779,7 +1780,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def destroy_ship(self, player):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         ship_id = 1
         if player[3] == 1:
             ship_id = 1
@@ -1825,7 +1826,7 @@ class EveRpg:
             return await db.execute_sql(sql, values)
 
     async def give_mod(self, player, mods):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         ship = ast.literal_eval(player[14])
         for mod in mods:
             if 'module_cargo_bay' in ship:
@@ -1841,7 +1842,7 @@ class EveRpg:
         return await db.execute_sql(sql, values)
 
     async def give_pvp_loot(self, player):
-        player = await self.refresh_player(player)
+        player = await game_functions.refresh_player(player)
         ship = ast.literal_eval(player[14])
         tier_1_amount = random.randint(1, 50)
         tier_1 = await self.weighted_choice([(True, 90), (False, 10)])
@@ -1894,7 +1895,7 @@ class EveRpg:
         false = 200 - int(chance)
         loot_drop = await self.weighted_choice([(True, chance), (False, false)])
         if loot_drop is True or officer is True:
-            player = await self.refresh_player(player)
+            player = await game_functions.refresh_player(player)
             ship = ast.literal_eval(player[14])
             loot_type = await self.weighted_choice([(200, 25), (201, 25), (202, 25), (203, 25), (204, 25)])
             item = await game_functions.get_module(loot_type)
@@ -1914,7 +1915,7 @@ class EveRpg:
             values = (str(ship), player[2],)
             await db.execute_sql(sql, values)
         if overseer is True:
-            player = await self.refresh_player(player)
+            player = await game_functions.refresh_player(player)
             ship = ast.literal_eval(player[14])
             loot_type = await self.weighted_choice([(205, 50), (206, 25), (207, 10), (208, 5)])
             item = await game_functions.get_module(loot_type)

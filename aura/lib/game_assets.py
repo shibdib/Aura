@@ -94,7 +94,11 @@ region_security = {1: 'High',
 
 tasks = {1: 'Docked',
          # PVP
-         2: 'Roaming',
+         31: 'Looking For Targets In Belts',
+         32: 'Looking For Targets At Gates',
+         33: 'Checking Safe Spots For Targets',
+         34: 'Checking Combat Anomalies For Targets',
+         35: 'Checking Mining Anomalies For Targets',
          3: 'Gate Camping',
          4: 'Ganking',
          5: 'Fleet Roam',
