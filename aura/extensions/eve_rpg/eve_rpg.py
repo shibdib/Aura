@@ -18,7 +18,7 @@ class EveRpg:
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.tick_loop())
         self.user_check_counter = 0
-        self.anomaly_counter = 0
+        self.pirate_anomaly_counter = 0
 
     async def tick_loop(self):
         await self.bot.wait_until_ready()
@@ -108,7 +108,7 @@ class EveRpg:
         sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != 'High'"
         active_pirate_anomalies = await db.select(sql)
         if len(active_pirate_anomalies) < 10:
-            self.anomaly_counter = 0
+            self.pirate_anomaly_counter = 0
             if len(active_pirate_anomalies) < 10:
                 sql = "SELECT * FROM region_info WHERE `pirate_anomaly` == 0 AND `region_security` != 'High'"
                 potential_pirate_anomalies = await db.select(sql)
@@ -121,8 +121,20 @@ class EveRpg:
                                 region_id = (?); '''
                     values = (new_anomaly[1],)
                     await db.execute_sql(sql, values)
+        elif self.pirate_anomaly_counter >= 300:
+            reset_amount = random.randint(1, 10)
+            random.shuffle(active_pirate_anomalies)
+            trimmed_list = active_pirate_anomalies[:reset_amount]
+            self.pirate_anomaly_counter = 0
+            for reset_anomaly in trimmed_list:
+                sql = ''' UPDATE region_info
+                        SET pirate_anomaly = 0
+                        WHERE
+                            region_id = (?); '''
+                values = (reset_anomaly[1],)
+                await db.execute_sql(sql, values)
         else:
-            self.anomaly_counter += 1
+            self.pirate_anomaly_counter += 1
 
     async def process_travel(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 20 '''
