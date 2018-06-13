@@ -72,7 +72,6 @@ class ChangeTask:
                                   "{}"
                                   "**PVE Tasks**\n"
                                   "**6.** Kill belt rats.\n"
-                                  "**7.** Run anomalies in the system.\n"
                                   "{}"
                                   "{}"
                                   "**Mining Tasks**\n"
