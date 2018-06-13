@@ -136,7 +136,12 @@ async def get_combat_attributes(player, ship_id, npc=False):
                 current_count = checked_modules.count(module['class'])
                 efficiency = 1
                 if current_count > 1:
-                    efficiency = 1 - (0.5 * (0.45 * (current_count - 1)) ** 2)
+                    if current_count < 5:
+                        efficiency = 1 - (0.5 * (0.45 * (current_count - 1)) ** 2)
+                    elif current_count < 10:
+                        efficiency = (100 - (90 + current_count)) / 100
+                    else:
+                        efficiency = 0
                 if 'size' not in module:
                     attack = int(float((attack * (module['attack'] * efficiency)) + attack))
                     defense = int(float((defense * (module['defense'] * efficiency)) + defense))
@@ -190,3 +195,4 @@ async def get_user_corp(corp_id):
         return corp_info[0]
     else:
         return None
+
