@@ -952,14 +952,14 @@ class EveRpg:
         # Combat
         escape, winner, initial_round = False, None, False
         transversal = 1
-        if (defender_maneuver * 0.67) > attacker_tracking:
-            transversal = (attacker_tracking + 1) / ((defender_maneuver + 0.1) * 0.5)
+        if (defender_maneuver * 0.75) > attacker_tracking + 1:
+            transversal = (attacker_tracking + 1) / (defender_maneuver * 0.75)
         attacker_damage = (attacker_attack * transversal) - defender_defense
         if attacker_damage <= 0:
             attacker_damage = 0.1
         transversal = 1
-        if (attacker_maneuver * 0.67) > defender_tracking:
-            transversal = (defender_tracking + 1) / ((attacker_maneuver + 0.1) * 0.5)
+        if (attacker_maneuver * 0.75) > defender_tracking + 1:
+            transversal = (defender_tracking + 1) / (attacker_maneuver * 0.75)
         defender_damage = (attacker_attack * transversal) - defender_defense
         if defender_damage <= 0:
             defender_damage = 0.1
@@ -1191,8 +1191,8 @@ class EveRpg:
             primary_attack, primary_defense, primary_maneuver, primary_tracking = \
                 await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
             transversal = 1
-            if (primary_maneuver * 0.5) > aggressor_tracking:
-                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.5)
+            if (primary_maneuver * 0.75) > aggressor_tracking + 1:
+                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
             damage = (aggressor_damage * transversal) - primary_defense
             if primary not in attacker_fleet:
                 attacker_damage_dealt += damage
@@ -1469,8 +1469,8 @@ class EveRpg:
             if primary[0] in damaged_ships:
                 hit_points = damaged_ships[primary[0]]
             transversal = 1
-            if (primary_maneuver * 0.5) > aggressor_tracking:
-                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.5)
+            if (primary_maneuver * 0.75) > aggressor_tracking + 1:
+                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
             damage = (aggressor_damage * transversal) - primary_defense
             if primary not in attacker_fleet:
                 attacker_damage_dealt += damage
