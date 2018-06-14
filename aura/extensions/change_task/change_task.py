@@ -42,6 +42,11 @@ class ChangeTask:
         if region_info[4] != 0:
             pirate_anomaly = True
             pirate_anomaly_text = "**7.** Run the combat anomalies in this region.\n"
+        mining_anomaly = False
+        mining_anomaly_text = ''
+        if region_info[4] != 0:
+            mining_anomaly = True
+            mining_anomaly_text = "**11.** Mine the rich mining anomaly.\n"
         current_task = await game_functions.get_task(int(player[0][6]))
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,
@@ -76,11 +81,13 @@ class ChangeTask:
                                   "{}"
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n"
-                                  "**11.** Mine a mining anomaly.\n".format(current_task, mission_destination, fleet_task,
-                                                                            pirate_anomaly_text, mission_task))
-            accepted = [1, 2, 3, 5, 6, 8, 9, 10, 11]
+                                  "{}".format(current_task, mission_destination, fleet_task,
+                                              pirate_anomaly_text, mission_task, mining_anomaly_text))
+            accepted = [1, 2, 3, 5, 6, 8, 9, 10]
             if pirate_anomaly is True:
                 accepted.append(7)
+            if mining_anomaly is True:
+                accepted.append(11)
         else:
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}{}\n\n"
@@ -104,7 +111,7 @@ class ChangeTask:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '11' or content == '8':
+        if content == '8':
             await ctx.author.send('**Not Yet Implemented**')
             if content.find('!!') == -1:
                 return await ctx.invoke(self.bot.get_command("me"), True)

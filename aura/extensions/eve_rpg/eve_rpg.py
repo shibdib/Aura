@@ -53,6 +53,7 @@ class EveRpg:
         self.loop.create_task(self.tick_loop())
         self.user_check_counter = 0
         self.pirate_anomaly_counter = 0
+        self.mining_anomaly_counter = 0
 
     async def tick_loop(self):
         await self.bot.wait_until_ready()
@@ -85,36 +86,6 @@ class EveRpg:
             if user is None:
                 await self.remove_bad_user(player[2])
                 continue
-            if player[14] is None:
-                ship_id = 1
-                if player[3] == 1:
-                    ship_id = 1
-                elif player[3] == 2:
-                    ship_id = 2
-                elif player[3] == 3:
-                    ship_id = 3
-                elif player[3] == 4:
-                    ship_id = 4
-                elif player[3] == 99:
-                    ship_id = 5
-                new_id = await game_functions.create_unique_id()
-                ship = {'id': new_id, 'ship_type': ship_id}
-                sql = ''' UPDATE eve_rpg_players
-                        SET ship = (?),
-                            modules = NULL,
-                            region = (?),
-                            task = 1
-                        WHERE
-                            player_id = (?); '''
-                values = (str(ship), player[18], player[2],)
-                await db.execute_sql(sql, values)
-            if player[12] == 'None':
-                sql = ''' UPDATE eve_rpg_players
-                        SET modules = NULL
-                        WHERE
-                            player_id = (?); '''
-                values = (player[2],)
-                await db.execute_sql(sql, values)
         # Make sure regions are in the db
         for key, region in game_assets.regions.items():
             sql = "SELECT * FROM region_info WHERE `region_id` = (?)"
@@ -125,6 +96,14 @@ class EveRpg:
                 sql = ''' REPLACE INTO region_info(region_id,region_security)
                           VALUES(?,?) '''
                 values = (key, sec_status)
+                await db.execute_sql(sql, values)
+            sql = "SELECT * FROM region_market WHERE `region_id` = (?)"
+            values = (key,)
+            region = await db.select_var(sql, values)
+            if len(region) == 0:
+                sql = ''' REPLACE INTO region_market(region_id)
+                          VALUES(?) '''
+                values = (key,)
                 await db.execute_sql(sql, values)
 
     async def process_users(self):
@@ -184,6 +163,51 @@ class EveRpg:
                                           'has been defeated and you are now floating in space.')
         else:
             self.pirate_anomaly_counter += 1
+        sql = "SELECT * FROM region_info WHERE `mining_anomaly` > 0 AND `region_security` != 'High'"
+        active_mining_anomalies = await db.select(sql)
+        if len(active_mining_anomalies) < 10:
+            self.pirate_anomaly_counter = 0
+            if len(active_mining_anomalies) < 10:
+                sql = "SELECT * FROM region_info WHERE `mining_anomaly` == 0 AND `region_security` != 'High'"
+                potential_pirate_anomalies = await db.select(sql)
+                random.shuffle(potential_pirate_anomalies)
+                trimmed_list = potential_pirate_anomalies[:10 - len(active_mining_anomalies)]
+                for new_anomaly in trimmed_list:
+                    sql = ''' UPDATE region_info
+                            SET mining_anomaly = 1
+                            WHERE
+                                region_id = (?); '''
+                    values = (new_anomaly[1],)
+                    await db.execute_sql(sql, values)
+        elif self.mining_anomaly_counter >= 300:
+            reset_amount = random.randint(1, 10)
+            random.shuffle(active_mining_anomalies)
+            trimmed_list = active_mining_anomalies[:reset_amount]
+            self.pirate_anomaly_counter = 0
+            for reset_anomaly in trimmed_list:
+                sql = ''' UPDATE region_info
+                        SET mining_anomaly = 0
+                        WHERE
+                            region_id = (?); '''
+                values = (reset_anomaly[1],)
+                await db.execute_sql(sql, values)
+                sql = "SELECT * FROM eve_rpg_players WHERE `region` == (?) AND (`task` == 11 OR `task` == 35)"
+                values = (reset_anomaly[1],)
+                anomaly_runners = await db.select_var(sql, values)
+                if len(anomaly_runners) > 0:
+                    for runner in anomaly_runners:
+                        sql = ''' UPDATE eve_rpg_players
+                                SET task = 21
+                                WHERE
+                                    id = (?); '''
+                        values = (runner[0],)
+                        await db.execute_sql(sql, values)
+                        player = self.bot.get_user(runner[2])
+                        await player.send(
+                            '**Notice** The asteroid have been mined, the anomaly you were once in is now '
+                            'nothing more than a dust cloud.')
+        else:
+            self.mining_anomaly_counter += 1
 
     async def process_travel(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 20 '''
@@ -335,11 +359,11 @@ class EveRpg:
             if region_security == 'Low':
                 ore = 75
                 possible_npc = 2
-                isk = random.randint(8000, 17500)
+                isk = random.randint(2500, 8500)
             elif region_security == 'Null':
                 ore = 90
                 possible_npc = 4
-                isk = random.randint(16000, 45000)
+                isk = random.randint(8000, 22450)
             find_ore = await self.weighted_choice(
                 [(True, ore / len(belt_miners)), (False, 100 - (ore / len(belt_miners)))])
             if find_ore is False:
@@ -382,6 +406,71 @@ class EveRpg:
                 await self.add_xp(miner, xp_gained)
                 await self.add_isk(miner, isk * multiplier)
                 await self.update_journal(miner, isk * multiplier, 'Belt Mining')
+
+    async def process_anomaly_mining(self):
+        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 11 '''
+        miners = await db.select(sql)
+        if miners is None or len(miners) is 0:
+            return
+        for miner in miners:
+            region_id = int(miner[4])
+            region_security = await game_functions.get_region_security(region_id)
+            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 11 AND `region` = (?) '''
+            values = (region_id,)
+            belt_miners = await db.select_var(sql, values)
+            isk = random.randint(100, 750)
+            possible_npc = False
+            ore = 50
+            if region_security == 'Low':
+                ore = 99
+                possible_npc = 4
+                isk = random.randint(12000, 19500)
+            elif region_security == 'Null':
+                ore = 99
+                possible_npc = 8
+                isk = random.randint(18000, 65000)
+            find_ore = await self.weighted_choice(
+                [(True, ore / len(belt_miners)), (False, 100 - (ore / len(belt_miners)))])
+            if find_ore is False:
+                continue
+            else:
+                if possible_npc is not False:
+                    encounter = await self.weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
+                    if encounter is True:
+                        await self.process_pve_combat(miner)
+                #  Ship multi
+                miner_ship = ast.literal_eval(miner[14])
+                ship_id = miner_ship['ship_type']
+                ship = await game_functions.get_ship(ship_id)
+                multiplier = 1
+                if ship['class'] == 21:
+                    multiplier = 2.25
+                if ship['id'] == 80:
+                    multiplier = 4
+                if ship['id'] == 81:
+                    multiplier = 8
+                if ship['id'] == 90:
+                    multiplier = 6
+                if ship['id'] == 91:
+                    multiplier = 12
+                if miner[12] is not None:
+                    modules = ast.literal_eval(miner[12])
+                    for module in modules:
+                        if module == 17:
+                            isk = (isk * .1) + isk
+                            continue
+                        if module == 18:
+                            isk = (isk * .2) + isk
+                            continue
+                        if module == 121:
+                            isk = (isk * .05) + isk
+                            continue
+                        if module == 122:
+                            isk = (isk * .1) + isk
+                xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
+                await self.add_xp(miner, xp_gained)
+                await self.add_isk(miner, isk * multiplier)
+                await self.update_journal(miner, isk * multiplier, 'Anomaly Mining')
 
     async def process_missions(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 '''

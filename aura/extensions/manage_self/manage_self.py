@@ -40,9 +40,13 @@ class ManageSelf:
             local_players = await db.select_var(sql, values)
             region_name = await game_functions.get_region(region_id)
             region_info = await game_functions.get_region_info(region_id)
-            pirate_anomaly_text = ''
+            anomaly_text = ''
             if region_info[4] != 0:
-                pirate_anomaly_text = "*Pirate Anomalies Present In This Region*\n\n"
+                anomaly_text = "*Pirate Anomalies Present In This Region*\n\n"
+            if region_info[5] != 0:
+                anomaly_text = "*Rich Mining Anomalies Present In This Region*\n\n"
+            if region_info[5] != 0 and region_info[4] != 0:
+                anomaly_text = "*Pirate Anomalies Present In This Region*\n*Rich Mining Anomalies Present In This Region*\n\n"
             current_task = await game_functions.get_task(int(player[0][6]))
             player_ship_obj = ast.literal_eval(player[0][14])
             module_cargo_option = ''
@@ -77,13 +81,13 @@ class ManageSelf:
                                       "**13.** Manage your contacts.\n"
                                       "**14.** Corporation Management.\n".format(
                                     region_name, len(local_players), current_ship, current_task, wallet_balance,
-                                    pirate_anomaly_text, module_cargo_option, component_cargo_option))
+                                    anomaly_text, module_cargo_option, component_cargo_option))
             if redirect is True:
                 timeout = None
                 embed.add_field(name="Welcome {} - Player ID: {} ".format(player_name, player[0][0]),
                                 value="**Current Region** - {}\n**Local Count** - {}\n\n{}"
                                       "**m.** Open Full Menu.\n".format(
-                                    region_name, len(local_players), pirate_anomaly_text))
+                                    region_name, len(local_players), anomaly_text))
             await ctx.author.send(embed=embed)
 
             def check(m):

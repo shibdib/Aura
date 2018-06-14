@@ -55,8 +55,8 @@ async def create_tables():
                                         pirate_anomaly INTEGER DEFAULT 0,
                                         mining_anomaly INTEGER DEFAULT 0,
                                         incursion INTEGER DEFAULT 0,
-                                        npc_kills_hour TEXT DEFAULT NULL,
-                                        npc_kills_day TEXT DEFAULT NULL,
+                                        npc_kills_hour INTEGER DEFAULT 0,
+                                        npc_kills_day INTEGER DEFAULT 0,
                                         player_kills_hour INTEGER DEFAULT 0,
                                         player_kills_day INTEGER DEFAULT 0,
                                         npc_kills_previous_hour INTEGER DEFAULT 0,
@@ -65,6 +65,19 @@ async def create_tables():
                                         player_kills_previous_day INTEGER DEFAULT 0
                                     ); """
         await create_table(db, regions_table)
+        # create regions tables
+        region_market_table = """ CREATE TABLE IF NOT EXISTS region_market (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                        region_id INTEGER NOT NULL UNIQUE,
+                                        owner_id INTEGER DEFAULT NULL,
+                                        type INTEGER DEFAULT NULL,
+                                        ship INTEGER DEFAULT NULL,
+                                        module INTEGER DEFAULT NULL,
+                                        component INTEGER DEFAULT NULL,
+                                        quantity INTEGER DEFAULT NULL,
+                                        price INTEGER DEFAULT NULL,
+                                    ); """
+        await create_table(db, region_market_table)
         # create corps tables
         corps_table = """ CREATE TABLE IF NOT EXISTS corporations (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
