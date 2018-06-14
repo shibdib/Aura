@@ -519,7 +519,7 @@ class EveRpg:
                                 value="{}\n\n"
                                       "Reward: {} ISK\n".format(mission_details['completion'],
                                                                 '{0:,.2f}'.format(float(mission_details['reward']))))
-                mission_runner = await self.refresh_player(mission_runner)
+                mission_runner = await game_functions.refresh_player(mission_runner)
                 player = self.bot.get_user(mission_runner[2])
                 await player.send(embed=embed)
                 sql = ''' UPDATE eve_rpg_players
@@ -1292,8 +1292,7 @@ class EveRpg:
         aggressor = await self.weighted_choice(
             [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
         not_first_round = None
-        for x in range(
-                int((attacker_fleet_hits + defender_fleet_hits + attacker_fleet_defense + defender_fleet_defense))):
+        for x in range(125):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             if not_first_round is True:
