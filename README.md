@@ -13,3 +13,6 @@ Currently in Beta
 [Regions](https://github.com/shibdib/Aura/wiki/3.-Regions)
 
 [Tasks](https://github.com/shibdib/Aura/wiki/4.-Tasks)
+
+
+*All EVE Online related content is the property of CCP Games and is used under the [developers license agreement](https://developers.eveonline.com/resource/license-agreement)*
