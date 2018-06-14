@@ -95,9 +95,9 @@ class ManageSelf:
 
             msg = await self.bot.wait_for('message', check=check, timeout=timeout)
             content = msg.content
-            if content == 'm':
+            if content.lower() == 'm':
                 await ctx.invoke(self.bot.get_command("me"))
-            elif content == 'i':
+            elif content.lower() == 'i':
                 pve_kills_hour, pve_kills_day, pvp_kills_hour, pvp_kills_day, pve_kills_last_hour, pve_kills_yesterday, pvp_kills_last_hour, pvp_kills_yesterday = await game_functions.get_region_kill_info(
                     region_id)
                 embed = make_embed(icon=self.bot.user.avatar)

@@ -162,7 +162,7 @@ class ShipFitting:
             return m.author == ctx.author and m.channel == ctx.author.dm_channel
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-        if msg.content == 'n':
+        if msg.content.lower() == 'n':
             if custom_name == '':
                 custom_name = ship['name']
             embed = make_embed(icon=ctx.bot.user.avatar)
@@ -190,7 +190,7 @@ class ShipFitting:
                 await db.execute_sql(sql, values)
                 await ctx.author.send('**Changes Complete**')
                 return await ctx.invoke(self.bot.get_command("me"), True)
-        if msg.content == 's':
+        if msg.content.lower() == 's':
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
