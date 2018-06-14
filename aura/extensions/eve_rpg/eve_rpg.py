@@ -709,18 +709,16 @@ class EveRpg:
         minimum_player_damage = (player_attack * transversal)
         maximum_player_damage = player_attack
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
-        initial_round = False
-        combat = player
+        round_counter = 1
         for x in range(int(player_hits + npc_hits * 1.5)):
             npc_damage = round(random.triangular(minimum_npc_damage, maximum_npc_damage), 3)
             player_damage = round(random.triangular(minimum_player_damage, maximum_player_damage), 3)
-            if initial_round is True:
-                if combat == player:
-                    combat = False
-                else:
-                    combat = player
-            initial_round = True
-            if combat == player:
+            if round_counter % 2 == 0:
+                aggressor = False
+            else:
+                aggressor = player
+            round_counter += 1
+            if aggressor == player:
                 if player_defense > 0:
                     player_defense -= npc_damage
                 else:
@@ -730,7 +728,7 @@ class EveRpg:
                     npc_defense -= player_damage
                 else:
                     npc_hits -= player_damage
-            if combat == player:
+            if aggressor == player:
                 npc_hits -= player_damage
             else:
                 player_hits -= npc_damage
@@ -1082,22 +1080,16 @@ class EveRpg:
             transversal = (defender_tracking + 1) / (attacker_maneuver * 0.75)
         minimum_defender_damage = (defender_attack * transversal)
         maximum_defender_damage = defender_attack
-        # Set first turn initiative
-        player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 0.5) + (
-                attacker_defense * 0.4) + attacker_maneuver + attacker_tracking
-        player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack * 0.5) + (
-                defender_defense * 0.4) + defender_maneuver + defender_tracking) * pve_disadvantage
-        initiative = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
+        round_counter = 1
         for x in range(int((attacker_hits + defender_hits + attacker_defense + defender_defense) * 1.5)):
             attacker_damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
             defender_damage = round(random.triangular(minimum_defender_damage, maximum_defender_damage), 3)
-            if initial_round is True:
-                if initiative == attacker:
-                    initiative = defender
-                else:
-                    initiative = attacker
-            initial_round = True
-            if initiative == attacker:
+            if round_counter % 2 == 0:
+                aggressor = defender
+            else:
+                aggressor = attacker
+            round_counter += 1
+            if aggressor == attacker:
                 if defender_defense > 0:
                     defender_defense -= attacker_damage
                 else:
@@ -1285,26 +1277,21 @@ class EveRpg:
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
             await self.add_combat_timer(fleet_member)
-        attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
-        defender_initiative = 50 + (defender_fleet_maneuver / defenders_in_system)
         aggressor_damage = attacker_fleet_attack
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
         damaged_ships = {}
         if damaged is not None:
             damaged_ships = damaged
-        aggressor = await self.weighted_choice(
-            [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
-        not_first_round = None
+        round_counter = 1
         for x in range(125):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            if not_first_round is True:
-                if aggressor == attacker_fleet:
-                    aggressor = defender_fleet
-                else:
-                    aggressor = attacker_fleet
-            not_first_round = True
+            if round_counter % 2 == 0:
+                aggressor = defender_fleet
+            else:
+                aggressor = attacker_fleet
+            round_counter += 1
             if aggressor != attacker_fleet:
                 non_aggressor = attacker_fleet
                 aggressor_damage = defender_fleet_attack
@@ -1583,11 +1570,8 @@ class EveRpg:
         attacker_count = len(attacker_fleet)
         primary_ship = ast.literal_eval(player[14])
         ship = await game_functions.get_ship(primary_ship['ship_type'])
-        hit_points = ship['hit_points']
         primary_attack, primary_defense, primary_maneuver, primary_tracking = \
             await game_functions.get_combat_attributes(player, ship['id'])
-        attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
-        defender_initiative = 50 + primary_maneuver
         defender_fleet = [player]
         defender_count = len(defender_fleet)
         defender_fleet_lost = []
@@ -1601,18 +1585,15 @@ class EveRpg:
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
         damaged_ships = {}
-        aggressor = await self.weighted_choice(
-            [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
-        not_first_round = None
-        for x in range(int((attacker_fleet_hits + hit_points + attacker_fleet_defense + primary_defense))):
+        round_counter = 1
+        for x in range(250):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            if not_first_round is True:
-                if aggressor == attacker_fleet:
-                    aggressor = defender_fleet
-                else:
-                    aggressor = attacker_fleet
-            not_first_round = True
+            if round_counter % 2 == 0:
+                aggressor = defender_fleet
+            else:
+                aggressor = attacker_fleet
+            round_counter += 1
             if aggressor != attacker_fleet:
                 non_aggressor = attacker_fleet
                 aggressor_damage = primary_attack
