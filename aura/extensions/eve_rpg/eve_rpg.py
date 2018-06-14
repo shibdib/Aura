@@ -46,6 +46,7 @@ async def process_region_stats():
 class EveRpg:
     def __init__(self, bot):
         self.bot = bot
+        self.ongoing_fleet_fights = {}
         self.session = bot.session
         self.config = bot.config
         self.logger = bot.logger
@@ -71,6 +72,7 @@ class EveRpg:
                 await self.process_belt_mining()
                 await self.process_anomaly_mining()
                 await self.process_anomaly_ratting()
+                await self.process_ongoing_fleet_fights()
                 await self.process_roams()
                 await self.process_ganks()
                 await self.process_users()
@@ -209,6 +211,11 @@ class EveRpg:
                             'nothing more than a dust cloud.')
         else:
             self.mining_anomaly_counter += 1
+
+    async def process_ongoing_fleet_fights(self):
+        if len(self.ongoing_fleet_fights) > 0:
+            for fight in self.ongoing_fleet_fights:
+                await self.fleet_versus_fleet(fight['attacker'], fight['defender'], fight['region'], fight['damaged'])
 
     async def process_travel(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 20 '''
@@ -1221,7 +1228,7 @@ class EveRpg:
         await self.add_xp(winner, xp_gained)
         await self.give_pvp_loot(winner)
 
-    async def fleet_versus_fleet(self, fleet_one, fleet_two, region):
+    async def fleet_versus_fleet(self, fleet_one, fleet_two, region, damaged=None):
         region_name = await game_functions.get_region(int(region))
         # Fleet stuff
         attacker_fleet_attack, attacker_fleet_defense, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits, defender_fleet_attack, \
@@ -1290,6 +1297,8 @@ class EveRpg:
         aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
         non_aggressor = defender_fleet
         damaged_ships = {}
+        if damaged is not None:
+            damaged_ships = damaged
         aggressor = await self.weighted_choice(
             [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
         not_first_round = None
@@ -1462,11 +1471,12 @@ class EveRpg:
                 for user in other_users:
                     await self.add_kill(user, dropped_mods)
                     await self.add_xp(user, xp_gained)
+        ongoing_text = ''
+        if len(attacker_fleet) > 0 and len(defender_fleet) > 0:
+            ongoing_text = '\n\n**This Battle Is Still Ongoing**'
+            self.ongoing_fleet_fights[region] = {'attacker': attacker_fleet, 'defender': defender_fleet,
+                                                 'region': region, 'damaged': damaged_ships}
         if len(attacker_fleet_lost) > 0 or len(defender_fleet_lost) > 0:
-            ongoing_text = ''
-            if len(attacker_fleet) > 0 or len(defender_fleet) > 0:
-                ongoing_text = '\n\n**This Battle Is Still Ongoing**'
-                ongoing = True
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
