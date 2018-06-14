@@ -121,13 +121,13 @@ class EveRpg:
     async def process_special_regions(self):
         sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != 'High'"
         active_pirate_anomalies = await db.select(sql)
-        if len(active_pirate_anomalies) < 10:
+        if len(active_pirate_anomalies) < 8:
             self.pirate_anomaly_counter = 0
-            if len(active_pirate_anomalies) < 10:
+            if len(active_pirate_anomalies) < 8:
                 sql = "SELECT * FROM region_info WHERE `pirate_anomaly` == 0 AND `region_security` != 'High'"
                 potential_pirate_anomalies = await db.select(sql)
                 random.shuffle(potential_pirate_anomalies)
-                trimmed_list = potential_pirate_anomalies[:10 - len(active_pirate_anomalies)]
+                trimmed_list = potential_pirate_anomalies[:8 - len(active_pirate_anomalies)]
                 for new_anomaly in trimmed_list:
                     sql = ''' UPDATE region_info
                             SET pirate_anomaly = 1
@@ -136,7 +136,7 @@ class EveRpg:
                     values = (new_anomaly[1],)
                     await db.execute_sql(sql, values)
         elif self.pirate_anomaly_counter >= 300:
-            reset_amount = random.randint(1, 10)
+            reset_amount = random.randint(1, 8)
             random.shuffle(active_pirate_anomalies)
             trimmed_list = active_pirate_anomalies[:reset_amount]
             self.pirate_anomaly_counter = 0
@@ -165,13 +165,13 @@ class EveRpg:
             self.pirate_anomaly_counter += 1
         sql = "SELECT * FROM region_info WHERE `mining_anomaly` > 0 AND `region_security` != 'High'"
         active_mining_anomalies = await db.select(sql)
-        if len(active_mining_anomalies) < 10:
+        if len(active_mining_anomalies) < 8:
             self.pirate_anomaly_counter = 0
-            if len(active_mining_anomalies) < 10:
+            if len(active_mining_anomalies) < 8:
                 sql = "SELECT * FROM region_info WHERE `mining_anomaly` == 0 AND `region_security` != 'High'"
                 potential_pirate_anomalies = await db.select(sql)
                 random.shuffle(potential_pirate_anomalies)
-                trimmed_list = potential_pirate_anomalies[:10 - len(active_mining_anomalies)]
+                trimmed_list = potential_pirate_anomalies[:8 - len(active_mining_anomalies)]
                 for new_anomaly in trimmed_list:
                     sql = ''' UPDATE region_info
                             SET mining_anomaly = 1
@@ -180,7 +180,7 @@ class EveRpg:
                     values = (new_anomaly[1],)
                     await db.execute_sql(sql, values)
         elif self.mining_anomaly_counter >= 300:
-            reset_amount = random.randint(1, 10)
+            reset_amount = random.randint(1, 8)
             random.shuffle(active_mining_anomalies)
             trimmed_list = active_mining_anomalies[:reset_amount]
             self.pirate_anomaly_counter = 0
@@ -1429,26 +1429,6 @@ class EveRpg:
                     await self.add_kill(user, dropped_mods)
                     await self.add_xp(user, xp_gained)
         if len(attacker_fleet_lost) > 0 or len(defender_fleet_lost) > 0:
-            dead_attackers = []
-            for attacker_killed in attacker_fleet_lost:
-                member_ship = ast.literal_eval(attacker_killed[14])
-                ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                loser_name = self.bot.get_user(int(attacker_killed[2])).display_name
-                if attacker_killed[23] is not None:
-                    corp_info = await game_functions.get_user_corp(attacker_killed[23])
-                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
-                dead_attackers.append('{} - *{}*'.format(loser_name, ship_details['name']))
-            attackers_lost = '\n'.join(dead_attackers)
-            dead_defenders = []
-            for defender_killed in defender_fleet_lost:
-                member_ship = ast.literal_eval(defender_killed[14])
-                ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                loser_name = self.bot.get_user(int(defender_killed[2])).display_name
-                if defender_killed[23] is not None:
-                    corp_info = await game_functions.get_user_corp(defender_killed[23])
-                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
-                dead_defenders.append('{} - *{}*'.format(loser_name, ship_details['name']))
-            defenders_lost = '\n'.join(dead_defenders)
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -1459,31 +1439,67 @@ class EveRpg:
                                   "Total ISK Lost: {} ISK\n"
                                   "Total Damage Done: {}\n".format(region_name,
                                                                    defender_count + attacker_count,
-                                                                   len(dead_attackers) + len(dead_defenders),
+                                                                   len(attacker_fleet_lost) + len(defender_fleet_lost),
                                                                    '{0:,.2f}'.format(float(
                                                                        attacker_isk_lost + defender_isk_lost)),
                                                                    attacker_damage_dealt + defender_damage_dealt),
                             inline=False)
-            embed.add_field(name="Fleet One Losses",
+            embed.add_field(name="Fleet One Stats",
                             value="Fleet Size: {} Players\n"
                                   "Total Losses: {}\n"
                                   "ISK Lost: {} ISK\n"
-                                  "Total Damage Received: {}\n\n"
-                                  "__Losses__\n"
-                                  "{}".format(attacker_count, len(dead_attackers),
-                                              '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt,
-                                              attackers_lost),
+                                  "Total Damage Received: {}".format(attacker_count, len(attacker_fleet_lost),
+                                                                     '{0:,.2f}'.format(float(attacker_isk_lost)),
+                                                                     defender_damage_dealt),
                             inline=False)
-            embed.add_field(name="Fleet Two Losses",
+            fleet_one_members_array = []
+            counter = 0
+            for member in attacker_fleet:
+                member_ship = ast.literal_eval(defender_fleet[14])
+                ship_details = await game_functions.get_ship(member_ship['ship_type'])
+                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                if member in defender_fleet_lost:
+                    fleet_one_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                else:
+                    fleet_one_members_array.append('{} - *{}*'.format(name, ship_details['name']))
+                if counter >= 10:
+                    counter = 0
+                    fleet_one_members_clean = '\n'.join(fleet_one_members_array)
+                    embed.add_field(name="__Fleet One Members__",
+                                    value=fleet_one_members_clean)
+                    fleet_one_members_array = []
+            if len(fleet_one_members_array) > 0:
+                fleet_one_members_clean = '\n'.join(fleet_one_members_array)
+                embed.add_field(name="__Fleet One Members__",
+                                value=fleet_one_members_clean)
+            embed.add_field(name="Fleet Two Stats",
                             value="Fleet Size: {} Players\n"
                                   "Total Losses: {}\n"
                                   "ISK Lost: {} ISK\n"
-                                  "Total Damage Received: {}\n\n"
-                                  "__Losses__\n"
-                                  "{}".format(defender_count, len(dead_defenders),
-                                              '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt,
-                                              defenders_lost),
+                                  "Total Damage Received: {}".format(defender_count, len(defender_fleet_lost),
+                                                                     '{0:,.2f}'.format(float(defender_isk_lost)),
+                                                                     attacker_damage_dealt),
                             inline=False)
+            fleet_two_members_array = []
+            counter = 0
+            for member in defender_fleet:
+                member_ship = ast.literal_eval(defender_fleet[14])
+                ship_details = await game_functions.get_ship(member_ship['ship_type'])
+                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                if member in defender_fleet_lost:
+                    fleet_two_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                else:
+                    fleet_two_members_array.append('{} - *{}*'.format(name, ship_details['name']))
+                if counter >= 10:
+                    counter = 0
+                    fleet_two_members_clean = '\n'.join(fleet_two_members_array)
+                    embed.add_field(name="__Fleet Two Members__",
+                                    value=fleet_two_members_clean)
+                    fleet_two_members_array = []
+            if len(fleet_two_members_array) > 0:
+                fleet_two_members_clean = '\n'.join(fleet_two_members_array)
+                embed.add_field(name="__Fleet Two Members__",
+                                value=fleet_two_members_clean)
             for fleet_member in merged_fleet:
                 user = self.bot.get_user(fleet_member[2])
                 await user.send(embed=embed)
@@ -1706,26 +1722,6 @@ class EveRpg:
                     await self.add_kill(user, dropped_mods)
                     await self.add_xp(user, xp_gained)
         if len(attacker_fleet_lost) > 0 or len(defender_fleet_lost) > 0:
-            dead_attackers = []
-            for attacker_killed in attacker_fleet_lost:
-                member_ship = ast.literal_eval(attacker_killed[14])
-                ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                loser_name = self.bot.get_user(int(attacker_killed[2])).display_name
-                if attacker_killed[23] is not None:
-                    corp_info = await game_functions.get_user_corp(attacker_killed[23])
-                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
-                dead_attackers.append('{} - *{}*'.format(loser_name, ship_details['name']))
-            attackers_lost = '\n'.join(dead_attackers)
-            dead_defenders = []
-            for defender_killed in defender_fleet_lost:
-                member_ship = ast.literal_eval(defender_killed[14])
-                ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                loser_name = self.bot.get_user(int(defender_killed[2])).display_name
-                if defender_killed[23] is not None:
-                    corp_info = await game_functions.get_user_corp(defender_killed[23])
-                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
-                dead_defenders.append('{} - *{}*'.format(loser_name, ship_details['name']))
-            defenders_lost = '\n'.join(dead_defenders)
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -1736,31 +1732,67 @@ class EveRpg:
                                   "Total ISK Lost: {} ISK\n"
                                   "Total Damage Done: {}\n".format(region_name,
                                                                    defender_count + attacker_count,
-                                                                   len(dead_attackers) + len(dead_defenders),
+                                                                   len(attacker_fleet_lost) + len(defender_fleet_lost),
                                                                    '{0:,.2f}'.format(float(
                                                                        attacker_isk_lost + defender_isk_lost)),
                                                                    attacker_damage_dealt + defender_damage_dealt),
                             inline=False)
-            embed.add_field(name="Fleet One Losses",
+            embed.add_field(name="Fleet One Stats",
                             value="Fleet Size: {} Players\n"
                                   "Total Losses: {}\n"
                                   "ISK Lost: {} ISK\n"
-                                  "Total Damage Received: {}\n\n"
-                                  "__Losses__\n"
-                                  "{}".format(attacker_count, len(dead_attackers),
-                                              '{0:,.2f}'.format(float(attacker_isk_lost)), defender_damage_dealt,
-                                              attackers_lost),
+                                  "Total Damage Received: {}".format(attacker_count, len(attacker_fleet_lost),
+                                                                     '{0:,.2f}'.format(float(attacker_isk_lost)),
+                                                                     defender_damage_dealt),
                             inline=False)
-            embed.add_field(name="Fleet Two Losses",
+            fleet_one_members_array = []
+            counter = 0
+            for member in attacker_fleet:
+                member_ship = ast.literal_eval(defender_fleet[14])
+                ship_details = await game_functions.get_ship(member_ship['ship_type'])
+                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                if member in defender_fleet_lost:
+                    fleet_one_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                else:
+                    fleet_one_members_array.append('{} - *{}*'.format(name, ship_details['name']))
+                if counter >= 10:
+                    counter = 0
+                    fleet_one_members_clean = '\n'.join(fleet_one_members_array)
+                    embed.add_field(name="__Fleet One Members__",
+                                    value=fleet_one_members_clean)
+                    fleet_one_members_array = []
+            if len(fleet_one_members_array) > 0:
+                fleet_one_members_clean = '\n'.join(fleet_one_members_array)
+                embed.add_field(name="__Fleet One Members__",
+                                value=fleet_one_members_clean)
+            embed.add_field(name="Fleet Two Stats",
                             value="Fleet Size: {} Players\n"
                                   "Total Losses: {}\n"
                                   "ISK Lost: {} ISK\n"
-                                  "Total Damage Received: {}\n\n"
-                                  "__Losses__\n"
-                                  "{}".format(defender_count, len(dead_defenders),
-                                              '{0:,.2f}'.format(float(defender_isk_lost)), attacker_damage_dealt,
-                                              defenders_lost),
+                                  "Total Damage Received: {}".format(defender_count, len(defender_fleet_lost),
+                                                                     '{0:,.2f}'.format(float(defender_isk_lost)),
+                                                                     attacker_damage_dealt),
                             inline=False)
+            fleet_two_members_array = []
+            counter = 0
+            for member in defender_fleet:
+                member_ship = ast.literal_eval(defender_fleet[14])
+                ship_details = await game_functions.get_ship(member_ship['ship_type'])
+                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                if member in defender_fleet_lost:
+                    fleet_two_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                else:
+                    fleet_two_members_array.append('{} - *{}*'.format(name, ship_details['name']))
+                if counter >= 10:
+                    counter = 0
+                    fleet_two_members_clean = '\n'.join(fleet_two_members_array)
+                    embed.add_field(name="__Fleet Two Members__",
+                                    value=fleet_two_members_clean)
+                    fleet_two_members_array = []
+            if len(fleet_two_members_array) > 0:
+                fleet_two_members_clean = '\n'.join(fleet_two_members_array)
+                embed.add_field(name="__Fleet Two Members__",
+                                value=fleet_two_members_clean)
             for fleet_member in merged_fleet:
                 user = self.bot.get_user(fleet_member[2])
                 await user.send(embed=embed)
