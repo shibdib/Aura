@@ -46,7 +46,7 @@ class ChangeTask:
         mining_anomaly_text = ''
         if region_info[4] != 0:
             mining_anomaly = True
-            mining_anomaly_text = "**11.** Mine the rich mining anomaly.\n"
+            mining_anomaly_text = "**11.** Mine the rich ore anomaly.\n"
         current_task = await game_functions.get_task(int(player[0][6]))
         embed = make_embed(icon=ctx.bot.user.avatar)
         embed.set_footer(icon_url=ctx.bot.user.avatar_url,

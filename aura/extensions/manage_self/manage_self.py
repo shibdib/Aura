@@ -46,7 +46,7 @@ class ManageSelf:
             if region_info[5] != 0:
                 anomaly_text = "*Rich Mining Anomalies Present In This Region*\n\n"
             if region_info[5] != 0 and region_info[4] != 0:
-                anomaly_text = "*Pirate Anomalies Present In This Region*\n*Rich Mining Anomalies Present In This Region*\n\n"
+                anomaly_text = "*Pirate Anomalies Present In This Region*\n*Rich Ore Anomalies Present In This Region*\n\n"
             current_task = await game_functions.get_task(int(player[0][6]))
             player_ship_obj = ast.literal_eval(player[0][14])
             module_cargo_option = ''
