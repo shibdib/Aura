@@ -1497,7 +1497,7 @@ class EveRpg:
             fleet_one_members_array = []
             counter = 0
             for member in attacker_fleet:
-                member_ship = ast.literal_eval(defender_fleet[14])
+                member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
                 name = self.bot.get_user(int(defender_fleet[2])).display_name
                 if member in defender_fleet_lost:
@@ -1525,7 +1525,7 @@ class EveRpg:
             fleet_two_members_array = []
             counter = 0
             for member in defender_fleet:
-                member_ship = ast.literal_eval(defender_fleet[14])
+                member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
                 name = self.bot.get_user(int(defender_fleet[2])).display_name
                 if member in defender_fleet_lost:
@@ -1799,7 +1799,7 @@ class EveRpg:
             fleet_one_members_array = []
             counter = 0
             for member in attacker_fleet:
-                member_ship = ast.literal_eval(defender_fleet[14])
+                member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
                 name = self.bot.get_user(int(defender_fleet[2])).display_name
                 if member in defender_fleet_lost:
@@ -1827,7 +1827,7 @@ class EveRpg:
             fleet_two_members_array = []
             counter = 0
             for member in defender_fleet:
-                member_ship = ast.literal_eval(defender_fleet[14])
+                member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
                 name = self.bot.get_user(int(defender_fleet[2])).display_name
                 if member in defender_fleet_lost:
