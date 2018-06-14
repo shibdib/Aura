@@ -1052,22 +1052,22 @@ class EveRpg:
         transversal = 1
         if (defender_maneuver * 0.75) > attacker_tracking + 1:
             transversal = (attacker_tracking + 1) / (defender_maneuver * 0.75)
-        attacker_damage = (attacker_attack * transversal) - defender_defense
-        if attacker_damage <= 0:
-            attacker_damage = 0.1
+        minimum_damage = (attacker_attack * transversal)
+        maximum_damage = attacker_attack
+        attacker_damage = round(random.uniform(minimum_damage, maximum_damage), 3)
         transversal = 1
         if (attacker_maneuver * 0.75) > defender_tracking + 1:
             transversal = (defender_tracking + 1) / (attacker_maneuver * 0.75)
-        defender_damage = (attacker_attack * transversal) - defender_defense
-        if defender_damage <= 0:
-            defender_damage = 0.1
+        minimum_damage = (defender_attack * transversal)
+        maximum_damage = defender_attack
+        defender_damage = round(random.uniform(minimum_damage, maximum_damage), 3)
         # Set first turn initiative
         player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 0.5) + (
                 attacker_defense * 0.4) + attacker_maneuver + attacker_tracking
         player_two_weight = (((defender[8] + 1) * 0.5) + (defender_attack * 0.5) + (
                 defender_defense * 0.4) + defender_maneuver + defender_tracking) * pve_disadvantage
         initiative = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
-        for x in range(int((attacker_hits + defender_hits) * 1.5)):
+        for x in range(int((attacker_hits + defender_hits + attacker_defense + defender_defense) * 1.5)):
             if initial_round is True:
                 if initiative == attacker:
                     initiative = defender
@@ -1075,9 +1075,15 @@ class EveRpg:
                     initiative = attacker
             initial_round = True
             if initiative == attacker:
-                defender_hits -= attacker_damage
+                if defender_defense > 0:
+                    defender_defense -= attacker_damage
+                else:
+                    defender_hits -= attacker_damage
             else:
-                attacker_hits -= defender_damage
+                if attacker_defense > 0:
+                    attacker_defense -= defender_damage
+                else:
+                    attacker_hits -= defender_damage
             attacker_hit_percentage, defender_hit_percentage = attacker_hits / attacker_ship_info[
                 'hit_points'], defender_hits / defender_ship_info['hit_points']
             if attacker_hits <= 0:
@@ -1200,8 +1206,8 @@ class EveRpg:
     async def fleet_versus_fleet(self, fleet_one, fleet_two, region):
         region_name = await game_functions.get_region(int(region))
         # Fleet stuff
-        attacker_fleet_attack, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits, defender_fleet_attack, \
-        defender_fleet_maneuver, defender_fleet_tracking, defender_fleet_hits = 0, 0, 0, 0, 0, 0, 0, 0
+        attacker_fleet_attack, attacker_fleet_defense, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits, defender_fleet_attack, \
+        defender_fleet_defense, defender_fleet_maneuver, defender_fleet_tracking, defender_fleet_hits = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
         attacker_fleet_lost = []
@@ -1223,6 +1229,7 @@ class EveRpg:
             attacker_fleet_hits += ship_details['hit_points']
             member_attack, member_defense, member_maneuver, member_tracking = \
                 await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+            attacker_fleet_defense += member_defense
             attacker_fleet_attack += member_attack
             attacker_fleet_maneuver += member_maneuver
             attacker_fleet_tracking += member_tracking
@@ -1248,6 +1255,7 @@ class EveRpg:
             defender_fleet_hits += ship_details['hit_points']
             member_attack, member_defense, member_maneuver, member_tracking = \
                 await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+            defender_fleet_defense += member_defense
             defender_fleet_attack += member_attack
             defender_fleet_maneuver += member_maneuver
             defender_fleet_tracking += member_tracking
@@ -1267,7 +1275,8 @@ class EveRpg:
         aggressor = await self.weighted_choice(
             [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
         not_first_round = None
-        for x in range(int((attacker_fleet_hits + defender_fleet_hits) / 2)):
+        for x in range(
+                int((attacker_fleet_hits + defender_fleet_hits + attacker_fleet_defense + defender_fleet_defense))):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             if not_first_round is True:
@@ -1283,22 +1292,30 @@ class EveRpg:
             primary = random.choice(non_aggressor)
             primary_ship = ast.literal_eval(primary[14])
             ship_details = await game_functions.get_ship(primary_ship['ship_type'])
-            hit_points = ship_details['hit_points']
-            if primary[0] in damaged_ships:
-                hit_points = damaged_ships[primary[0]]
             primary_attack, primary_defense, primary_maneuver, primary_tracking = \
                 await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
             transversal = 1
             if (primary_maneuver * 0.75) > aggressor_tracking + 1:
                 transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
-            damage = (aggressor_damage * transversal) - primary_defense
+            minimum_damage = (aggressor_damage * transversal)
+            maximum_damage = aggressor_damage
+            damage = round(random.uniform(minimum_damage, maximum_damage), 3)
+            defense = primary_defense
+            hit_points = ship_details['hit_points']
+            if primary[0] in damaged_ships:
+                defense = damaged_ships[primary[0]]['defense']
+                hit_points = damaged_ships[primary[0]]['hit_points']
+            if defense > 0:
+                defense -= damage
+            else:
+                hit_points -= damage
             if primary not in attacker_fleet:
                 attacker_damage_dealt += damage
             else:
                 defender_damage_dealt += damage
             if damage <= 0:
                 continue
-            if damage < hit_points:
+            if hit_points > 0:
                 killing_blow = random.choice(aggressor)
                 # Fleet check
                 if killing_blow[16] is not None and killing_blow[16] != 0:
@@ -1309,7 +1326,7 @@ class EveRpg:
                     if primary[0] in fleet_array:
                         continue
                 if damage > 0:
-                    damaged_ships[primary[0]] = hit_points - damage
+                    damaged_ships[primary[0]] = {'hit_points': hit_points, 'defense': defense}
                 if hit_points < ship_details['hit_points'] * 0.4:
                     flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
                     if flee is True:
@@ -1508,7 +1525,7 @@ class EveRpg:
     async def fleet_versus_player(self, fleet_one, player, region):
         region_name = await game_functions.get_region(int(region))
         # Fleet stuff
-        attacker_fleet_attack, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits = 0, 0, 0, 0
+        attacker_fleet_attack, attacker_fleet_defense, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits = 0, 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
         attacker_fleet_lost = []
@@ -1532,6 +1549,7 @@ class EveRpg:
             attacker_fleet_hits += ship_details['hit_points']
             member_attack, member_defense, member_maneuver, member_tracking = \
                 await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+            attacker_fleet_defense += member_defense
             attacker_fleet_attack += member_attack
             attacker_fleet_maneuver += member_maneuver
             attacker_fleet_tracking += member_tracking
@@ -1544,7 +1562,7 @@ class EveRpg:
         primary_attack, primary_defense, primary_maneuver, primary_tracking = \
             await game_functions.get_combat_attributes(player, ship['id'])
         attacker_initiative = 50 + (attacker_fleet_maneuver / attackers_in_system)
-        defender_initiative = 100 - attacker_initiative
+        defender_initiative = 50 + primary_maneuver
         defender_fleet = [player]
         defender_count = len(defender_fleet)
         defender_fleet_lost = []
@@ -1561,7 +1579,7 @@ class EveRpg:
         aggressor = await self.weighted_choice(
             [(attacker_fleet, attacker_initiative), (defender_fleet, defender_initiative)])
         not_first_round = None
-        for x in range(int(((attacker_fleet_hits / 2) + hit_points) * 1.25)):
+        for x in range(int((attacker_fleet_hits + hit_points + attacker_fleet_defense + primary_defense))):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             if not_first_round is True:
@@ -1570,8 +1588,6 @@ class EveRpg:
                 else:
                     aggressor = attacker_fleet
             not_first_round = True
-            if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
-                break
             if aggressor != attacker_fleet:
                 non_aggressor = attacker_fleet
                 aggressor_damage = primary_attack
@@ -1579,20 +1595,30 @@ class EveRpg:
             primary = random.choice(non_aggressor)
             primary_ship = ast.literal_eval(primary[14])
             ship_details = await game_functions.get_ship(primary_ship['ship_type'])
-            hit_points = ship_details['hit_points']
-            if primary[0] in damaged_ships:
-                hit_points = damaged_ships[primary[0]]
+            primary_attack, primary_defense, primary_maneuver, primary_tracking = \
+                await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
             transversal = 1
             if (primary_maneuver * 0.75) > aggressor_tracking + 1:
                 transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
-            damage = (aggressor_damage * transversal) - primary_defense
+            minimum_damage = (aggressor_damage * transversal)
+            maximum_damage = aggressor_damage
+            damage = round(random.uniform(minimum_damage, maximum_damage), 3)
+            defense = primary_defense
+            hit_points = ship_details['hit_points']
+            if primary[0] in damaged_ships:
+                defense = damaged_ships[primary[0]]['defense']
+                hit_points = damaged_ships[primary[0]]['hit_points']
+            if defense > 0:
+                defense -= damage
+            else:
+                hit_points -= damage
             if primary not in attacker_fleet:
                 attacker_damage_dealt += damage
             else:
                 defender_damage_dealt += damage
             if damage <= 0:
                 continue
-            if damage < hit_points:
+            if hit_points > 0:
                 killing_blow = random.choice(aggressor)
                 # Fleet check
                 if killing_blow[16] is not None and killing_blow[16] != 0:
@@ -1603,7 +1629,7 @@ class EveRpg:
                     if primary[0] in fleet_array:
                         continue
                 if damage > 0:
-                    damaged_ships[primary[0]] = hit_points - damage
+                    damaged_ships[primary[0]] = {'hit_points': hit_points, 'defense': defense}
                 if hit_points < ship_details['hit_points'] * 0.4:
                     flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
                     if flee is True:
