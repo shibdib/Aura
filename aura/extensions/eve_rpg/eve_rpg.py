@@ -690,21 +690,38 @@ class EveRpg:
             await game_functions.get_combat_attributes(player, npc['id'], True)
         region_name = await game_functions.get_region(int(region_id))
         # Combat
-        npc_damage, player_damage = 1, 1
-        if player_defense > npc_attack:
-            npc_damage = npc_attack / player_defense
-        if npc_defense > player_attack:
-            player_damage = player_attack / npc_defense
-        if player_maneuver > npc_tracking:
-            npc_damage *= (npc_tracking / player_maneuver)
-        if npc_maneuver > player_tracking:
-            player_damage *= (player_tracking / npc_maneuver)
-        player_weight = ((player[8] + 1) * 0.5) + (player_attack * 1.5) + (
-                player_defense * 1.25) + player_maneuver + player_tracking
-        npc_weight = (npc_attack * 1.5) + (npc_defense * 1.25) + npc_maneuver + npc_tracking
+        transversal = 1
+        if (player_maneuver * 0.75) > npc_tracking + 1:
+            transversal = (npc_tracking + 1) / (player_maneuver * 0.75)
+        minimum_npc_damage = (npc_attack * transversal)
+        maximum_npc_damage = npc_attack
+        transversal = 1
+        if (npc_maneuver * 0.75) > player_tracking + 1:
+            transversal = (player_tracking + 1) / (npc_maneuver * 0.75)
+        minimum_player_damage = (player_attack * transversal)
+        maximum_player_damage = player_attack
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
+        initial_round = False
+        combat = player
         for x in range(int(player_hits + npc_hits * 1.5)):
-            combat = await self.weighted_choice([(player, player_weight), (npc, npc_weight)])
+            npc_damage = round(random.uniform(minimum_npc_damage, maximum_npc_damage), 3)
+            player_damage = round(random.uniform(minimum_player_damage, maximum_player_damage), 3)
+            if initial_round is True:
+                if combat == player:
+                    combat = False
+                else:
+                    combat = player
+            initial_round = True
+            if combat == player:
+                if player_defense > 0:
+                    player_defense -= npc_damage
+                else:
+                    player_hits -= npc_damage
+            else:
+                if npc_defense > 0:
+                    npc_defense -= player_damage
+                else:
+                    npc_hits -= player_damage
             if combat == player:
                 npc_hits -= player_damage
             else:
@@ -1052,15 +1069,13 @@ class EveRpg:
         transversal = 1
         if (defender_maneuver * 0.75) > attacker_tracking + 1:
             transversal = (attacker_tracking + 1) / (defender_maneuver * 0.75)
-        minimum_damage = (attacker_attack * transversal)
-        maximum_damage = attacker_attack
-        attacker_damage = round(random.uniform(minimum_damage, maximum_damage), 3)
+        minimum_attacker_damage = (attacker_attack * transversal)
+        maximum_attacker_damage = attacker_attack
         transversal = 1
         if (attacker_maneuver * 0.75) > defender_tracking + 1:
             transversal = (defender_tracking + 1) / (attacker_maneuver * 0.75)
-        minimum_damage = (defender_attack * transversal)
-        maximum_damage = defender_attack
-        defender_damage = round(random.uniform(minimum_damage, maximum_damage), 3)
+        minimum_defender_damage = (defender_attack * transversal)
+        maximum_defender_damage = defender_attack
         # Set first turn initiative
         player_one_weight = ((attacker[8] + 1) * 0.5) + (attacker_attack * 0.5) + (
                 attacker_defense * 0.4) + attacker_maneuver + attacker_tracking
@@ -1068,6 +1083,8 @@ class EveRpg:
                 defender_defense * 0.4) + defender_maneuver + defender_tracking) * pve_disadvantage
         initiative = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
         for x in range(int((attacker_hits + defender_hits + attacker_defense + defender_defense) * 1.5)):
+            attacker_damage = round(random.uniform(minimum_attacker_damage, maximum_attacker_damage), 3)
+            defender_damage = round(random.uniform(minimum_defender_damage, maximum_defender_damage), 3)
             if initial_round is True:
                 if initiative == attacker:
                     initiative = defender
