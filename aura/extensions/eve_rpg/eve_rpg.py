@@ -712,8 +712,8 @@ class EveRpg:
         initial_round = False
         combat = player
         for x in range(int(player_hits + npc_hits * 1.5)):
-            npc_damage = round(random.uniform(minimum_npc_damage, maximum_npc_damage), 3)
-            player_damage = round(random.uniform(minimum_player_damage, maximum_player_damage), 3)
+            npc_damage = round(random.triangular(minimum_npc_damage, maximum_npc_damage), 3)
+            player_damage = round(random.triangular(minimum_player_damage, maximum_player_damage), 3)
             if initial_round is True:
                 if combat == player:
                     combat = False
@@ -734,8 +734,6 @@ class EveRpg:
                 npc_hits -= player_damage
             else:
                 player_hits -= npc_damage
-            player_hit_percentage, defender_hit_percentage = player_hits / ship['hit_points'], npc_hits / npc[
-                'hit_points']
             if player_hits <= 0:
                 break
             if npc_hits <= 0:
@@ -1091,8 +1089,8 @@ class EveRpg:
                 defender_defense * 0.4) + defender_maneuver + defender_tracking) * pve_disadvantage
         initiative = await self.weighted_choice([(attacker, player_one_weight), (defender, player_two_weight)])
         for x in range(int((attacker_hits + defender_hits + attacker_defense + defender_defense) * 1.5)):
-            attacker_damage = round(random.uniform(minimum_attacker_damage, maximum_attacker_damage), 3)
-            defender_damage = round(random.uniform(minimum_defender_damage, maximum_defender_damage), 3)
+            attacker_damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
+            defender_damage = round(random.triangular(minimum_defender_damage, maximum_defender_damage), 3)
             if initial_round is True:
                 if initiative == attacker:
                     initiative = defender
@@ -1321,7 +1319,7 @@ class EveRpg:
                 transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
             minimum_damage = (aggressor_damage * transversal)
             maximum_damage = aggressor_damage
-            damage = round(random.uniform(minimum_damage, maximum_damage), 3)
+            damage = round(random.triangular(minimum_damage, maximum_damage), 3)
             defense = primary_defense
             hit_points = ship_details['hit_points']
             if primary[0] in damaged_ships:
@@ -1629,7 +1627,7 @@ class EveRpg:
                 transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
             minimum_damage = (aggressor_damage * transversal)
             maximum_damage = aggressor_damage
-            damage = round(random.uniform(minimum_damage, maximum_damage), 3)
+            damage = round(random.triangular(minimum_damage, maximum_damage), 3)
             defense = primary_defense
             hit_points = ship_details['hit_points']
             if primary[0] in damaged_ships:
