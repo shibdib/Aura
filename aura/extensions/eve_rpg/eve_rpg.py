@@ -748,7 +748,7 @@ class EveRpg:
                 if officer is True:
                     await self.pve_loot(player, 1, False, True)
                 return
-            if player_hits < (ship['hit_points'] * 0.75) and player_hit_percentage < defender_hit_percentage:
+            if player_hits < ship['hit_points']:
                 escape = await self.weighted_choice([(True, escape_chance), (False, 100 - escape_chance)])
                 if escape is True:
                     await player_user.send(
@@ -1109,16 +1109,13 @@ class EveRpg:
                     attacker_defense -= defender_damage
                 else:
                     attacker_hits -= defender_damage
-            attacker_hit_percentage, defender_hit_percentage = attacker_hits / attacker_ship_info[
-                'hit_points'], defender_hits / defender_ship_info['hit_points']
             if attacker_hits <= 0:
                 winner, loser = defender, attacker
                 break
             if defender_hits <= 0:
                 winner, loser = attacker, defender
                 break
-            if defender_escape > attacker_catch and defender_hits < (
-                    defender_ship_info['hit_points'] * 0.75) and defender_hit_percentage < attacker_hit_percentage:
+            if defender_hits < defender_ship_info['hit_points']:
                 escape = await self.weighted_choice([(True, defender_escape), (False, attacker_catch)])
                 if escape is True:
                     await attacker_user.send(
@@ -1131,8 +1128,7 @@ class EveRpg:
                                                                            attacker_user.display_name,
                                                                            defender_ship_info['name']))
                     return
-            if attacker_escape > defender_catch and attacker_hits < (
-                    attacker_ship_info['hit_points'] * 0.75) and attacker_hit_percentage < defender_hit_percentage:
+            if attacker_hits < attacker_ship_info['hit_points']:
                 escape = await self.weighted_choice([(True, attacker_escape), (False, defender_catch)])
                 if escape is True:
                     await defender_user.send(
@@ -1353,7 +1349,7 @@ class EveRpg:
                         continue
                 if damage > 0:
                     damaged_ships[primary[0]] = {'hit_points': hit_points, 'defense': defense}
-                if hit_points < ship_details['hit_points'] * 0.4:
+                if defense < primary_defense * 0.2:
                     flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
                     if flee is True:
                         if primary not in attacker_fleet:
@@ -1661,7 +1657,7 @@ class EveRpg:
                         continue
                 if damage > 0:
                     damaged_ships[primary[0]] = {'hit_points': hit_points, 'defense': defense}
-                if hit_points < ship_details['hit_points'] * 0.4:
+                if defense < primary_defense * 0.2:
                     flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
                     if flee is True:
                         if primary not in attacker_fleet:
