@@ -69,6 +69,7 @@ class EveRpg:
                 await self.process_missions()
                 # await self.process_exploration()
                 await self.process_belt_mining()
+                await self.process_anomaly_mining()
                 await self.process_anomaly_ratting()
                 await self.process_roams()
                 await self.process_ganks()
@@ -1462,6 +1463,10 @@ class EveRpg:
                     await self.add_kill(user, dropped_mods)
                     await self.add_xp(user, xp_gained)
         if len(attacker_fleet_lost) > 0 or len(defender_fleet_lost) > 0:
+            ongoing_text = ''
+            if len(attacker_fleet) > 0 or len(defender_fleet) > 0:
+                ongoing_text = '\n\n**This Battle Is Still Ongoing**'
+                ongoing = True
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
@@ -1470,12 +1475,12 @@ class EveRpg:
                                   "Total Players Involved: {}\n"
                                   "Ships Destroyed: {}\n"
                                   "Total ISK Lost: {} ISK\n"
-                                  "Total Damage Done: {}\n".format(region_name,
-                                                                   defender_count + attacker_count,
-                                                                   len(attacker_fleet_lost) + len(defender_fleet_lost),
-                                                                   '{0:,.2f}'.format(float(
-                                                                       attacker_isk_lost + defender_isk_lost)),
-                                                                   attacker_damage_dealt + defender_damage_dealt),
+                                  "Total Damage Done: {}\n{}".format(region_name, defender_count + attacker_count,
+                                                                     len(attacker_fleet_lost) + len(defender_fleet_lost),
+                                                                     '{0:,.2f}'.format(
+                                                                         float(attacker_isk_lost + defender_isk_lost)),
+                                                                     attacker_damage_dealt + defender_damage_dealt,
+                                                                     ongoing_text),
                             inline=False)
             embed.add_field(name="Fleet One Stats",
                             value="Fleet Size: {} Players\n"
