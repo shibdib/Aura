@@ -75,7 +75,7 @@ async def create_tables():
                                         module INTEGER DEFAULT NULL,
                                         component INTEGER DEFAULT NULL,
                                         quantity INTEGER DEFAULT NULL,
-                                        price INTEGER DEFAULT NULL,
+                                        price INTEGER DEFAULT NULL
                                     ); """
         await create_table(db, region_market_table)
         # create corps tables
