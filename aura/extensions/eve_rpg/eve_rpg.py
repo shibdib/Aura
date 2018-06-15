@@ -169,7 +169,7 @@ class EveRpg:
         sql = "SELECT * FROM region_info WHERE `mining_anomaly` > 0 AND `region_security` != 'High'"
         active_mining_anomalies = await db.select(sql)
         if len(active_mining_anomalies) < 8:
-            self.pirate_anomaly_counter = 0
+            self.mining_anomaly_counter = 0
             if len(active_mining_anomalies) < 8:
                 sql = "SELECT * FROM region_info WHERE `mining_anomaly` == 0 AND `region_security` != 'High'"
                 potential_pirate_anomalies = await db.select(sql)
@@ -186,7 +186,7 @@ class EveRpg:
             reset_amount = random.randint(1, 8)
             random.shuffle(active_mining_anomalies)
             trimmed_list = active_mining_anomalies[:reset_amount]
-            self.pirate_anomaly_counter = 0
+            self.mining_anomaly_counter = 0
             for reset_anomaly in trimmed_list:
                 sql = ''' UPDATE region_info
                         SET mining_anomaly = 0
