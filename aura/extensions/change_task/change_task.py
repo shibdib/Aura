@@ -44,7 +44,7 @@ class ChangeTask:
             pirate_anomaly_text = "**7.** Run the combat anomalies in this region.\n"
         mining_anomaly = False
         mining_anomaly_text = ''
-        if region_info[4] != 0:
+        if region_info[5] != 0:
             mining_anomaly = True
             mining_anomaly_text = "**11.** Mine the rich ore anomaly.\n"
         current_task = await game_functions.get_task(int(player[0][6]))
