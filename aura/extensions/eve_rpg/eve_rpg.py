@@ -53,8 +53,6 @@ class EveRpg:
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.tick_loop())
         self.user_check_counter = 0
-        self.pirate_anomaly_counter = 0
-        self.mining_anomaly_counter = 0
 
     async def tick_loop(self):
         await self.bot.wait_until_ready()
@@ -110,7 +108,8 @@ class EveRpg:
                 await db.execute_sql(sql, values)
 
     async def process_users(self):
-        if self.user_check_counter >= 100:
+        current_tick = await game_functions.get_tick()
+        if current_tick % 100 == 0:
             sql = "SELECT * FROM eve_rpg_players"
             players = await db.select(sql)
             for player in players:
@@ -124,8 +123,8 @@ class EveRpg:
     async def process_special_regions(self):
         sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != 'High'"
         active_pirate_anomalies = await db.select(sql)
+        current_tick = await game_functions.get_tick()
         if len(active_pirate_anomalies) < 8:
-            self.pirate_anomaly_counter = 0
             if len(active_pirate_anomalies) < 8:
                 sql = "SELECT * FROM region_info WHERE `pirate_anomaly` == 0 AND `region_security` != 'High'"
                 potential_pirate_anomalies = await db.select(sql)
@@ -138,11 +137,10 @@ class EveRpg:
                                 region_id = (?); '''
                     values = (new_anomaly[1],)
                     await db.execute_sql(sql, values)
-        elif self.pirate_anomaly_counter >= 300:
+        elif current_tick % 300 == 0:
             reset_amount = random.randint(1, 8)
             random.shuffle(active_pirate_anomalies)
             trimmed_list = active_pirate_anomalies[:reset_amount]
-            self.pirate_anomaly_counter = 0
             for reset_anomaly in trimmed_list:
                 sql = ''' UPDATE region_info
                         SET pirate_anomaly = 0
@@ -164,12 +162,9 @@ class EveRpg:
                         player = self.bot.get_user(runner[2])
                         await player.send('**Notice** The pirates have fled the system, the anomaly you were in '
                                           'has been defeated and you are now floating in space.')
-        else:
-            self.pirate_anomaly_counter += 1
         sql = "SELECT * FROM region_info WHERE `mining_anomaly` > 0 AND `region_security` != 'High'"
         active_mining_anomalies = await db.select(sql)
         if len(active_mining_anomalies) < 8:
-            self.mining_anomaly_counter = 0
             if len(active_mining_anomalies) < 8:
                 sql = "SELECT * FROM region_info WHERE `mining_anomaly` == 0 AND `region_security` != 'High'"
                 potential_pirate_anomalies = await db.select(sql)
@@ -182,11 +177,10 @@ class EveRpg:
                                 region_id = (?); '''
                     values = (new_anomaly[1],)
                     await db.execute_sql(sql, values)
-        elif self.mining_anomaly_counter >= 300:
+        elif current_tick % 300 == 0:
             reset_amount = random.randint(1, 8)
             random.shuffle(active_mining_anomalies)
             trimmed_list = active_mining_anomalies[:reset_amount]
-            self.mining_anomaly_counter = 0
             for reset_anomaly in trimmed_list:
                 sql = ''' UPDATE region_info
                         SET mining_anomaly = 0
@@ -209,8 +203,6 @@ class EveRpg:
                         await player.send(
                             '**Notice** The asteroid have been mined, the anomaly you were once in is now '
                             'nothing more than a dust cloud.')
-        else:
-            self.mining_anomaly_counter += 1
 
     async def process_ongoing_fleet_fights(self):
         if len(self.ongoing_fleet_fights) > 0:
