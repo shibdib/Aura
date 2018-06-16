@@ -710,7 +710,7 @@ class EveRpg:
         maximum_player_damage = player_attack
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
         round_counter = 1
-        for x in range(int(player_hits + npc_hits * 1.5)):
+        for x in range(125):
             npc_damage = round(random.triangular(minimum_npc_damage, maximum_npc_damage), 3)
             player_damage = round(random.triangular(minimum_player_damage, maximum_player_damage), 3)
             if round_counter % 2 == 0:
@@ -718,20 +718,26 @@ class EveRpg:
             else:
                 aggressor = player
             round_counter += 1
-            if aggressor == player:
+            if aggressor != player:
                 if player_defense > 0:
-                    player_defense -= npc_damage
+                    if player_defense >= npc_damage:
+                        player_defense -= npc_damage
+                    else:
+                        npc_damage -= player_defense
+                        player_defense = 0
+                        player_hits -= npc_damage
                 else:
                     player_hits -= npc_damage
             else:
                 if npc_defense > 0:
-                    npc_defense -= player_damage
+                    if npc_defense >= player_damage:
+                        npc_defense -= player_damage
+                    else:
+                        player_damage -= npc_defense
+                        npc_defense = 0
+                        npc_hits -= player_damage
                 else:
                     npc_hits -= player_damage
-            if aggressor == player:
-                npc_hits -= player_damage
-            else:
-                player_hits -= npc_damage
             if player_hits <= 0:
                 break
             if npc_hits <= 0:
@@ -751,6 +757,7 @@ class EveRpg:
                         '**PVE ESCAPE** - Combat between you and a {}, they nearly killed your {} but you '
                         'managed to warp off.'.format(npc['name'], player_ship_info['name']))
                     return
+            player_defense + 1
         if npc_hits > 0 and player_hits > 0:
             await player_user.send(
                 '**PVE DISENGAGE** - Combat between you and a {}, has ended in a draw. You ended the battle '
@@ -1043,182 +1050,164 @@ class EveRpg:
                     await self.send_global(embed, True)
 
     async def solo_combat(self, attacker, defender):
+        region = attacker[4]
+        region_name = await game_functions.get_region(int(region))
         # Give all participants a combat timer
+        attacker_fleet = [attacker]
+        defender_fleet = [defender]
         merged_fleet = [attacker, defender]
         for fleet_member in merged_fleet:
             await self.add_combat_timer(fleet_member)
-        # Set PVE debuff
-        pve_disadvantage = 1
-        if 5 < int(defender[6]) < 11:
-            pve_disadvantage = 0.93
-        # Get Ship Info
-        attacker_user, defender_user = self.bot.get_user(attacker[2]), self.bot.get_user(defender[2])
-        attacker_ship, defender_ship = ast.literal_eval(attacker[14]), ast.literal_eval(defender[14])
-        attacker_ship_id, defender_ship_id = attacker_ship['ship_type'], defender_ship['ship_type']
-        attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
-            await game_functions.get_combat_attributes(attacker, attacker_ship_id)
-        defender_attack, defender_defense, defender_maneuver, defender_tracking = \
-            await game_functions.get_combat_attributes(defender, defender_ship_id)
-        attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
-        defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
-        attacker_hits, defender_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
-        attacker_catch, defender_escape = attacker_attack / 2 + attacker_tracking, defender_defense / 2 + defender_maneuver
-        defender_catch, attacker_escape = defender_attack / 2 + defender_tracking, attacker_defense / 2 + attacker_maneuver
-        if defender_maneuver == 0:
-            defender_escape = 0
-        if attacker_maneuver == 0:
-            attacker_escape = 0
-        # Combat
-        escape, winner, initial_round = False, None, False
-        transversal = 1
-        if (defender_maneuver * 0.75) > attacker_tracking + 1:
-            transversal = (attacker_tracking + 1) / (defender_maneuver * 0.75)
-        minimum_attacker_damage = (attacker_attack * transversal)
-        maximum_attacker_damage = attacker_attack
-        transversal = 1
-        if (attacker_maneuver * 0.75) > defender_tracking + 1:
-            transversal = (defender_tracking + 1) / (attacker_maneuver * 0.75)
-        minimum_defender_damage = (defender_attack * transversal)
-        maximum_defender_damage = defender_attack
-        round_counter = 1
-        for x in range(int((attacker_hits + defender_hits + attacker_defense + defender_defense) * 1.5)):
-            attacker_damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
-            defender_damage = round(random.triangular(minimum_defender_damage, maximum_defender_damage), 3)
-            if round_counter % 2 == 0:
-                aggressor = defender
-            else:
-                aggressor = attacker
-            round_counter += 1
-            if aggressor == attacker:
-                if defender_defense > 0:
-                    defender_defense -= attacker_damage
-                else:
-                    defender_hits -= attacker_damage
-            else:
-                if attacker_defense > 0:
-                    attacker_defense -= defender_damage
-                else:
-                    attacker_hits -= defender_damage
-            if attacker_hits <= 0:
-                winner, loser = defender, attacker
+        damaged_ships = {}
+        for x in range(125):
+            if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            if defender_hits <= 0:
-                winner, loser = attacker, defender
-                break
-            if defender_hits < defender_ship_info['hit_points']:
-                escape = await self.weighted_choice([(True, defender_escape), (False, attacker_catch)])
-                if escape is True:
-                    await attacker_user.send(
-                        '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                        'managed to warp off.'.format(defender_ship_info['name'], defender_user.display_name,
-                                                      attacker_ship_info['name']))
-                    await defender_user.send(
-                        '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                        'you managed to break tackle and warp off.'.format(attacker_ship_info['name'],
-                                                                           attacker_user.display_name,
-                                                                           defender_ship_info['name']))
-                    return
-            if attacker_hits < attacker_ship_info['hit_points']:
-                escape = await self.weighted_choice([(True, attacker_escape), (False, defender_catch)])
-                if escape is True:
-                    await defender_user.send(
-                        '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                        'managed to warp off.'.format(attacker_ship_info['name'], attacker_user.display_name,
-                                                      defender_ship_info['name']))
-                    await attacker_user.send(
-                        '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                        'you managed to break tackle and warp off.'.format(defender_ship_info['name'],
-                                                                           defender_user.display_name,
-                                                                           attacker_ship_info['name']))
-                    return
-        if defender_hits > 0 and attacker_hits > 0:
-            return
-        winner_user = self.bot.get_user(winner[2])
-        loser_user = self.bot.get_user(loser[2])
-        # Handle Cloak
-        if loser[12] is not None:
-            modules = ast.literal_eval(loser[12])
-            for module in modules:
-                module_item = await game_functions.get_module(module)
-                if (module_item['id'] == 40 or module_item['id'] == 41) and escape is False:
-                    escape = await self.weighted_choice([(True, 50), (False, 50)])
-                    if escape is True:
-                        await winner_user.send(
-                            '**PVP** - Combat between you and a {} flown by {}, they nearly died to your {} but '
-                            'managed to break tackle long enough to cloak.'.format(attacker_ship_info['name'],
-                                                                                   attacker_user.display_name,
-                                                                                   defender_ship_info['name']))
-                        await loser_user.send(
-                            '**PVP** - Combat between you and a {} flown by {}, they nearly defeated your {} but '
-                            'you managed to break tackle and cloak.'.format(defender_ship_info['name'],
-                                                                            defender_user.display_name,
-                                                                            attacker_ship_info['name']))
-        region_id = int(winner[4])
-        region_name = await game_functions.get_region(int(region_id))
-        winner_name = winner_user.display_name
-        if winner[23] is not None:
-            corp_info = await game_functions.get_user_corp(winner[23])
-            winner_name = '{} [{}]'.format(winner_name, corp_info[4])
-        loser_name = loser_user.display_name
-        if loser[23] is not None:
-            corp_info = await game_functions.get_user_corp(loser[23])
-            loser_name = '{} [{}]'.format(loser_name, corp_info[4])
-        winner_ship_obj = ast.literal_eval(winner[14])
-        winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
-        winner_task = await game_functions.get_task(int(winner[6]))
-        loser_ship_obj = ast.literal_eval(loser[14])
-        loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
-        loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
-        loser_task = await game_functions.get_task(int(loser[6]))
-        loser_modules = ''
-        loser_modules_array = []
-        dropped_mods = []
-        module_value = 0
-        if loser[12] is not None:
-            modules = ast.literal_eval(loser[12])
-            for module in modules:
-                module_item = await game_functions.get_module(module)
-                dropped = await self.weighted_choice([(True, 50), (False, 50)])
-                module_drop = ''
-                module_value += module_item['isk']
-                if dropped is True:
-                    dropped_mods.append(module)
-                    module_drop = ' **Module Dropped**'
-                loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
-            loser_module_list = '\n'.join(loser_modules_array)
-            loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-        xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
-        isk_lost = module_value + loser_ship_info['isk']
-        embed = make_embed(icon=self.bot.user.avatar)
-        embed.set_footer(icon_url=self.bot.user.avatar_url,
-                         text="Aura - EVE Text RPG")
-        ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
-        embed.set_thumbnail(url="{}".format(ship_image))
-        embed.add_field(name="Killmail",
-                        value="**Region** - {}\n\n"
-                              "__**Loser**__\n"
-                              "**{}** flying a {} was killed while they were {}.{}\n\n"
-                              "Total ISK Lost: {} ISK\n\n"
-                              "__**Final Blow**__\n"
-                              "**{}** flying a {} while {}.\n\n".format(region_name, loser_name, loser_ship,
-                                                                        loser_task, loser_modules,
-                                                                        '{0:,.2f}'.format(float(isk_lost)),
-                                                                        winner_name, winner_ship, winner_task))
-        await winner_user.send(embed=embed)
-        await loser_user.send(embed=embed)
-        await game_functions.track_player_kills(region_id)
-        await self.send_global(embed, True)
-        await self.destroy_ship(loser)
-        await self.add_loss(loser)
-        await self.add_kill(winner, dropped_mods)
-        await self.add_xp(winner, xp_gained)
-        await self.give_pvp_loot(winner)
+            merged_fleet = attacker_fleet + defender_fleet
+            for attacker in random.shuffle(merged_fleet):
+                merged_fleet.remove(attacker)
+                attacker_ship = ast.literal_eval(attacker[14])
+                attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
+                    await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
+                target = None
+                target_ship_details = None
+                for target in random.shuffle(merged_fleet):
+                    # if in same fleet find new target
+                    if target == attacker or ((target in attacker_fleet and attacker in attacker_fleet) or (
+                            target in defender_fleet and attacker in defender_fleet)):
+                        continue
+                    else:
+                        target_ship = ast.literal_eval(target[14])
+                        target_ship_details = await game_functions.get_ship(target_ship['ship_type'])
+                        target_attack, target_defense, target_maneuver, target_tracking = \
+                            await game_functions.get_combat_attributes(target, attacker_ship['ship_type'])
+                        break
+                if target_ship_details is None:
+                    continue
+                # Figure out min/max damage
+                transversal = 1
+                if (target_maneuver * 0.75) > attacker_tracking + 1:
+                    transversal = (attacker_tracking + 1) / (target_maneuver * 0.75)
+                minimum_attacker_damage = (attacker_attack * transversal)
+                maximum_attacker_damage = attacker_attack
+                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
+                # Determine if ship is already damaged
+                defense = target_defense
+                hit_points = target_ship_details['hit_points']
+                if target[0] in damaged_ships:
+                    defense = damaged_ships[target[0]]['defense']
+                    hit_points = damaged_ships[target[0]]['hit_points']
+                # if defense pool exist take damage out of it
+                if defense > 0:
+                    if defense >= damage:
+                        defense -= damage
+                    else:
+                        damage -= defense
+                        defense = 0
+                        hit_points -= damage
+                else:
+                    hit_points -= damage
+                # if no damage done, continue
+                if damage <= 0:
+                    continue
+                # if target survives, store damage
+                if hit_points > 0:
+                    if target[0] in damaged_ships:
+                        attackers = list(set(damaged_ships[target[0]]['attackers'].append(attacker[0])))
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense, 'attackers': attackers}
+                    else:
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
+                                                    'attackers': [attacker[0]]}
+                    # if badly damage target will attempt to flee
+                    if defense < target_defense * 0.15:
+                        flee = await self.weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
+                        if flee is True:
+                            if target not in attacker_fleet:
+                                defender_fleet.remove(target)
+                                continue
+                            else:
+                                attacker_fleet.remove(target)
+                                continue
+                        # Handle Cloak
+                        if target[12] is not None:
+                            modules = ast.literal_eval(target[12])
+                            for module in modules:
+                                module_item = await game_functions.get_module(module)
+                                if module_item['id'] == 40 or module_item['id'] == 41:
+                                    escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                    if escape is True:
+                                        if target not in attacker_fleet:
+                                            defender_fleet.remove(target)
+                                            continue
+                                        else:
+                                            attacker_fleet.remove(target)
+                                            continue
+                else:
+                    killing_blow = attacker
+                    winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(target[2])
+                    winner_name = winner_user.display_name
+                    if killing_blow[23] is not None:
+                        corp_info = await game_functions.get_user_corp(killing_blow[23])
+                        winner_name = '{} [{}]'.format(winner_name, corp_info[4])
+                    loser_name = self.bot.get_user(int(target[2])).display_name
+                    if target[23] is not None:
+                        corp_info = await game_functions.get_user_corp(target[23])
+                        loser_name = '{} [{}]'.format(loser_name, corp_info[4])
+                    winner_ship_obj = ast.literal_eval(killing_blow[14])
+                    winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
+                    loser_ship_obj = ast.literal_eval(target[14])
+                    loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
+                    loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
+                    loser_modules = ''
+                    loser_modules_array = []
+                    dropped_mods = []
+                    module_value = 0
+                    if target[12] is not None:
+                        modules = ast.literal_eval(target[12])
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            module_drop = ''
+                            module_value += module_item['isk']
+                            if dropped is True:
+                                dropped_mods.append(module)
+                                module_drop = ' **Module Dropped**'
+                            loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                        loser_module_list = '\n'.join(loser_modules_array)
+                        loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                    isk_lost = module_value + loser_ship_info['isk']
+                    if target not in attacker_fleet:
+                        defender_fleet.remove(target)
+                    else:
+                        attacker_fleet.remove(target)
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
+                    embed.set_thumbnail(url="{}".format(ship_image))
+                    embed.add_field(name="Killmail",
+                                    value="**Region** - {}\n\n"
+                                          "__**Loser**__\n"
+                                          "**{}** flying a {} was killed.{}\n\n"
+                                          "Total ISK Lost: {} ISK\n\n"
+                                          "__**Final Blow**__\n"
+                                          "**{}** flying a {}.".format(region_name, loser_name, loser_ship,
+                                                                       loser_modules,
+                                                                       '{0:,.2f}'.format(float(isk_lost)),
+                                                                       winner_name, winner_ship))
+                    await winner_user.send(embed=embed)
+                    await loser_user.send(embed=embed)
+                    await game_functions.track_player_kills(region)
+                    await self.send_global(embed, True)
+                    await self.destroy_ship(target)
+                    await self.add_loss(target)
+                    await self.add_kill(killing_blow, dropped_mods)
+                    await self.add_xp(killing_blow, xp_gained)
+                    await self.give_pvp_loot(killing_blow)
 
     async def fleet_versus_fleet(self, fleet_one, fleet_two, region, damaged=None):
         region_name = await game_functions.get_region(int(region))
         # Fleet stuff
-        attacker_fleet_attack, attacker_fleet_defense, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits, defender_fleet_attack, \
-        defender_fleet_defense, defender_fleet_maneuver, defender_fleet_tracking, defender_fleet_hits = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
         attacker_fleet_lost = []
@@ -1235,15 +1224,6 @@ class EveRpg:
                 continue
             attacker_fleet.append(member[0])
             attackers_in_system += 1
-            member_ship = ast.literal_eval(member[0][14])
-            ship_details = await game_functions.get_ship(member_ship['ship_type'])
-            attacker_fleet_hits += ship_details['hit_points']
-            member_attack, member_defense, member_maneuver, member_tracking = \
-                await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
-            attacker_fleet_defense += member_defense
-            attacker_fleet_attack += member_attack
-            attacker_fleet_maneuver += member_maneuver
-            attacker_fleet_tracking += member_tracking
         attacker_count = len(attacker_fleet)
         defender_fleet_array = ast.literal_eval(fleet_two[3])
         defender_fleet = []
@@ -1261,15 +1241,6 @@ class EveRpg:
                 continue
             defender_fleet.append(member[0])
             defenders_in_system += 1
-            member_ship = ast.literal_eval(member[0][14])
-            ship_details = await game_functions.get_ship(member_ship['ship_type'])
-            defender_fleet_hits += ship_details['hit_points']
-            member_attack, member_defense, member_maneuver, member_tracking = \
-                await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
-            defender_fleet_defense += member_defense
-            defender_fleet_attack += member_attack
-            defender_fleet_maneuver += member_maneuver
-            defender_fleet_tracking += member_tracking
         defender_count = len(defender_fleet)
         if attackers_in_system == 0 or defenders_in_system == 0:
             return
@@ -1277,181 +1248,187 @@ class EveRpg:
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
             await self.add_combat_timer(fleet_member)
-        aggressor_damage = attacker_fleet_attack
-        aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
-        non_aggressor = defender_fleet
         damaged_ships = {}
         if damaged is not None:
             damaged_ships = damaged
-        round_counter = 1
         for x in range(125):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            if round_counter % 2 == 0:
-                aggressor = defender_fleet
-            else:
-                aggressor = attacker_fleet
-            round_counter += 1
-            if aggressor != attacker_fleet:
-                non_aggressor = attacker_fleet
-                aggressor_damage = defender_fleet_attack
-                aggressor_tracking = (defender_fleet_tracking / defenders_in_system)
-            primary = random.choice(non_aggressor)
-            primary_ship = ast.literal_eval(primary[14])
-            ship_details = await game_functions.get_ship(primary_ship['ship_type'])
-            primary_attack, primary_defense, primary_maneuver, primary_tracking = \
-                await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
-            transversal = 1
-            if (primary_maneuver * 0.75) > aggressor_tracking + 1:
-                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
-            minimum_damage = (aggressor_damage * transversal)
-            maximum_damage = aggressor_damage
-            damage = round(random.triangular(minimum_damage, maximum_damage), 3)
-            defense = primary_defense
-            hit_points = ship_details['hit_points']
-            if primary[0] in damaged_ships:
-                defense = damaged_ships[primary[0]]['defense']
-                hit_points = damaged_ships[primary[0]]['hit_points']
-            if defense > 0:
-                defense -= damage
-            else:
-                hit_points -= damage
-            if primary not in attacker_fleet:
-                attacker_damage_dealt += damage
-            else:
-                defender_damage_dealt += damage
-            if damage <= 0:
-                continue
-            if hit_points > 0:
-                killing_blow = random.choice(aggressor)
-                # Fleet check
-                if killing_blow[16] is not None and killing_blow[16] != 0:
-                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
-                    values = (killing_blow[16],)
-                    fleet_info = await db.select_var(sql, values)
-                    fleet_array = ast.literal_eval(fleet_info[0][3])
-                    if primary[0] in fleet_array:
+            merged_fleet = attacker_fleet + defender_fleet
+            for attacker in random.shuffle(merged_fleet):
+                merged_fleet.remove(attacker)
+                attacker_ship = ast.literal_eval(attacker[14])
+                attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
+                    await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
+                target = None
+                target_ship_details = None
+                for target in random.shuffle(merged_fleet):
+                    # if in same fleet find new target
+                    if target == attacker or ((target in attacker_fleet and attacker in attacker_fleet) or (
+                            target in defender_fleet and attacker in defender_fleet)):
                         continue
-                if damage > 0:
-                    damaged_ships[primary[0]] = {'hit_points': hit_points, 'defense': defense}
-                if defense < primary_defense * 0.2:
-                    flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
-                    if flee is True:
-                        if primary not in attacker_fleet:
-                            defender_fleet.remove(primary)
-                            continue
-                        else:
-                            attacker_fleet.remove(primary)
-                            continue
-                    # Handle Cloak
-                    if primary[12] is not None:
-                        modules = ast.literal_eval(primary[12])
+                    else:
+                        target_ship = ast.literal_eval(target[14])
+                        target_ship_details = await game_functions.get_ship(target_ship['ship_type'])
+                        target_attack, target_defense, target_maneuver, target_tracking = \
+                            await game_functions.get_combat_attributes(target, attacker_ship['ship_type'])
+                        break
+                if target_ship_details is None:
+                    continue
+                # Figure out min/max damage
+                transversal = 1
+                if (target_maneuver * 0.75) > attacker_tracking + 1:
+                    transversal = (attacker_tracking + 1) / (target_maneuver * 0.75)
+                minimum_attacker_damage = (attacker_attack * transversal)
+                maximum_attacker_damage = attacker_attack
+                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
+                # Determine if ship is already damaged
+                defense = target_defense
+                hit_points = target_ship_details['hit_points']
+                if target[0] in damaged_ships:
+                    defense = damaged_ships[target[0]]['defense']
+                    hit_points = damaged_ships[target[0]]['hit_points']
+                # if defense pool exist take damage out of it
+                if defense > 0:
+                    if defense >= damage:
+                        defense -= damage
+                    else:
+                        damage -= defense
+                        defense = 0
+                        hit_points -= damage
+                else:
+                    hit_points -= damage
+                # log damage done for BR
+                if attacker not in attacker_fleet:
+                    attacker_damage_dealt += damage
+                else:
+                    defender_damage_dealt += damage
+                # if no damage done, continue
+                if damage <= 0:
+                    continue
+                # if target survives, store damage
+                if hit_points > 0:
+                    if target[0] in damaged_ships:
+                        attackers = list(set(damaged_ships[target[0]]['attackers'].append(attacker[0])))
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
+                                                    'attackers': attackers}
+                    else:
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
+                                                    'attackers': [attacker[0]]}
+                    # if badly damage target will attempt to flee
+                    if defense < target_defense * 0.15:
+                        flee = await self.weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
+                        if flee is True:
+                            if target not in attacker_fleet:
+                                defender_fleet.remove(target)
+                                continue
+                            else:
+                                attacker_fleet.remove(target)
+                                continue
+                        # Handle Cloak
+                        if target[12] is not None:
+                            modules = ast.literal_eval(target[12])
+                            for module in modules:
+                                module_item = await game_functions.get_module(module)
+                                if module_item['id'] == 40 or module_item['id'] == 41:
+                                    escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                    if escape is True:
+                                        if target not in attacker_fleet:
+                                            defender_fleet.remove(target)
+                                            continue
+                                        else:
+                                            attacker_fleet.remove(target)
+                                            continue
+                else:
+                    killing_blow = attacker
+                    other_names = []
+                    other_users = []
+                    if target[0] in damaged_ships:
+                        for on_mail in damaged_ships[target[0]]['attackers']:
+                            if on_mail == killing_blow[0]:
+                                continue
+                            sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+                            values = (on_mail,)
+                            player = await db.select_var(sql, values)
+                            on_mail_name = self.bot.get_user(int(player[0][2])).display_name
+                            if player[0][23] is not None:
+                                corp_info = await game_functions.get_user_corp(player[0][23])
+                                on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
+                            other_users.append(on_mail)
+                            other_names.append('{}'.format(on_mail_name))
+                    clean_names = '\n'.join(other_names)
+                    if len(other_names) > 6:
+                        clean_names = '\n{} fleet members.'.format(len(other_names))
+                    winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(target[2])
+                    winner_name = winner_user.display_name
+                    if killing_blow[23] is not None:
+                        corp_info = await game_functions.get_user_corp(killing_blow[23])
+                        winner_name = '{} [{}]'.format(winner_name, corp_info[4])
+                    loser_name = self.bot.get_user(int(target[2])).display_name
+                    if target[23] is not None:
+                        corp_info = await game_functions.get_user_corp(target[23])
+                        loser_name = '{} [{}]'.format(loser_name, corp_info[4])
+                    winner_ship_obj = ast.literal_eval(killing_blow[14])
+                    winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
+                    loser_ship_obj = ast.literal_eval(target[14])
+                    loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
+                    loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
+                    loser_modules = ''
+                    loser_modules_array = []
+                    dropped_mods = []
+                    module_value = 0
+                    if target[12] is not None:
+                        modules = ast.literal_eval(target[12])
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            if module_item['id'] == 40 or module_item['id'] == 41:
-                                escape = await self.weighted_choice([(True, 50), (False, 50)])
-                                if escape is True:
-                                    if primary not in attacker_fleet:
-                                        defender_fleet.remove(primary)
-                                        continue
-                                    else:
-                                        attacker_fleet.remove(primary)
-                                        continue
-                continue
-            else:
-                killing_blow = random.choice(aggressor)
-                # Fleet check
-                if killing_blow[16] is not None and killing_blow[16] != 0:
-                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
-                    values = (killing_blow[16],)
-                    fleet_info = await db.select_var(sql, values)
-                    fleet_array = ast.literal_eval(fleet_info[0][3])
-                    if primary[0] in fleet_array:
-                        continue
-                other_names = []
-                other_users = []
-                for on_mail in aggressor:
-                    if on_mail == killing_blow:
-                        continue
-                    on_mail_name = self.bot.get_user(int(on_mail[2])).display_name
-                    if on_mail[23] is not None:
-                        corp_info = await game_functions.get_user_corp(on_mail[23])
-                        on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
-                    other_users.append(on_mail)
-                    other_names.append('{}'.format(on_mail_name))
-                clean_names = '\n'.join(other_names)
-                if len(other_names) > 6:
-                    clean_names = '\n{} fleet members.'.format(len(other_names))
-                winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
-                winner_name = winner_user.display_name
-                if killing_blow[23] is not None:
-                    corp_info = await game_functions.get_user_corp(killing_blow[23])
-                    winner_name = '{} [{}]'.format(winner_name, corp_info[4])
-                loser_name = self.bot.get_user(int(primary[2])).display_name
-                if primary[23] is not None:
-                    corp_info = await game_functions.get_user_corp(primary[23])
-                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
-                winner_ship_obj = ast.literal_eval(killing_blow[14])
-                winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
-                loser_ship_obj = ast.literal_eval(primary[14])
-                loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
-                loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
-                loser_modules = ''
-                loser_modules_array = []
-                dropped_mods = []
-                module_value = 0
-                if primary[12] is not None:
-                    modules = ast.literal_eval(primary[12])
-                    for module in modules:
-                        module_item = await game_functions.get_module(module)
-                        dropped = await self.weighted_choice([(True, 50), (False, 50)])
-                        module_drop = ''
-                        module_value += module_item['isk']
-                        if dropped is True:
-                            dropped_mods.append(module)
-                            module_drop = ' **Module Dropped**'
-                        loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
-                    loser_module_list = '\n'.join(loser_modules_array)
-                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-                xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
-                isk_lost = module_value + loser_ship_info['isk']
-                if primary not in attacker_fleet:
-                    defender_fleet.remove(primary)
-                    defender_fleet_lost.append(primary)
-                    defender_isk_lost += isk_lost
-                else:
-                    attacker_fleet.remove(primary)
-                    attacker_fleet_lost.append(primary)
-                    attacker_isk_lost += isk_lost
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "__**Loser**__\n"
-                                      "**{}** flying a {} was killed.{}\n\n"
-                                      "Total ISK Lost: {} ISK\n\n"
-                                      "__**Final Blow**__\n"
-                                      "**{}** flying a {}.\n\n"
-                                      "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
-                                                                         loser_modules,
-                                                                         '{0:,.2f}'.format(float(isk_lost)),
-                                                                         winner_name, winner_ship, clean_names))
-                await winner_user.send(embed=embed)
-                await loser_user.send(embed=embed)
-                await game_functions.track_player_kills(region)
-                await self.send_global(embed, True)
-                await self.destroy_ship(primary)
-                await self.add_loss(primary)
-                await self.add_kill(killing_blow, dropped_mods)
-                await self.add_xp(killing_blow, xp_gained)
-                await self.give_pvp_loot(killing_blow)
-                dropped_mods = []
-                for user in other_users:
-                    await self.add_kill(user, dropped_mods)
-                    await self.add_xp(user, xp_gained)
+                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            module_drop = ''
+                            module_value += module_item['isk']
+                            if dropped is True:
+                                dropped_mods.append(module)
+                                module_drop = ' **Module Dropped**'
+                            loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                        loser_module_list = '\n'.join(loser_modules_array)
+                        loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                    isk_lost = module_value + loser_ship_info['isk']
+                    if target not in attacker_fleet:
+                        defender_fleet.remove(target)
+                        defender_fleet_lost.append(target)
+                        defender_isk_lost += isk_lost
+                    else:
+                        attacker_fleet.remove(target)
+                        attacker_fleet_lost.append(target)
+                        attacker_isk_lost += isk_lost
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
+                    embed.set_thumbnail(url="{}".format(ship_image))
+                    embed.add_field(name="Killmail",
+                                    value="**Region** - {}\n\n"
+                                          "__**Loser**__\n"
+                                          "**{}** flying a {} was killed.{}\n\n"
+                                          "Total ISK Lost: {} ISK\n\n"
+                                          "__**Final Blow**__\n"
+                                          "**{}** flying a {}.\n\n"
+                                          "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
+                                                                             loser_modules,
+                                                                             '{0:,.2f}'.format(float(isk_lost)),
+                                                                             winner_name, winner_ship, clean_names))
+                    await winner_user.send(embed=embed)
+                    await loser_user.send(embed=embed)
+                    await game_functions.track_player_kills(region)
+                    await self.send_global(embed, True)
+                    await self.destroy_ship(target)
+                    await self.add_loss(target)
+                    await self.add_kill(killing_blow, dropped_mods)
+                    await self.add_xp(killing_blow, xp_gained)
+                    await self.give_pvp_loot(killing_blow)
+                    dropped_mods = []
+                    for user in other_users:
+                        await self.add_kill(user, dropped_mods)
+                        await self.add_xp(user, xp_gained)
         ongoing_text = ''
         if len(attacker_fleet) > 0 and len(defender_fleet) > 0:
             ongoing_text = '\n\n**This Battle Is Still Ongoing**'
@@ -1467,7 +1444,8 @@ class EveRpg:
                                   "Ships Destroyed: {}\n"
                                   "Total ISK Lost: {} ISK\n"
                                   "Total Damage Done: {}\n{}".format(region_name, defender_count + attacker_count,
-                                                                     len(attacker_fleet_lost) + len(defender_fleet_lost),
+                                                                     len(attacker_fleet_lost) + len(
+                                                                         defender_fleet_lost),
                                                                      '{0:,.2f}'.format(
                                                                          float(attacker_isk_lost + defender_isk_lost)),
                                                                      attacker_damage_dealt + defender_damage_dealt,
@@ -1537,7 +1515,6 @@ class EveRpg:
     async def fleet_versus_player(self, fleet_one, player, region):
         region_name = await game_functions.get_region(int(region))
         # Fleet stuff
-        attacker_fleet_attack, attacker_fleet_defense, attacker_fleet_maneuver, attacker_fleet_tracking, attacker_fleet_hits = 0, 0, 0, 0, 0
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
         attacker_fleet_lost = []
@@ -1556,22 +1533,9 @@ class EveRpg:
             f_id.append(member[0][0])
             attacker_fleet.append(member[0])
             attackers_in_system += 1
-            member_ship = ast.literal_eval(member[0][14])
-            ship_details = await game_functions.get_ship(member_ship['ship_type'])
-            attacker_fleet_hits += ship_details['hit_points']
-            member_attack, member_defense, member_maneuver, member_tracking = \
-                await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
-            attacker_fleet_defense += member_defense
-            attacker_fleet_attack += member_attack
-            attacker_fleet_maneuver += member_maneuver
-            attacker_fleet_tracking += member_tracking
         if attackers_in_system == 0:
             return
         attacker_count = len(attacker_fleet)
-        primary_ship = ast.literal_eval(player[14])
-        ship = await game_functions.get_ship(primary_ship['ship_type'])
-        primary_attack, primary_defense, primary_maneuver, primary_tracking = \
-            await game_functions.get_combat_attributes(player, ship['id'])
         defender_fleet = [player]
         defender_count = len(defender_fleet)
         defender_fleet_lost = []
@@ -1581,178 +1545,190 @@ class EveRpg:
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
             await self.add_combat_timer(fleet_member)
-        aggressor_damage = attacker_fleet_attack
-        aggressor_tracking = (attacker_fleet_tracking / attackers_in_system)
-        non_aggressor = defender_fleet
         damaged_ships = {}
-        round_counter = 1
-        for x in range(250):
+        for x in range(125):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            if round_counter % 2 == 0:
-                aggressor = defender_fleet
-            else:
-                aggressor = attacker_fleet
-            round_counter += 1
-            if aggressor != attacker_fleet:
-                non_aggressor = attacker_fleet
-                aggressor_damage = primary_attack
-                aggressor_tracking = primary_tracking
-            primary = random.choice(non_aggressor)
-            primary_ship = ast.literal_eval(primary[14])
-            ship_details = await game_functions.get_ship(primary_ship['ship_type'])
-            primary_attack, primary_defense, primary_maneuver, primary_tracking = \
-                await game_functions.get_combat_attributes(primary, primary_ship['ship_type'])
-            transversal = 1
-            if (primary_maneuver * 0.75) > aggressor_tracking + 1:
-                transversal = (aggressor_tracking + 1) / (primary_maneuver * 0.75)
-            minimum_damage = (aggressor_damage * transversal)
-            maximum_damage = aggressor_damage
-            damage = round(random.triangular(minimum_damage, maximum_damage), 3)
-            defense = primary_defense
-            hit_points = ship_details['hit_points']
-            if primary[0] in damaged_ships:
-                defense = damaged_ships[primary[0]]['defense']
-                hit_points = damaged_ships[primary[0]]['hit_points']
-            if defense > 0:
-                defense -= damage
-            else:
-                hit_points -= damage
-            if primary not in attacker_fleet:
-                attacker_damage_dealt += damage
-            else:
-                defender_damage_dealt += damage
-            if damage <= 0:
-                continue
-            if hit_points > 0:
-                killing_blow = random.choice(aggressor)
-                # Fleet check
-                if killing_blow[16] is not None and killing_blow[16] != 0:
-                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
-                    values = (killing_blow[16],)
-                    fleet_info = await db.select_var(sql, values)
-                    fleet_array = ast.literal_eval(fleet_info[0][3])
-                    if primary[0] in fleet_array:
+            merged_fleet = attacker_fleet + defender_fleet
+            for attacker in random.shuffle(merged_fleet):
+                merged_fleet.remove(attacker)
+                attacker_ship = ast.literal_eval(attacker[14])
+                attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
+                    await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
+                target = None
+                target_ship_details = None
+                for target in random.shuffle(merged_fleet):
+                    # if in same fleet find new target
+                    if target == attacker or ((target in attacker_fleet and attacker in attacker_fleet) or (
+                            target in defender_fleet and attacker in defender_fleet)):
                         continue
-                if damage > 0:
-                    damaged_ships[primary[0]] = {'hit_points': hit_points, 'defense': defense}
-                if defense < primary_defense * 0.2:
-                    flee = await self.weighted_choice([(True, primary_maneuver), (False, aggressor_tracking)])
-                    if flee is True:
-                        if primary not in attacker_fleet:
-                            defender_fleet.remove(primary)
-                            continue
-                        else:
-                            attacker_fleet.remove(primary)
-                            continue
-                    # Handle Cloak
-                    if primary[12] is not None:
-                        modules = ast.literal_eval(primary[12])
+                    else:
+                        target_ship = ast.literal_eval(target[14])
+                        target_ship_details = await game_functions.get_ship(target_ship['ship_type'])
+                        target_attack, target_defense, target_maneuver, target_tracking = \
+                            await game_functions.get_combat_attributes(target, attacker_ship['ship_type'])
+                        break
+                if target_ship_details is None:
+                    continue
+                # Figure out min/max damage
+                transversal = 1
+                if (target_maneuver * 0.75) > attacker_tracking + 1:
+                    transversal = (attacker_tracking + 1) / (target_maneuver * 0.75)
+                minimum_attacker_damage = (attacker_attack * transversal)
+                maximum_attacker_damage = attacker_attack
+                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
+                # Determine if ship is already damaged
+                defense = target_defense
+                hit_points = target_ship_details['hit_points']
+                if target[0] in damaged_ships:
+                    defense = damaged_ships[target[0]]['defense']
+                    hit_points = damaged_ships[target[0]]['hit_points']
+                # if defense pool exist take damage out of it
+                if defense > 0:
+                    if defense >= damage:
+                        defense -= damage
+                    else:
+                        damage -= defense
+                        defense = 0
+                        hit_points -= damage
+                else:
+                    hit_points -= damage
+                # log damage done for BR
+                if attacker not in attacker_fleet:
+                    attacker_damage_dealt += damage
+                else:
+                    defender_damage_dealt += damage
+                # if no damage done, continue
+                if damage <= 0:
+                    continue
+                # if target survives, store damage
+                if hit_points > 0:
+                    if target[0] in damaged_ships:
+                        attackers = list(set(damaged_ships[target[0]]['attackers'].append(attacker[0])))
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
+                                                    'attackers': attackers}
+                    else:
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
+                                                    'attackers': [attacker[0]]}
+                    # if badly damage target will attempt to flee
+                    if defense < target_defense * 0.15:
+                        flee = await self.weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
+                        if flee is True:
+                            if target not in attacker_fleet:
+                                defender_fleet.remove(target)
+                                continue
+                            else:
+                                attacker_fleet.remove(target)
+                                continue
+                        # Handle Cloak
+                        if target[12] is not None:
+                            modules = ast.literal_eval(target[12])
+                            for module in modules:
+                                module_item = await game_functions.get_module(module)
+                                if module_item['id'] == 40 or module_item['id'] == 41:
+                                    escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                    if escape is True:
+                                        if target not in attacker_fleet:
+                                            defender_fleet.remove(target)
+                                            continue
+                                        else:
+                                            attacker_fleet.remove(target)
+                                            continue
+                else:
+                    killing_blow = attacker
+                    other_names = []
+                    other_users = []
+                    if target[0] in damaged_ships:
+                        for on_mail in damaged_ships[target[0]]['attackers']:
+                            if on_mail == killing_blow[0]:
+                                continue
+                            sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+                            values = (on_mail,)
+                            player = await db.select_var(sql, values)
+                            on_mail_name = self.bot.get_user(int(player[0][2])).display_name
+                            if player[0][23] is not None:
+                                corp_info = await game_functions.get_user_corp(player[0][23])
+                                on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
+                            other_users.append(on_mail)
+                            other_names.append('{}'.format(on_mail_name))
+                    clean_names = '\n'.join(other_names)
+                    if len(other_names) > 6:
+                        clean_names = '\n{} fleet members.'.format(len(other_names))
+                    winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(target[2])
+                    winner_name = winner_user.display_name
+                    if killing_blow[23] is not None:
+                        corp_info = await game_functions.get_user_corp(killing_blow[23])
+                        winner_name = '{} [{}]'.format(winner_name, corp_info[4])
+                    loser_name = self.bot.get_user(int(target[2])).display_name
+                    if target[23] is not None:
+                        corp_info = await game_functions.get_user_corp(target[23])
+                        loser_name = '{} [{}]'.format(loser_name, corp_info[4])
+                    winner_ship_obj = ast.literal_eval(killing_blow[14])
+                    winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
+                    loser_ship_obj = ast.literal_eval(target[14])
+                    loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
+                    loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
+                    loser_modules = ''
+                    loser_modules_array = []
+                    dropped_mods = []
+                    module_value = 0
+                    if target[12] is not None:
+                        modules = ast.literal_eval(target[12])
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            if module_item['id'] == 40 or module_item['id'] == 41:
-                                escape = await self.weighted_choice([(True, 50), (False, 50)])
-                                if escape is True:
-                                    if primary not in attacker_fleet:
-                                        defender_fleet.remove(primary)
-                                        continue
-                                    else:
-                                        attacker_fleet.remove(primary)
-                                        continue
-                continue
-            else:
-                killing_blow = random.choice(aggressor)
-                # Fleet check
-                if killing_blow[16] is not None and killing_blow[16] != 0:
-                    sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
-                    values = (killing_blow[16],)
-                    fleet_info = await db.select_var(sql, values)
-                    fleet_array = ast.literal_eval(fleet_info[0][3])
-                    if primary[0] in fleet_array:
-                        continue
-                other_names = []
-                other_users = []
-                for on_mail in aggressor:
-                    if on_mail == killing_blow:
-                        continue
-                    on_mail_name = self.bot.get_user(int(on_mail[2])).display_name
-                    if on_mail[23] is not None:
-                        corp_info = await game_functions.get_user_corp(on_mail[23])
-                        on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
-                    other_users.append(on_mail)
-                    other_names.append('{}'.format(on_mail_name))
-                clean_names = '\n'.join(other_names)
-                if len(other_names) > 6:
-                    clean_names = '\n{} fleet members.'.format(len(other_names))
-                winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(primary[2])
-                winner_name = winner_user.display_name
-                if killing_blow[23] is not None:
-                    corp_info = await game_functions.get_user_corp(killing_blow[23])
-                    winner_name = '{} [{}]'.format(winner_name, corp_info[4])
-                loser_name = self.bot.get_user(int(primary[2])).display_name
-                if primary[23] is not None:
-                    corp_info = await game_functions.get_user_corp(primary[23])
-                    loser_name = '{} [{}]'.format(loser_name, corp_info[4])
-                winner_ship_obj = ast.literal_eval(killing_blow[14])
-                winner_ship = await game_functions.get_ship_name(int(winner_ship_obj['ship_type']))
-                loser_ship_obj = ast.literal_eval(primary[14])
-                loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
-                loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
-                loser_modules = ''
-                loser_modules_array = []
-                dropped_mods = []
-                module_value = 0
-                if primary[12] is not None:
-                    modules = ast.literal_eval(primary[12])
-                    for module in modules:
-                        module_item = await game_functions.get_module(module)
-                        dropped = await self.weighted_choice([(True, 50), (False, 50)])
-                        module_drop = ''
-                        module_value += module_item['isk']
-                        if dropped is True:
-                            dropped_mods.append(module)
-                            module_drop = ' **Module Dropped**'
-                        loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
-                    loser_module_list = '\n'.join(loser_modules_array)
-                    loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
-                xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
-                isk_lost = module_value + loser_ship_info['isk']
-                if primary not in attacker_fleet:
-                    defender_fleet.remove(primary)
-                    defender_fleet_lost.append(primary)
-                    defender_isk_lost += isk_lost
-                else:
-                    attacker_fleet.remove(primary)
-                    attacker_fleet_lost.append(primary)
-                    attacker_isk_lost += isk_lost
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
-                embed.set_thumbnail(url="{}".format(ship_image))
-                embed.add_field(name="Killmail",
-                                value="**Region** - {}\n\n"
-                                      "__**Loser**__\n"
-                                      "**{}** flying a {} was killed.{}\n\n"
-                                      "Total ISK Lost: {} ISK\n\n"
-                                      "__**Final Blow**__\n"
-                                      "**{}** flying a {}.\n\n"
-                                      "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
-                                                                         loser_modules,
-                                                                         '{0:,.2f}'.format(float(isk_lost)),
-                                                                         winner_name, winner_ship, clean_names))
-                await winner_user.send(embed=embed)
-                await loser_user.send(embed=embed)
-                await game_functions.track_player_kills(region)
-                await self.send_global(embed, True)
-                await self.destroy_ship(primary)
-                await self.add_loss(primary)
-                await self.add_kill(killing_blow, dropped_mods)
-                await self.add_xp(killing_blow, xp_gained)
-                dropped_mods = []
-                for user in other_users:
-                    await self.add_kill(user, dropped_mods)
-                    await self.add_xp(user, xp_gained)
+                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            module_drop = ''
+                            module_value += module_item['isk']
+                            if dropped is True:
+                                dropped_mods.append(module)
+                                module_drop = ' **Module Dropped**'
+                            loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                        loser_module_list = '\n'.join(loser_modules_array)
+                        loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                    isk_lost = module_value + loser_ship_info['isk']
+                    if target not in attacker_fleet:
+                        defender_fleet.remove(target)
+                        defender_fleet_lost.append(target)
+                        defender_isk_lost += isk_lost
+                    else:
+                        attacker_fleet.remove(target)
+                        attacker_fleet_lost.append(target)
+                        attacker_isk_lost += isk_lost
+                    embed = make_embed(icon=self.bot.user.avatar)
+                    embed.set_footer(icon_url=self.bot.user.avatar_url,
+                                     text="Aura - EVE Text RPG")
+                    ship_image = await game_functions.get_ship_image(loser_ship_obj['ship_type'])
+                    embed.set_thumbnail(url="{}".format(ship_image))
+                    embed.add_field(name="Killmail",
+                                    value="**Region** - {}\n\n"
+                                          "__**Loser**__\n"
+                                          "**{}** flying a {} was killed.{}\n\n"
+                                          "Total ISK Lost: {} ISK\n\n"
+                                          "__**Final Blow**__\n"
+                                          "**{}** flying a {}.\n\n"
+                                          "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
+                                                                             loser_modules,
+                                                                             '{0:,.2f}'.format(float(isk_lost)),
+                                                                             winner_name, winner_ship, clean_names))
+                    await winner_user.send(embed=embed)
+                    await loser_user.send(embed=embed)
+                    await game_functions.track_player_kills(region)
+                    await self.send_global(embed, True)
+                    await self.destroy_ship(target)
+                    await self.add_loss(target)
+                    await self.add_kill(killing_blow, dropped_mods)
+                    await self.add_xp(killing_blow, xp_gained)
+                    await self.give_pvp_loot(killing_blow)
+                    dropped_mods = []
+                    for user in other_users:
+                        await self.add_kill(user, dropped_mods)
+                        await self.add_xp(user, xp_gained)
+        ongoing_text = ''
+        if len(attacker_fleet) > 0 and len(defender_fleet) > 0:
+            ongoing_text = '\n\n**This Battle Is Still Ongoing**'
+            self.ongoing_fleet_fights[region] = {'attacker': attacker_fleet, 'defender': defender_fleet,
+                                                 'region': region, 'damaged': damaged_ships}
         if len(attacker_fleet_lost) > 0 or len(defender_fleet_lost) > 0:
             embed = make_embed(icon=self.bot.user.avatar)
             embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -1762,12 +1738,13 @@ class EveRpg:
                                   "Total Players Involved: {}\n"
                                   "Ships Destroyed: {}\n"
                                   "Total ISK Lost: {} ISK\n"
-                                  "Total Damage Done: {}\n".format(region_name,
-                                                                   defender_count + attacker_count,
-                                                                   len(attacker_fleet_lost) + len(defender_fleet_lost),
-                                                                   '{0:,.2f}'.format(float(
-                                                                       attacker_isk_lost + defender_isk_lost)),
-                                                                   attacker_damage_dealt + defender_damage_dealt),
+                                  "Total Damage Done: {}\n{}".format(region_name, defender_count + attacker_count,
+                                                                     len(attacker_fleet_lost) + len(
+                                                                         defender_fleet_lost),
+                                                                     '{0:,.2f}'.format(
+                                                                         float(attacker_isk_lost + defender_isk_lost)),
+                                                                     attacker_damage_dealt + defender_damage_dealt,
+                                                                     ongoing_text),
                             inline=False)
             embed.add_field(name="Fleet One Stats",
                             value="Fleet Size: {} Players\n"
