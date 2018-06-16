@@ -43,6 +43,125 @@ async def process_region_stats():
             await db.execute_sql(sql, values)
 
 
+async def weighted_choice(items):
+    """items is a list of tuples in the form (item, weight)"""
+    weight_total = sum((item[1] for item in items))
+    n = random.uniform(0, weight_total)
+    for item, weight in items:
+        if n < weight:
+            return item
+        n = n - weight
+    return item
+
+
+async def give_mod(player, mods):
+    player = await game_functions.refresh_player(player)
+    ship = ast.literal_eval(player[14])
+    for mod in mods:
+        if 'module_cargo_bay' in ship:
+            ship['module_cargo_bay'].append(mod)
+        else:
+            ship['module_cargo_bay'] = [mod]
+    new_ship = str(ship)
+    sql = ''' UPDATE eve_rpg_players
+            SET ship = (?)
+            WHERE
+                player_id = (?); '''
+    values = (new_ship, player[2],)
+    return await db.execute_sql(sql, values)
+
+
+async def add_combat_timer(player):
+    player = await game_functions.refresh_player(player)
+    sql = ''' UPDATE eve_rpg_players
+            SET combat_timer = (?)
+            WHERE
+                player_id = (?); '''
+    values = (5, player[2],)
+    return await db.execute_sql(sql, values)
+
+
+async def add_loss(player):
+    player = await game_functions.refresh_player(player)
+    sql = ''' UPDATE eve_rpg_players
+            SET losses = (?)
+            WHERE
+                player_id = (?); '''
+    values = (int(player[11]) + 1, player[2],)
+    return await db.execute_sql(sql, values)
+
+
+async def add_kill(player, mods):
+    player = await game_functions.refresh_player(player)
+    sql = ''' UPDATE eve_rpg_players
+            SET kills=?,
+                ship=?
+            WHERE
+                player_id=?; '''
+    killer_ship = ast.literal_eval(player[14])
+    if 'kill_marks' not in killer_ship:
+        killer_ship['kill_marks'] = 1
+    else:
+        killer_ship['kill_marks'] += 1
+    if mods is not None:
+        for mod in mods:
+            if 'module_cargo_bay' in killer_ship:
+                killer_ship['module_cargo_bay'].append(mod)
+            else:
+                killer_ship['module_cargo_bay'] = [mod]
+    values = (int(player[10]) + 1, str(killer_ship), player[2],)
+    return await db.execute_sql(sql, values)
+
+
+async def update_journal(player, isk, entry):
+    player = await game_functions.refresh_player(player)
+    utc = datetime.datetime.utcnow()
+    time = utc.strftime("%H:%M:%S")
+    if player[20] is not None:
+        journal = ast.literal_eval(player[20])
+        if len(journal) == 10:
+            journal.pop(0)
+        transaction = {'isk': isk, 'type': entry, 'time': time}
+        journal.append(transaction)
+    else:
+        transaction = {'isk': isk, 'type': entry, 'time': time}
+        journal = [transaction]
+    sql = ''' UPDATE eve_rpg_players
+            SET wallet_journal = (?)
+            WHERE
+                player_id = (?); '''
+    values = (str(journal), player[2],)
+    return await db.execute_sql(sql, values)
+
+
+async def add_isk(player, isk):
+    player = await game_functions.refresh_player(player)
+    sql = ''' UPDATE eve_rpg_players
+            SET isk = (?)
+            WHERE
+                player_id = (?); '''
+    values = (int(player[5]) + isk, player[2],)
+    return await db.execute_sql(sql, values)
+
+
+async def add_xp(player, xp_gained):
+    player = await game_functions.refresh_player(player)
+    if player[9] + xp_gained < 100 * player[8]:
+        sql = ''' UPDATE eve_rpg_players
+                SET xp = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (player[9] + xp_gained, player[2],)
+    else:
+        sql = ''' UPDATE eve_rpg_players
+                SET level = (?),
+                    xp = (?)
+                WHERE
+                    player_id = (?); '''
+        values = (player[8] + 1, 0, player[2],)
+    return await db.execute_sql(sql, values)
+
+
 class EveRpg:
     def __init__(self, bot):
         self.bot = bot
@@ -243,7 +362,7 @@ class EveRpg:
                         fleet_array = ast.literal_eval(fleet_info[0][3])
                         if traveler[0] in fleet_array:
                             continue
-                    conflict = await self.weighted_choice([(True, 55 - defender_maneuver), (False, 55)])
+                    conflict = await weighted_choice([(True, 55 - defender_maneuver), (False, 55)])
                     if conflict is True:
                         camper_fleet = False
                         traveler_fleet = False
@@ -322,10 +441,10 @@ class EveRpg:
                 npc = 75
                 isk_multi = 0.65
             #  PVE Rolls
-            encounter = await self.weighted_choice(
+            encounter = await weighted_choice(
                 [(True, npc / len(system_ratters)), (False, 100 - npc + 1)])
             if encounter is True:
-                await self.process_pve_combat(ratter, isk_multi)
+                await self.process_pve_combat(ratter, int(float(isk_multi)))
 
     async def process_anomaly_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 '''
@@ -344,7 +463,7 @@ class EveRpg:
             elif region_security == 'Null':
                 npc = 75
             #  PVE Rolls
-            encounter = await self.weighted_choice(
+            encounter = await weighted_choice(
                 [(True, npc / len(system_ratters)), (False, 100 - npc + 1)])
             if encounter is True:
                 await self.process_pve_combat(ratter)
@@ -371,13 +490,13 @@ class EveRpg:
                 ore = 90
                 possible_npc = 4
                 isk = random.randint(8000, 22450)
-            find_ore = await self.weighted_choice(
+            find_ore = await weighted_choice(
                 [(True, ore / len(belt_miners)), (False, 100 - (ore / len(belt_miners)))])
             if find_ore is False:
                 continue
             else:
                 if possible_npc is not False:
-                    encounter = await self.weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
+                    encounter = await weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
                     if encounter is True:
                         await self.process_pve_combat(miner)
                 #  Ship multi
@@ -409,10 +528,10 @@ class EveRpg:
                             continue
                         if module == 122:
                             isk = (isk * .1) + isk
-                xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
-                await self.add_xp(miner, xp_gained)
-                await self.add_isk(miner, isk * multiplier)
-                await self.update_journal(miner, isk * multiplier, 'Belt Mining')
+                xp_gained = await weighted_choice([(1, 35), (2, 15), (0, 15)])
+                await add_xp(miner, xp_gained)
+                await add_isk(miner, isk * multiplier)
+                await update_journal(miner, isk * multiplier, 'Belt Mining')
 
     async def process_anomaly_mining(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 11 '''
@@ -436,13 +555,13 @@ class EveRpg:
                 ore = 99
                 possible_npc = 8
                 isk = random.randint(18000, 65000)
-            find_ore = await self.weighted_choice(
+            find_ore = await weighted_choice(
                 [(True, ore / len(belt_miners)), (False, 100 - (ore / len(belt_miners)))])
             if find_ore is False:
                 continue
             else:
                 if possible_npc is not False:
-                    encounter = await self.weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
+                    encounter = await weighted_choice([(True, possible_npc), (False, 100 - possible_npc)])
                     if encounter is True:
                         await self.process_pve_combat(miner)
                 #  Ship multi
@@ -474,10 +593,10 @@ class EveRpg:
                             continue
                         if module == 122:
                             isk = (isk * .1) + isk
-                xp_gained = await self.weighted_choice([(1, 35), (2, 15), (0, 15)])
-                await self.add_xp(miner, xp_gained)
-                await self.add_isk(miner, isk * multiplier)
-                await self.update_journal(miner, isk * multiplier, 'Anomaly Mining')
+                xp_gained = await weighted_choice([(1, 35), (2, 15), (0, 15)])
+                await add_xp(miner, xp_gained)
+                await add_isk(miner, isk * multiplier)
+                await update_journal(miner, isk * multiplier, 'Anomaly Mining')
 
     async def process_missions(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 9 '''
@@ -495,21 +614,21 @@ class EveRpg:
             mission_details = ast.literal_eval(mission_runner[22])
             isk = mission_details['reward']
             #  PVE Rolls
-            complete_mission = await self.weighted_choice([(True, 15), (False, 30 * mission_details['level'])])
-            enounter = await self.weighted_choice([(True, 70), (False, 30)])
+            complete_mission = await weighted_choice([(True, 15), (False, 30 * mission_details['level'])])
+            enounter = await weighted_choice([(True, 70), (False, 30)])
             if enounter is True and complete_mission is False:
                 await self.process_pve_combat(mission_runner, 1, mission_details['level'])
             else:
                 if complete_mission is False:
                     continue
-                xp_gained = await self.weighted_choice([(1 * mission_details['level'], 35),
+                xp_gained = await weighted_choice([(1 * mission_details['level'], 35),
                                                         (3 * mission_details['level'], 15),
                                                         (0, 15)])
-                await self.add_xp(mission_runner, xp_gained)
-                await self.add_isk(mission_runner, isk)
+                await add_xp(mission_runner, xp_gained)
+                await add_isk(mission_runner, isk)
                 loot_chance = 4 * mission_details['level']
                 await self.pve_loot(mission_runner, loot_chance, True)
-                await self.update_journal(mission_runner, isk, 'Mission Reward')
+                await update_journal(mission_runner, isk, 'Mission Reward')
                 embed = make_embed(icon=self.bot.user.avatar)
                 embed.set_footer(icon_url=self.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
@@ -539,8 +658,6 @@ class EveRpg:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 8 AND `region` = (?) '''
             values = (region_id,)
             system_explorers = await db.select_var(sql, values)
-            ratter_ship = ast.literal_eval(explorer[14])
-            ship_id = ratter_ship['ship_type']
             isk = random.randint(3000, 7500)
             sites = 50
             best_of = 3
@@ -554,7 +671,7 @@ class EveRpg:
                 best_of = 5
                 loot_chance = 7
             #  PVE Rolls
-            find_sites = await self.weighted_choice([(True, sites / len(system_explorers)), (False, 40)])
+            find_sites = await weighted_choice([(True, sites / len(system_explorers)), (False, 40)])
             if find_sites is False:
                 continue
             else:
@@ -600,7 +717,7 @@ class EveRpg:
                         last_action = '**Last Action:** Incorrect Response\n'
                         ai_score += 1
                         continue
-                    ai_action = await self.weighted_choice([('1', 33), ('2', 33), ('3', 33)])
+                    ai_action = await weighted_choice([('1', 33), ('2', 33), ('3', 33)])
                     if response == '1' and ai_action != '2' and ai_action != response:
                         last_action = '**Last Action:** Brute Attack Successful\n'
                         your_score += 1
@@ -626,10 +743,10 @@ class EveRpg:
                         ai_score += 1
                         continue
                 if win is True:
-                    xp_gained = await self.weighted_choice([(2, 35), (3, 15), (0, 15)])
-                    await self.add_xp(explorer, xp_gained)
-                    await self.add_isk(explorer, isk)
-                    await self.update_journal(explorer, isk, 'Exploration')
+                    xp_gained = await weighted_choice([(2, 35), (3, 15), (0, 15)])
+                    await add_xp(explorer, xp_gained)
+                    await add_isk(explorer, isk)
+                    await update_journal(explorer, isk, 'Exploration')
                     await player.send(
                         '**Success** Site succesfully hacked for {} ISK, hunting for a new site.'.format(isk))
                     await self.pve_loot(explorer, loot_chance)
@@ -677,7 +794,7 @@ class EveRpg:
         elif region_security == 'Low':
             npc = await game_functions.get_npc(1)
         else:
-            officer = await self.weighted_choice([(True, 1), (False, 750)])
+            officer = await weighted_choice([(True, 1), (False, 750)])
             if officer is False:
                 npc = await game_functions.get_npc(2)
             else:
@@ -705,7 +822,8 @@ class EveRpg:
         round_counter = 1
         for x in range(125):
             npc_damage = round(random.triangular(minimum_npc_damage, maximum_npc_damage, npc_triangular_medium), 3)
-            player_damage = round(random.triangular(minimum_player_damage, maximum_player_damage, player_triangular_medium), 3)
+            player_damage = round(
+                random.triangular(minimum_player_damage, maximum_player_damage, player_triangular_medium), 3)
             if round_counter % 2 == 0:
                 aggressor = False
             else:
@@ -736,15 +854,15 @@ class EveRpg:
             if npc_hits <= 0:
                 for player in payout_array:
                     await game_functions.track_npc_kills(region_id)
-                    await self.add_xp(player, random.randint(2, 10))
-                    await self.add_isk(player, int(float((npc['isk'] * isk_multi))) / len(payout_array))
-                    await self.update_journal(player, int(float((npc['isk'] * isk_multi))) / len(payout_array),
+                    await add_xp(player, random.randint(2, 10))
+                    await add_isk(player, int(float((npc['isk'] * isk_multi))) / len(payout_array))
+                    await update_journal(player, int(float((npc['isk'] * isk_multi))) / len(payout_array),
                                               '{} - {}'.format(player_task, npc['name']))
                 if officer is True:
                     await self.pve_loot(player, 1, False, True)
                 return
             if player_hits < ship['hit_points']:
-                escape = await self.weighted_choice([(True, escape_chance), (False, 100 - escape_chance)])
+                escape = await weighted_choice([(True, escape_chance), (False, 100 - escape_chance)])
                 if escape is True:
                     await player_user.send(
                         '**PVE ESCAPE** - Combat between you and a {}, they nearly killed your {} but you '
@@ -798,8 +916,9 @@ class EveRpg:
                               "Total ISK Lost: {} ISK\n\n"
                               "__**Final Blow**__\n"
                               "**{}**\n\n".format(region_name, loser_name, ship['name'], player_task,
-                                                  loser_modules, cargo_modules, '{0:,.2f}'.format(float(module_value)), npc['name']))
-        await self.add_loss(player)
+                                                  loser_modules, cargo_modules, '{0:,.2f}'.format(float(module_value)),
+                                                  npc['name']))
+        await add_loss(player)
         await player_user.send(embed=embed)
         if ship['class'] != 0:
             await self.send_global(embed, True)
@@ -850,7 +969,7 @@ class EveRpg:
                         target_aggression = 20
                     elif roamer[6] == 35 and target[6] == 11:
                         target_aggression = 20
-                    conflict = await self.weighted_choice([(True, target_aggression), (None, 100 - target_aggression)])
+                    conflict = await weighted_choice([(True, target_aggression), (None, 100 - target_aggression)])
                     if conflict is None:
                         break
                     elif conflict is True:
@@ -909,7 +1028,7 @@ class EveRpg:
                 target_aggression = 5
                 if int(target[6]) == 9:
                     target_aggression = 2
-                conflict = await self.weighted_choice([(True, target_aggression), (False, 65), (None, 45)])
+                conflict = await weighted_choice([(True, target_aggression), (False, 65), (None, 45)])
                 if conflict is None:
                     break
                 elif conflict is True:
@@ -942,7 +1061,7 @@ class EveRpg:
                                 '**PVP** - {} attempted to gank you but Concord arrived in time to prevent it.'.format(
                                     ganker_user.display_name))
                             break
-                        combat = await self.weighted_choice([(ganker, ganker_weight), (target, target_weight)])
+                        combat = await weighted_choice([(ganker, ganker_weight), (target, target_weight)])
                         if combat == ganker:
                             target_hits -= 1
                         else:
@@ -963,7 +1082,7 @@ class EveRpg:
                             modules = ast.literal_eval(target[12])
                             for module in modules:
                                 module_item = await game_functions.get_module(module)
-                                dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                                dropped = await weighted_choice([(True, 50), (False, 50)])
                                 module_drop = ''
                                 module_value += module_item['isk']
                                 if dropped is True:
@@ -1004,7 +1123,7 @@ class EveRpg:
                         modules = ast.literal_eval(target[12])
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            dropped = await weighted_choice([(True, 50), (False, 50)])
                             module_drop = ''
                             module_value += module_item['isk']
                             if dropped is True:
@@ -1062,7 +1181,7 @@ class EveRpg:
         defender_fleet = [defender]
         merged_fleet = [attacker, defender]
         for fleet_member in merged_fleet:
-            await self.add_combat_timer(fleet_member)
+            await add_combat_timer(fleet_member)
         damaged_ships = {}
         for x in range(125):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
@@ -1098,7 +1217,8 @@ class EveRpg:
                 minimum_attacker_damage = (attacker_attack * transversal)
                 maximum_attacker_damage = attacker_attack
                 attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
-                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
+                damage = round(
+                    random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1122,13 +1242,14 @@ class EveRpg:
                 if hit_points > 0:
                     if target[0] in damaged_ships:
                         attackers = list(set(damaged_ships[target[0]]['attackers'].append(attacker[0])))
-                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense, 'attackers': attackers}
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
+                                                    'attackers': attackers}
                     else:
                         damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
                                                     'attackers': [attacker[0]]}
                     # if badly damage target will attempt to flee
                     if defense < target_defense * 0.15:
-                        flee = await self.weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
+                        flee = await weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
                         if flee is True:
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
@@ -1142,7 +1263,7 @@ class EveRpg:
                             for module in modules:
                                 module_item = await game_functions.get_module(module)
                                 if module_item['id'] == 40 or module_item['id'] == 41:
-                                    escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                    escape = await weighted_choice([(True, 50), (False, 50)])
                                     if escape is True:
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
@@ -1176,7 +1297,7 @@ class EveRpg:
                         modules = ast.literal_eval(target[12])
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            dropped = await weighted_choice([(True, 50), (False, 50)])
                             module_drop = ''
                             module_value += module_item['isk']
                             if dropped is True:
@@ -1189,7 +1310,7 @@ class EveRpg:
                         modules = loser_ship_obj['module_cargo_bay']
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            dropped = await weighted_choice([(True, 50), (False, 50)])
                             module_drop = ''
                             module_value += module_item['isk']
                             if dropped is True:
@@ -1198,7 +1319,7 @@ class EveRpg:
                             loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
                         cargo_module_list = '\n'.join(cargo_modules_array)
                         cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
-                    xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                    xp_gained = await weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
                     if target not in attacker_fleet:
                         defender_fleet.remove(target)
@@ -1224,9 +1345,9 @@ class EveRpg:
                     await game_functions.track_player_kills(region)
                     await self.send_global(embed, True)
                     await self.destroy_ship(target)
-                    await self.add_loss(target)
-                    await self.add_kill(killing_blow, dropped_mods)
-                    await self.add_xp(killing_blow, xp_gained)
+                    await add_loss(target)
+                    await add_kill(killing_blow, dropped_mods)
+                    await add_xp(killing_blow, xp_gained)
                     await self.give_pvp_loot(killing_blow)
 
     async def fleet_versus_fleet(self, fleet_one, fleet_two, region, damaged=None):
@@ -1274,7 +1395,7 @@ class EveRpg:
         # Give all participants a combat timer
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
-            await self.add_combat_timer(fleet_member)
+            await add_combat_timer(fleet_member)
         damaged_ships = {}
         if damaged is not None:
             damaged_ships = damaged
@@ -1314,7 +1435,8 @@ class EveRpg:
                 minimum_attacker_damage = (attacker_attack * transversal)
                 maximum_attacker_damage = attacker_attack
                 attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
-                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
+                damage = round(
+                    random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1350,7 +1472,7 @@ class EveRpg:
                                                     'attackers': [attacker[0]]}
                     # if badly damage target will attempt to flee
                     if defense < target_defense * 0.15:
-                        flee = await self.weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
+                        flee = await weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
                         if flee is True:
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
@@ -1364,7 +1486,7 @@ class EveRpg:
                             for module in modules:
                                 module_item = await game_functions.get_module(module)
                                 if module_item['id'] == 40 or module_item['id'] == 41:
-                                    escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                    escape = await weighted_choice([(True, 50), (False, 50)])
                                     if escape is True:
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
@@ -1416,7 +1538,7 @@ class EveRpg:
                         modules = ast.literal_eval(target[12])
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            dropped = await weighted_choice([(True, 50), (False, 50)])
                             module_drop = ''
                             module_value += module_item['isk']
                             if dropped is True:
@@ -1429,7 +1551,7 @@ class EveRpg:
                         modules = loser_ship_obj['module_cargo_bay']
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            dropped = await weighted_choice([(True, 50), (False, 50)])
                             module_drop = ''
                             module_value += module_item['isk']
                             if dropped is True:
@@ -1438,7 +1560,7 @@ class EveRpg:
                             loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
                         cargo_module_list = '\n'.join(cargo_modules_array)
                         cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
-                    xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                    xp_gained = await weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
                     if target not in attacker_fleet:
                         defender_fleet.remove(target)
@@ -1469,18 +1591,21 @@ class EveRpg:
                     await game_functions.track_player_kills(region)
                     await self.send_global(embed, True)
                     await self.destroy_ship(target)
-                    await self.add_loss(target)
-                    await self.add_kill(killing_blow, dropped_mods)
-                    await self.add_xp(killing_blow, xp_gained)
+                    await add_loss(target)
+                    await add_kill(killing_blow, dropped_mods)
+                    await add_xp(killing_blow, xp_gained)
                     await self.give_pvp_loot(killing_blow)
                     dropped_mods = []
                     for user in other_users:
-                        await self.add_kill(user, dropped_mods)
-                        await self.add_xp(user, xp_gained)
+                        await add_kill(user, dropped_mods)
+                        await add_xp(user, xp_gained)
             if len(merged_fleet) == 0:
                 break
         ongoing_text = ''
-        self.logger('Fight lasted {} rounds. Fleet 1 lost {} ships and took {} damage. Fleet 2 lost {} ships and took {} damage'.format(fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost), attacker_damage_dealt))
+        self.logger(
+            'Fight lasted {} rounds. Fleet 1 lost {} ships and took {} damage. Fleet 2 lost {} ships and took {} damage'.format(
+                fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost),
+                attacker_damage_dealt))
         if len(attacker_fleet) > 0 and len(defender_fleet) > 0:
             ongoing_text = '\n\n**This Battle Is Still Ongoing**'
             self.ongoing_fleet_fights[region] = {'attacker': attacker_fleet, 'defender': defender_fleet,
@@ -1597,7 +1722,7 @@ class EveRpg:
         # Give all participants a combat timer
         merged_fleet = attacker_fleet + defender_fleet
         for fleet_member in merged_fleet:
-            await self.add_combat_timer(fleet_member)
+            await add_combat_timer(fleet_member)
         damaged_ships = {}
         fight_round = 0
         for x in range(125):
@@ -1635,7 +1760,8 @@ class EveRpg:
                 minimum_attacker_damage = (attacker_attack * transversal)
                 maximum_attacker_damage = attacker_attack
                 attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
-                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
+                damage = round(
+                    random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1671,7 +1797,7 @@ class EveRpg:
                                                     'attackers': [attacker[0]]}
                     # if badly damage target will attempt to flee
                     if defense < target_defense * 0.15:
-                        flee = await self.weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
+                        flee = await weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
                         if flee is True:
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
@@ -1685,7 +1811,7 @@ class EveRpg:
                             for module in modules:
                                 module_item = await game_functions.get_module(module)
                                 if module_item['id'] == 40 or module_item['id'] == 41:
-                                    escape = await self.weighted_choice([(True, 50), (False, 50)])
+                                    escape = await weighted_choice([(True, 50), (False, 50)])
                                     if escape is True:
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
@@ -1737,7 +1863,7 @@ class EveRpg:
                         modules = ast.literal_eval(target[12])
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            dropped = await weighted_choice([(True, 50), (False, 50)])
                             module_drop = ''
                             module_value += module_item['isk']
                             if dropped is True:
@@ -1750,7 +1876,7 @@ class EveRpg:
                         modules = loser_ship_obj['module_cargo_bay']
                         for module in modules:
                             module_item = await game_functions.get_module(module)
-                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            dropped = await weighted_choice([(True, 50), (False, 50)])
                             module_drop = ''
                             module_value += module_item['isk']
                             if dropped is True:
@@ -1759,7 +1885,7 @@ class EveRpg:
                             loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
                         cargo_module_list = '\n'.join(cargo_modules_array)
                         cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
-                    xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
+                    xp_gained = await weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
                     if target not in attacker_fleet:
                         defender_fleet.remove(target)
@@ -1790,17 +1916,20 @@ class EveRpg:
                     await game_functions.track_player_kills(region)
                     await self.send_global(embed, True)
                     await self.destroy_ship(target)
-                    await self.add_loss(target)
-                    await self.add_kill(killing_blow, dropped_mods)
-                    await self.add_xp(killing_blow, xp_gained)
+                    await add_loss(target)
+                    await add_kill(killing_blow, dropped_mods)
+                    await add_xp(killing_blow, xp_gained)
                     await self.give_pvp_loot(killing_blow)
                     dropped_mods = []
                     for user in other_users:
-                        await self.add_kill(user, dropped_mods)
-                        await self.add_xp(user, xp_gained)
+                        await add_kill(user, dropped_mods)
+                        await add_xp(user, xp_gained)
             if len(merged_fleet) == 0:
                 break
-        self.logger('Fight lasted {} rounds. Fleet lost {} ships and took {} damage. Player lost {} ships and took {} damage'.format(fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost), attacker_damage_dealt))
+        self.logger(
+            'Fight lasted {} rounds. Fleet lost {} ships and took {} damage. Player lost {} ships and took {} damage'.format(
+                fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost),
+                attacker_damage_dealt))
         ongoing_text = ''
         if len(attacker_fleet) > 0 and len(defender_fleet) > 0:
             ongoing_text = '\n\n**This Battle Is Still Ongoing**'
@@ -1884,16 +2013,6 @@ class EveRpg:
                 await user.send(embed=embed)
             await self.send_global(embed, True)
 
-    async def weighted_choice(self, items):
-        """items is a list of tuples in the form (item, weight)"""
-        weight_total = sum((item[1] for item in items))
-        n = random.uniform(0, weight_total)
-        for item, weight in items:
-            if n < weight:
-                return item
-            n = n - weight
-        return item
-
     async def send_global(self, message, embed=False):
         sql = "SELECT * FROM eve_rpg_channels"
         game_channels = await db.select(sql)
@@ -1920,91 +2039,6 @@ class EveRpg:
         values = (channel_id,)
         await db.execute_sql(sql, values)
         return self.logger.info('eve_rpg - Bad Channel removed successfully')
-
-    async def add_xp(self, player, xp_gained):
-        player = await game_functions.refresh_player(player)
-        if player[9] + xp_gained < 100 * player[8]:
-            sql = ''' UPDATE eve_rpg_players
-                    SET xp = (?)
-                    WHERE
-                        player_id = (?); '''
-            values = (player[9] + xp_gained, player[2],)
-        else:
-            sql = ''' UPDATE eve_rpg_players
-                    SET level = (?),
-                        xp = (?)
-                    WHERE
-                        player_id = (?); '''
-            values = (player[8] + 1, 0, player[2],)
-        return await db.execute_sql(sql, values)
-
-    async def add_isk(self, player, isk):
-        player = await game_functions.refresh_player(player)
-        sql = ''' UPDATE eve_rpg_players
-                SET isk = (?)
-                WHERE
-                    player_id = (?); '''
-        values = (int(player[5]) + isk, player[2],)
-        return await db.execute_sql(sql, values)
-
-    async def update_journal(self, player, isk, entry):
-        player = await game_functions.refresh_player(player)
-        utc = datetime.datetime.utcnow()
-        time = utc.strftime("%H:%M:%S")
-        if player[20] is not None:
-            journal = ast.literal_eval(player[20])
-            if len(journal) == 10:
-                journal.pop(0)
-            transaction = {'isk': isk, 'type': entry, 'time': time}
-            journal.append(transaction)
-        else:
-            transaction = {'isk': isk, 'type': entry, 'time': time}
-            journal = [transaction]
-        sql = ''' UPDATE eve_rpg_players
-                SET wallet_journal = (?)
-                WHERE
-                    player_id = (?); '''
-        values = (str(journal), player[2],)
-        return await db.execute_sql(sql, values)
-
-    async def add_kill(self, player, mods):
-        player = await game_functions.refresh_player(player)
-        sql = ''' UPDATE eve_rpg_players
-                SET kills=?,
-                    ship=?
-                WHERE
-                    player_id=?; '''
-        killer_ship = ast.literal_eval(player[14])
-        if 'kill_marks' not in killer_ship:
-            killer_ship['kill_marks'] = 1
-        else:
-            killer_ship['kill_marks'] += 1
-        if mods is not None:
-            for mod in mods:
-                if 'module_cargo_bay' in killer_ship:
-                    killer_ship['module_cargo_bay'].append(mod)
-                else:
-                    killer_ship['module_cargo_bay'] = [mod]
-        values = (int(player[10]) + 1, str(killer_ship), player[2],)
-        return await db.execute_sql(sql, values)
-
-    async def add_loss(self, player):
-        player = await game_functions.refresh_player(player)
-        sql = ''' UPDATE eve_rpg_players
-                SET losses = (?)
-                WHERE
-                    player_id = (?); '''
-        values = (int(player[11]) + 1, player[2],)
-        return await db.execute_sql(sql, values)
-
-    async def add_combat_timer(self, player):
-        player = await game_functions.refresh_player(player)
-        sql = ''' UPDATE eve_rpg_players
-                SET combat_timer = (?)
-                WHERE
-                    player_id = (?); '''
-        values = (5, player[2],)
-        return await db.execute_sql(sql, values)
 
     async def destroy_ship(self, player):
         player = await game_functions.refresh_player(player)
@@ -2049,36 +2083,20 @@ class EveRpg:
                         player_id = (?); '''
             new_isk = float(player[5]) + float(lost_ship['insurance_payout'])
             values = (int(float(new_isk)), player[2],)
-            await self.update_journal(player, lost_ship['insurance_payout'], 'Received Insurance')
+            await update_journal(player, lost_ship['insurance_payout'], 'Received Insurance')
             return await db.execute_sql(sql, values)
-
-    async def give_mod(self, player, mods):
-        player = await game_functions.refresh_player(player)
-        ship = ast.literal_eval(player[14])
-        for mod in mods:
-            if 'module_cargo_bay' in ship:
-                ship['module_cargo_bay'].append(mod)
-            else:
-                ship['module_cargo_bay'] = [mod]
-        new_ship = str(ship)
-        sql = ''' UPDATE eve_rpg_players
-                SET ship = (?)
-                WHERE
-                    player_id = (?); '''
-        values = (new_ship, player[2],)
-        return await db.execute_sql(sql, values)
 
     async def give_pvp_loot(self, player):
         player = await game_functions.refresh_player(player)
         ship = ast.literal_eval(player[14])
         tier_1_amount = random.randint(1, 50)
-        tier_1 = await self.weighted_choice([(True, 90), (False, 10)])
+        tier_1 = await weighted_choice([(True, 90), (False, 10)])
         tier_1_text = ''
         tier_2_amount = random.randint(1, 10)
-        tier_2 = await self.weighted_choice([(True, 55), (False, 45)])
+        tier_2 = await weighted_choice([(True, 55), (False, 45)])
         tier_2_text = ''
         tier_3_amount = random.randint(1, 3)
-        tier_3 = await self.weighted_choice([(True, 5), (False, 95)])
+        tier_3 = await weighted_choice([(True, 5), (False, 95)])
         tier_3_text = ''
         if 'component_cargo_bay' in ship:
             loot = ship['component_cargo_bay']
@@ -2092,14 +2110,14 @@ class EveRpg:
             tier_1_text = '{}x {}\n'.format(tier_1_amount, component['name'])
         if tier_2 is True:
             loot_id = await game_functions.create_unique_id()
-            loot_type = await self.weighted_choice([(2, 35), (3, 65)])
+            loot_type = await weighted_choice([(2, 35), (3, 65)])
             component = await game_functions.get_component(loot_type)
             tier_2_loot = {'type_id': loot_type, 'id': loot_id, 'amount': tier_2_amount}
             loot.append(tier_2_loot)
             tier_2_text = '{}x {}\n'.format(tier_2_amount, component['name'])
         if tier_3 is True:
             loot_id = await game_functions.create_unique_id()
-            loot_type = await self.weighted_choice([(4, 65), (5, 35)])
+            loot_type = await weighted_choice([(4, 65), (5, 35)])
             component = await game_functions.get_component(loot_type)
             tier_3_loot = {'type_id': loot_type, 'id': loot_id, 'amount': tier_3_amount}
             loot.append(tier_3_loot)
@@ -2120,11 +2138,11 @@ class EveRpg:
 
     async def pve_loot(self, player, chance, overseer=False, officer=False):
         false = 200 - int(chance)
-        loot_drop = await self.weighted_choice([(True, chance), (False, false)])
+        loot_drop = await weighted_choice([(True, chance), (False, false)])
         if loot_drop is True or officer is True:
             player = await game_functions.refresh_player(player)
             ship = ast.literal_eval(player[14])
-            loot_type = await self.weighted_choice([(200, 25), (201, 25), (202, 25), (203, 25), (204, 25)])
+            loot_type = await weighted_choice([(200, 25), (201, 25), (202, 25), (203, 25), (204, 25)])
             item = await game_functions.get_module(loot_type)
             if 'module_cargo_bay' in ship:
                 loot = ship['module_cargo_bay']
@@ -2144,7 +2162,7 @@ class EveRpg:
         if overseer is True:
             player = await game_functions.refresh_player(player)
             ship = ast.literal_eval(player[14])
-            loot_type = await self.weighted_choice([(205, 50), (206, 25), (207, 10), (208, 5)])
+            loot_type = await weighted_choice([(205, 50), (206, 25), (207, 10), (208, 5)])
             item = await game_functions.get_module(loot_type)
             if 'module_cargo_bay' in ship:
                 loot = ship['module_cargo_bay']
