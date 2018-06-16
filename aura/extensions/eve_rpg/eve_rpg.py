@@ -1063,6 +1063,7 @@ class EveRpg:
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             merged_fleet = attacker_fleet + defender_fleet
+            on_field = attacker_fleet + defender_fleet
             for attacker in random.shuffle(merged_fleet):
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1070,7 +1071,7 @@ class EveRpg:
                     await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
                 target = None
                 target_ship_details = None
-                for target in random.shuffle(merged_fleet):
+                for target in random.shuffle(on_field):
                     # if in same fleet find new target
                     if target == attacker or ((target in attacker_fleet and attacker in attacker_fleet) or (
                             target in defender_fleet and attacker in defender_fleet)):
@@ -1255,6 +1256,7 @@ class EveRpg:
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             merged_fleet = attacker_fleet + defender_fleet
+            on_field = attacker_fleet + defender_fleet
             for attacker in random.shuffle(merged_fleet):
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1262,7 +1264,7 @@ class EveRpg:
                     await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
                 target = None
                 target_ship_details = None
-                for target in random.shuffle(merged_fleet):
+                for target in random.shuffle(on_field):
                     # if in same fleet find new target
                     if target == attacker or ((target in attacker_fleet and attacker in attacker_fleet) or (
                             target in defender_fleet and attacker in defender_fleet)):
@@ -1550,6 +1552,7 @@ class EveRpg:
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             merged_fleet = attacker_fleet + defender_fleet
+            on_field = attacker_fleet + defender_fleet
             for attacker in random.shuffle(merged_fleet):
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1557,7 +1560,7 @@ class EveRpg:
                     await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
                 target = None
                 target_ship_details = None
-                for target in random.shuffle(merged_fleet):
+                for target in random.shuffle(on_field):
                     # if in same fleet find new target
                     if target == attacker or ((target in attacker_fleet and attacker in attacker_fleet) or (
                             target in defender_fleet and attacker in defender_fleet)):
