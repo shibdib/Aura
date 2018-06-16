@@ -1063,9 +1063,9 @@ class EveRpg:
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             merged_fleet = attacker_fleet + defender_fleet
-            merged_fleet = random.shuffle(merged_fleet)
+            random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
-            on_field = random.shuffle(on_field)
+            random.shuffle(on_field)
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1210,6 +1210,7 @@ class EveRpg:
 
     async def fleet_versus_fleet(self, fleet_one, fleet_two, region, damaged=None):
         region_name = await game_functions.get_region(int(region))
+        self.logger('Fleet vs. Fleet Battle in {}'.format(region_name))
         # Fleet stuff
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
@@ -1227,6 +1228,7 @@ class EveRpg:
                 continue
             attacker_fleet.append(member[0])
             attackers_in_system += 1
+        saved_attacker_fleet = attacker_fleet
         attacker_count = len(attacker_fleet)
         defender_fleet_array = ast.literal_eval(fleet_two[3])
         defender_fleet = []
@@ -1244,6 +1246,7 @@ class EveRpg:
                 continue
             defender_fleet.append(member[0])
             defenders_in_system += 1
+        saved_defender_fleet = defender_fleet
         defender_count = len(defender_fleet)
         if attackers_in_system == 0 or defenders_in_system == 0:
             return
@@ -1254,13 +1257,15 @@ class EveRpg:
         damaged_ships = {}
         if damaged is not None:
             damaged_ships = damaged
+        fight_round = 0
         for x in range(125):
+            fight_round += 1
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             merged_fleet = attacker_fleet + defender_fleet
-            merged_fleet = random.shuffle(merged_fleet)
+            random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
-            on_field = random.shuffle(on_field)
+            random.shuffle(on_field)
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1305,7 +1310,7 @@ class EveRpg:
                 else:
                     hit_points -= damage
                 # log damage done for BR
-                if attacker not in attacker_fleet:
+                if attacker in attacker_fleet:
                     attacker_damage_dealt += damage
                 else:
                     defender_damage_dealt += damage
@@ -1435,7 +1440,10 @@ class EveRpg:
                     for user in other_users:
                         await self.add_kill(user, dropped_mods)
                         await self.add_xp(user, xp_gained)
+            if len(merged_fleet) == 0:
+                break
         ongoing_text = ''
+        self.logger('Fight lasted {} rounds. Fleet 1 lost {} ships and took {} damage. Fleet 2 lost {} ships and took {} damage'.format(fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost), attacker_damage_dealt))
         if len(attacker_fleet) > 0 and len(defender_fleet) > 0:
             ongoing_text = '\n\n**This Battle Is Still Ongoing**'
             self.ongoing_fleet_fights[region] = {'attacker': attacker_fleet, 'defender': defender_fleet,
@@ -1467,10 +1475,10 @@ class EveRpg:
                             inline=False)
             fleet_one_members_array = []
             counter = 0
-            for member in attacker_fleet:
+            for member in saved_attacker_fleet:
                 member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                name = self.bot.get_user(int(member[2])).display_name
                 if member in defender_fleet_lost:
                     fleet_one_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
                 else:
@@ -1495,10 +1503,10 @@ class EveRpg:
                             inline=False)
             fleet_two_members_array = []
             counter = 0
-            for member in defender_fleet:
+            for member in saved_defender_fleet:
                 member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                name = self.bot.get_user(int(member[2])).display_name
                 if member in defender_fleet_lost:
                     fleet_two_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
                 else:
@@ -1520,13 +1528,14 @@ class EveRpg:
 
     async def fleet_versus_player(self, fleet_one, player, region):
         region_name = await game_functions.get_region(int(region))
+        self.logger('Fleet vs. Player Battle in {}'.format(region_name))
         # Fleet stuff
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
+        saved_attacker_fleet = []
         attacker_fleet_lost = []
         attacker_isk_lost = 0
         attacker_damage_dealt = 0
-        f_id = []
         attackers_in_system = 0
         for member_id in attacker_fleet_array:
             sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
@@ -1536,13 +1545,14 @@ class EveRpg:
                 continue
             if member[0][6] == 1 or member[0][6] == 20:
                 continue
-            f_id.append(member[0][0])
+            saved_attacker_fleet.append(member[0])
             attacker_fleet.append(member[0])
             attackers_in_system += 1
         if attackers_in_system == 0:
             return
         attacker_count = len(attacker_fleet)
         defender_fleet = [player]
+        saved_defender_fleet = [player]
         defender_count = len(defender_fleet)
         defender_fleet_lost = []
         defender_isk_lost = 0
@@ -1552,13 +1562,15 @@ class EveRpg:
         for fleet_member in merged_fleet:
             await self.add_combat_timer(fleet_member)
         damaged_ships = {}
+        fight_round = 0
         for x in range(125):
+            fight_round += 1
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
             merged_fleet = attacker_fleet + defender_fleet
-            merged_fleet = random.shuffle(merged_fleet)
+            random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
-            on_field = random.shuffle(on_field)
+            random.shuffle(on_field)
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1603,7 +1615,7 @@ class EveRpg:
                 else:
                     hit_points -= damage
                 # log damage done for BR
-                if attacker not in attacker_fleet:
+                if attacker in attacker_fleet:
                     attacker_damage_dealt += damage
                 else:
                     defender_damage_dealt += damage
@@ -1733,6 +1745,9 @@ class EveRpg:
                     for user in other_users:
                         await self.add_kill(user, dropped_mods)
                         await self.add_xp(user, xp_gained)
+            if len(merged_fleet) == 0:
+                break
+        self.logger('Fight lasted {} rounds. Fleet lost {} ships and took {} damage. Player lost {} ships and took {} damage'.format(fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost), attacker_damage_dealt))
         ongoing_text = ''
         if len(attacker_fleet) > 0 and len(defender_fleet) > 0:
             ongoing_text = '\n\n**This Battle Is Still Ongoing**'
@@ -1765,10 +1780,10 @@ class EveRpg:
                             inline=False)
             fleet_one_members_array = []
             counter = 0
-            for member in attacker_fleet:
+            for member in saved_attacker_fleet:
                 member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                name = self.bot.get_user(int(member[2])).display_name
                 if member in defender_fleet_lost:
                     fleet_one_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
                 else:
@@ -1793,10 +1808,10 @@ class EveRpg:
                             inline=False)
             fleet_two_members_array = []
             counter = 0
-            for member in defender_fleet:
+            for member in saved_defender_fleet:
                 member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
-                name = self.bot.get_user(int(defender_fleet[2])).display_name
+                name = self.bot.get_user(int(member[2])).display_name
                 if member in defender_fleet_lost:
                     fleet_two_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
                 else:
