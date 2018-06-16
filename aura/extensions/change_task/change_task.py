@@ -117,6 +117,8 @@ class ChangeTask:
                 return await ctx.invoke(self.bot.get_command("me"), True)
             else:
                 return
+        elif content == '8':
+            return await ctx.invoke(self.bot.get_command("explore"))
         elif content == '5':
             return await ctx.invoke(self.bot.get_command("fleet"))
         elif content == '2' and int(content) in accepted:

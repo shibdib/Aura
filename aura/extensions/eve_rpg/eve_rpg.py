@@ -185,7 +185,6 @@ class EveRpg:
                 asyncio.ensure_future(process_region_stats())
                 asyncio.ensure_future(self.process_belt_ratting())
                 asyncio.ensure_future(self.process_missions())
-                asyncio.ensure_future(self.process_exploration())
                 asyncio.ensure_future(self.process_belt_mining())
                 asyncio.ensure_future(self.process_anomaly_mining())
                 asyncio.ensure_future(self.process_anomaly_ratting())
