@@ -112,7 +112,7 @@ class Exploration:
         find_sites = await weighted_choice([(True, 60), (False, 40)])
         if find_sites is False:
             await ctx.author.send('**No Sites Found** - Failed to find any sites, try again.')
-            return await ctx.invoke(self.bot.get_command("task"), True)
+            return await ctx.invoke(self.bot.get_command("task"))
         else:
             player = self.bot.get_user(explorer[2])
             embed = make_embed(icon=self.bot.user.avatar)

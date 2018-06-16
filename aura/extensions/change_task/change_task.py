@@ -34,6 +34,9 @@ class ChangeTask:
         if player[0][6] == 20:
             await ctx.author.send('**ERROR** - You need to finish traveling first.')
             return await ctx.invoke(self.bot.get_command("me"), True)
+        dock_text = "**1.** Dock in current region.\n"
+        if player[0][6] is 1:
+            dock_text = "**1.** Un-dock in your current region.\n"
         region_id = int(player[0][4])
         region_security = await game_functions.get_region_security(region_id)
         region_info = await game_functions.get_region_info(region_id)
@@ -70,7 +73,7 @@ class ChangeTask:
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}{}\n\n"
                                   "**Dock**\n"
-                                  "**1.** Dock in current region.\n"
+                                  "{}"
                                   "**PVP Tasks**\n"
                                   "**2.** Hunt for players.\n"
                                   "**3.** Camp a gate in your current region.\n"
@@ -81,7 +84,7 @@ class ChangeTask:
                                   "{}"
                                   "**Mining Tasks**\n"
                                   "**10.** Mine an asteroid belt.\n"
-                                  "{}".format(current_task, mission_destination, fleet_task,
+                                  "{}".format(current_task, mission_destination, dock_text, fleet_task,
                                               pirate_anomaly_text, mission_task, mining_anomaly_text))
             accepted = [1, 2, 3, 5, 6, 8, 9, 10]
             if pirate_anomaly is True:
@@ -92,7 +95,7 @@ class ChangeTask:
             embed.add_field(name="Change Task",
                             value="**Current Task** - {}{}\n\n"
                                   "**Dock**\n"
-                                  "**1.** Dock in current region.\n"
+                                  "{}"
                                   "**PVP Tasks**\n"
                                   "**4.** Try to gank someone.\n"
                                   "{}"
@@ -101,7 +104,7 @@ class ChangeTask:
                                   "**8.** Do some exploration and run sites in the system.\n"
                                   "{}"
                                   "**Mining Tasks**\n"
-                                  "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination, fleet_task,
+                                  "**10.** Mine an asteroid belt.\n".format(current_task, mission_destination, dock_text, fleet_task,
                                                                             mission_task))
             accepted = [1, 4, 6, 8, 9, 10]
         await ctx.author.send(embed=embed)
