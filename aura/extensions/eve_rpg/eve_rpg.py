@@ -171,7 +171,7 @@ class EveRpg:
         self.logger = bot.logger
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.tick_loop())
-        self.user_check_counter = 0
+        self.active_sites = 0
 
     async def tick_loop(self):
         await self.bot.wait_until_ready()
@@ -703,42 +703,42 @@ class EveRpg:
                                           "Your Hack Score: {}\n"
                                           "Hostile Hack Score: {}\n\n"
                                           "__Choose an action__\n"
-                                          "**1.** Brute Attack\n"
-                                          "**2.** Firewall\n"
-                                          "**3.** Trojan Attack\n".format(last_action, your_score, ai_score))
+                                          "**B.** Brute Attack\n"
+                                          "**F.** Firewall\n"
+                                          "**T.** Trojan Attack\n".format(last_action, your_score, ai_score))
                     await player.send(embed=embed)
 
                     def check(m):
                         return m.author == player and m.channel == player.dm_channel
 
                     msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-                    response = msg.content
-                    if int(response) != 1 and int(response) != 2 and int(response) != 3:
+                    response = msg.content.lower()
+                    if response != 'b' and response != 'f' and response != 't':
                         last_action = '**Last Action:** Incorrect Response\n'
                         ai_score += 1
                         continue
                     ai_action = await weighted_choice([('1', 33), ('2', 33), ('3', 33)])
-                    if response == '1' and ai_action != '2' and ai_action != response:
+                    if response == 'b' and ai_action != '2' and ai_action != response:
                         last_action = '**Last Action:** Brute Attack Successful\n'
                         your_score += 1
                         continue
-                    if response == '1' and ai_action == '2':
+                    if response == 'b' and ai_action == '2':
                         last_action = '**Last Action:** Brute Attack Stopped By Firewall\n'
                         ai_score += 1
                         continue
-                    if response == '2' and ai_action != '3' and ai_action != response:
+                    if response == 'f' and ai_action != '3' and ai_action != response:
                         last_action = '**Last Action:** Firewall Successful\n'
                         your_score += 1
                         continue
-                    if response == '2' and ai_action == '3':
+                    if response == 'f' and ai_action == '3':
                         last_action = '**Last Action:** Trojan Attack Countered Your Firewall\n'
                         ai_score += 1
                         continue
-                    if response == '3' and ai_action != '1' and ai_action != response:
+                    if response == 't' and ai_action != '1' and ai_action != response:
                         last_action = '**Last Action:** Trojan Attack Successful\n'
                         your_score += 1
                         continue
-                    if response == '3' and ai_action == '1':
+                    if response == 't' and ai_action == '1':
                         last_action = '**Last Action:** Brute Attack Overwhelmed Your Trojan Attack Attempt\n'
                         ai_score += 1
                         continue
