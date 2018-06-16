@@ -187,7 +187,7 @@ class Exploration:
                 await add_isk(explorer, isk)
                 await update_journal(explorer, isk, 'Exploration')
                 await player.send(
-                    '**Success** Site succesfully hacked for {} ISK, hunting for a new site.'.format(isk))
+                    '**Success** Site succesfully hacked for {} ISK, hunting for a new site.'.format('{0:,.2f}'.format(float(isk))))
                 await self.pve_loot(explorer, loot_chance)
             else:
                 await player.send('**Failure** The AI defeated you, looking for a new site.')
