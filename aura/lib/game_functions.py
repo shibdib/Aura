@@ -224,7 +224,7 @@ async def track_npc_kills(region):
     current_daily += 1
     sql = ''' UPDATE region_info
             SET npc_kills_hour = (?),
-                npc_kills_previous_day = (?)
+                npc_kills_day = (?)
             WHERE
                 region_id = (?); '''
     values = (current_hourly, current_daily, region,)
@@ -241,7 +241,7 @@ async def track_player_kills(region):
     current_daily += 1
     sql = ''' UPDATE region_info
             SET player_kills_hour = (?),
-                player_kills_previous_day = (?)
+                player_kills_day = (?)
             WHERE
                 region_id = (?); '''
     values = (current_hourly, current_daily, region,)
