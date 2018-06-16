@@ -111,13 +111,7 @@ class ChangeTask:
 
         msg = await self.bot.wait_for('message', check=check, timeout=120.0)
         content = msg.content
-        if content == '8':
-            await ctx.author.send('**Not Yet Implemented**')
-            if content.find('!!') == -1:
-                return await ctx.invoke(self.bot.get_command("me"), True)
-            else:
-                return
-        elif content == '5':
+        if content == '5':
             return await ctx.invoke(self.bot.get_command("fleet"))
         elif content == '2' and int(content) in accepted:
             await self.hunting_options(ctx, player[0])
