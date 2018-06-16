@@ -1245,7 +1245,7 @@ class EveRpg:
 
     async def fleet_versus_fleet(self, fleet_one, fleet_two, region, damaged=None):
         region_name = await game_functions.get_region(int(region))
-        self.logger('Fleet vs. Fleet Battle in {}'.format(region_name))
+        self.logger.info('Fleet vs. Fleet Battle in {}'.format(region_name))
         # Fleet stuff
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
@@ -1495,7 +1495,7 @@ class EveRpg:
             if len(merged_fleet) == 0:
                 break
         ongoing_text = ''
-        self.logger(
+        self.logger.info(
             'Fight lasted {} rounds. Fleet 1 lost {} ships and took {} damage. Fleet 2 lost {} ships and took {} damage'.format(
                 fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost),
                 attacker_damage_dealt))
@@ -1583,7 +1583,7 @@ class EveRpg:
 
     async def fleet_versus_player(self, fleet_one, player, region):
         region_name = await game_functions.get_region(int(region))
-        self.logger('Fleet vs. Player Battle in {}'.format(region_name))
+        self.logger.info('Fleet vs. Player Battle in {}'.format(region_name))
         # Fleet stuff
         attacker_fleet_array = ast.literal_eval(fleet_one[3])
         attacker_fleet = []
@@ -1819,7 +1819,7 @@ class EveRpg:
                         await add_xp(user, xp_gained)
             if len(merged_fleet) == 0:
                 break
-        self.logger(
+        self.logger.info(
             'Fight lasted {} rounds. Fleet lost {} ships and took {} damage. Player lost {} ships and took {} damage'.format(
                 fight_round, len(attacker_fleet_lost), defender_damage_dealt, len(defender_fleet_lost),
                 attacker_damage_dealt))
