@@ -1402,7 +1402,7 @@ class EveRpg:
                             if player[0][23] is not None:
                                 corp_info = await game_functions.get_user_corp(player[0][23])
                                 on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
-                            other_users.append(on_mail)
+                            other_users.append(player[0])
                             other_names.append('{}'.format(on_mail_name))
                     clean_names = '\n'.join(other_names)
                     if len(other_names) > 6:
@@ -1727,7 +1727,7 @@ class EveRpg:
                             if player[0][23] is not None:
                                 corp_info = await game_functions.get_user_corp(player[0][23])
                                 on_mail_name = '{} [{}]'.format(on_mail_name, corp_info[4])
-                            other_users.append(on_mail)
+                            other_users.append(player[0])
                             other_names.append('{}'.format(on_mail_name))
                     clean_names = '\n'.join(other_names)
                     if len(other_names) > 6:
