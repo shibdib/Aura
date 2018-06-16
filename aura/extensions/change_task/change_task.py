@@ -133,6 +133,8 @@ class ChangeTask:
                 return await ctx.author.send(
                     '**ERROR** - Your hostile actions have forced us to deny docking access for'
                     ' approximately {} more seconds.'.format(player[0][25] * 12))
+            if player[0][6] is 1 and content == '1':
+                content = '21'
             sql = ''' UPDATE eve_rpg_players
                     SET task = (?)
                     WHERE
