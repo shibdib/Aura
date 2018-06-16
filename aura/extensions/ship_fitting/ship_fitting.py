@@ -121,6 +121,10 @@ class ShipFitting:
             if player[0][4] in module_hangar:
                 stored_modules_array = []
                 for item in module_hangar[player[0][4]]:
+                    if module_number >= 35:
+                        embed.add_field(name="{} Module/Drone Hangar".format(region_name),
+                                        value='Maximum Hangar Size Reached')
+                        break
                     module = await game_functions.get_module(int(item))
                     if 'no_fit' in module:
                         continue
