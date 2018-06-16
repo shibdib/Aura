@@ -1292,6 +1292,7 @@ class EveRpg:
         damaged_ships = {}
         if damaged is not None:
             damaged_ships = damaged
+        flee_array = []
         fight_round = 0
         for x in range(125):
             fight_round += 1
@@ -1367,6 +1368,7 @@ class EveRpg:
                     if defense < target_defense * 0.15:
                         flee = await weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
                         if flee is True:
+                            flee_array.append(target[0])
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
                                 continue
@@ -1381,6 +1383,7 @@ class EveRpg:
                                 if module_item['id'] == 40 or module_item['id'] == 41:
                                     escape = await weighted_choice([(True, 50), (False, 50)])
                                     if escape is True:
+                                        flee_array.append(target[0])
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
                                             continue
@@ -1388,6 +1391,7 @@ class EveRpg:
                                             attacker_fleet.remove(target)
                                             continue
                 else:
+                    merged_fleet.remove(target)
                     killing_blow = attacker
                     other_names = []
                     other_users = []
@@ -1455,14 +1459,14 @@ class EveRpg:
                         cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
                     xp_gained = await weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
-                    if target not in attacker_fleet:
-                        defender_fleet.remove(target)
-                        defender_fleet_lost.append(target)
-                        defender_isk_lost += isk_lost
-                    else:
+                    if target in attacker_fleet:
                         attacker_fleet.remove(target)
                         attacker_fleet_lost.append(target)
                         attacker_isk_lost += isk_lost
+                    elif target in defender_fleet:
+                        defender_fleet.remove(target)
+                        defender_fleet_lost.append(target)
+                        defender_isk_lost += isk_lost
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
@@ -1534,8 +1538,10 @@ class EveRpg:
                 member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
                 name = self.bot.get_user(int(member[2])).display_name
-                if member in defender_fleet_lost:
+                if member in attacker_fleet_lost:
                     fleet_one_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                elif member[0] in flee_array:
+                    fleet_one_members_array.append('**Fled Battle** {} - *{}*'.format(name, ship_details['name']))
                 else:
                     fleet_one_members_array.append('{} - *{}*'.format(name, ship_details['name']))
                 if counter >= 10:
@@ -1564,6 +1570,8 @@ class EveRpg:
                 name = self.bot.get_user(int(member[2])).display_name
                 if member in defender_fleet_lost:
                     fleet_two_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                elif member[0] in flee_array:
+                    fleet_one_members_array.append('**Fled Battle** {} - *{}*'.format(name, ship_details['name']))
                 else:
                     fleet_two_members_array.append('{} - *{}*'.format(name, ship_details['name']))
                 if counter >= 10:
@@ -1617,6 +1625,7 @@ class EveRpg:
         for fleet_member in merged_fleet:
             await add_combat_timer(fleet_member)
         damaged_ships = {}
+        flee_array = []
         fight_round = 0
         for x in range(125):
             fight_round += 1
@@ -1692,6 +1701,7 @@ class EveRpg:
                     if defense < target_defense * 0.15:
                         flee = await weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
                         if flee is True:
+                            flee_array.append(target[0])
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
                                 continue
@@ -1706,6 +1716,7 @@ class EveRpg:
                                 if module_item['id'] == 40 or module_item['id'] == 41:
                                     escape = await weighted_choice([(True, 50), (False, 50)])
                                     if escape is True:
+                                        flee_array.append(target[0])
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
                                             continue
@@ -1713,6 +1724,7 @@ class EveRpg:
                                             attacker_fleet.remove(target)
                                             continue
                 else:
+                    merged_fleet.remove(target)
                     killing_blow = attacker
                     other_names = []
                     other_users = []
@@ -1780,14 +1792,14 @@ class EveRpg:
                         cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
                     xp_gained = await weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
-                    if target not in attacker_fleet:
-                        defender_fleet.remove(target)
-                        defender_fleet_lost.append(target)
-                        defender_isk_lost += isk_lost
-                    else:
+                    if target in attacker_fleet:
                         attacker_fleet.remove(target)
                         attacker_fleet_lost.append(target)
                         attacker_isk_lost += isk_lost
+                    elif target in defender_fleet:
+                        defender_fleet.remove(target)
+                        defender_fleet_lost.append(target)
+                        defender_isk_lost += isk_lost
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
@@ -1796,7 +1808,7 @@ class EveRpg:
                     embed.add_field(name="Killmail",
                                     value="**Region** - {}\n\n"
                                           "__**Loser**__\n"
-                                          "**{}** flying a {} was killed.{}\n\n"
+                                          "**{}** flying a {} was killed.{}{}\n\n"
                                           "Total ISK Lost: {} ISK\n\n"
                                           "__**Final Blow**__\n"
                                           "**{}** flying a {}.\n\n"
@@ -1859,8 +1871,10 @@ class EveRpg:
                 member_ship = ast.literal_eval(member[14])
                 ship_details = await game_functions.get_ship(member_ship['ship_type'])
                 name = self.bot.get_user(int(member[2])).display_name
-                if member in defender_fleet_lost:
+                if member in attacker_fleet_lost:
                     fleet_one_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                elif member[0] in flee_array:
+                    fleet_one_members_array.append('**Fled Battle** {} - *{}*'.format(name, ship_details['name']))
                 else:
                     fleet_one_members_array.append('{} - *{}*'.format(name, ship_details['name']))
                 if counter >= 10:
@@ -1889,6 +1903,8 @@ class EveRpg:
                 name = self.bot.get_user(int(member[2])).display_name
                 if member in defender_fleet_lost:
                     fleet_two_members_array.append('**Killed** {} - *{}*'.format(name, ship_details['name']))
+                elif member[0] in flee_array:
+                    fleet_two_members_array.append('**Fled Battle** {} - *{}*'.format(name, ship_details['name']))
                 else:
                     fleet_two_members_array.append('{} - *{}*'.format(name, ship_details['name']))
                 if counter >= 10:
