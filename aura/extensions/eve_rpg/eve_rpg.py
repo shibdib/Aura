@@ -645,6 +645,7 @@ class EveRpg:
         player_ship_info = await game_functions.get_ship(ship_id)
         player_attack, player_defense, player_maneuver, player_tracking = \
             await game_functions.get_combat_attributes(player, ship_id)
+        base_defense = player_defense
         payout_array = [player]
         if player[16] is not None and player[16] != 0:
             payout_array = []
@@ -693,16 +694,18 @@ class EveRpg:
             transversal = (npc_tracking + 1) / (player_maneuver * 0.75)
         minimum_npc_damage = (npc_attack * transversal)
         maximum_npc_damage = npc_attack
+        npc_triangular_medium = (maximum_npc_damage + minimum_npc_damage) / 4
         transversal = 1
         if (npc_maneuver * 0.75) > player_tracking + 1:
             transversal = (player_tracking + 1) / (npc_maneuver * 0.75)
         minimum_player_damage = (player_attack * transversal)
         maximum_player_damage = player_attack
+        player_triangular_medium = (minimum_player_damage + maximum_player_damage) / 4
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
         round_counter = 1
         for x in range(125):
-            npc_damage = round(random.triangular(minimum_npc_damage, maximum_npc_damage), 3)
-            player_damage = round(random.triangular(minimum_player_damage, maximum_player_damage), 3)
+            npc_damage = round(random.triangular(minimum_npc_damage, maximum_npc_damage, npc_triangular_medium), 3)
+            player_damage = round(random.triangular(minimum_player_damage, maximum_player_damage, player_triangular_medium), 3)
             if round_counter % 2 == 0:
                 aggressor = False
             else:
@@ -747,7 +750,9 @@ class EveRpg:
                         '**PVE ESCAPE** - Combat between you and a {}, they nearly killed your {} but you '
                         'managed to warp off.'.format(npc['name'], player_ship_info['name']))
                     return
-            player_defense + 1
+            player_defense + (base_defense * 0.10)
+            if player_defense > base_defense:
+                player_defense = base_defense
         if npc_hits > 0 and player_hits > 0:
             await player_user.send(
                 '**PVE DISENGAGE** - Combat between you and a {}, has ended in a draw. You ended the battle '
@@ -1082,7 +1087,8 @@ class EveRpg:
                     transversal = (attacker_tracking + 1) / (target_maneuver * 0.75)
                 minimum_attacker_damage = (attacker_attack * transversal)
                 maximum_attacker_damage = attacker_attack
-                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
+                attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
+                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1282,7 +1288,8 @@ class EveRpg:
                     transversal = (attacker_tracking + 1) / (target_maneuver * 0.75)
                 minimum_attacker_damage = (attacker_attack * transversal)
                 maximum_attacker_damage = attacker_attack
-                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
+                attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
+                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1587,7 +1594,8 @@ class EveRpg:
                     transversal = (attacker_tracking + 1) / (target_maneuver * 0.75)
                 minimum_attacker_damage = (attacker_attack * transversal)
                 maximum_attacker_damage = attacker_attack
-                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage), 3)
+                attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
+                damage = round(random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
