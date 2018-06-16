@@ -762,7 +762,9 @@ class EveRpg:
             return
         module_value = 0
         loser_modules = ''
+        cargo_modules = ''
         loser_modules_array = []
+        cargo_modules_array = []
         loser_name = player_user.display_name
         if player[23] is not None:
             corp_info = await game_functions.get_user_corp(player[23])
@@ -774,7 +776,15 @@ class EveRpg:
                 module_value += module_item['isk']
                 loser_modules_array.append('{}'.format(module_item['name']))
             loser_module_list = '\n'.join(loser_modules_array)
-            loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+            loser_modules = '\n\n__Equipped Modules Lost__\n{}'.format(loser_module_list)
+        if 'module_cargo_bay' in player_ship:
+            modules = player_ship['module_cargo_bay']
+            for module in modules:
+                module_item = await game_functions.get_module(module)
+                module_value += module_item['isk']
+                cargo_modules_array.append('{}'.format(module_item['name']))
+            cargo_module_list = '\n'.join(cargo_modules_array)
+            cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
         module_value += ship['isk']
         embed = make_embed(icon=self.bot.user.avatar)
         embed.set_footer(icon_url=self.bot.user.avatar_url,
@@ -784,11 +794,11 @@ class EveRpg:
         embed.add_field(name="NPC Killmail",
                         value="**Region** - {}\n\n"
                               "__**Loser**__\n"
-                              "**{}** flying a {} was killed while they were {}.{}\n\n"
+                              "**{}** flying a {} was killed while they were {}.{}{}\n\n"
                               "Total ISK Lost: {} ISK\n\n"
                               "__**Final Blow**__\n"
                               "**{}**\n\n".format(region_name, loser_name, ship['name'], player_task,
-                                                  loser_modules, '{0:,.2f}'.format(float(module_value)), npc['name']))
+                                                  loser_modules, cargo_modules, '{0:,.2f}'.format(float(module_value)), npc['name']))
         await self.add_loss(player)
         await player_user.send(embed=embed)
         if ship['class'] != 0:
@@ -1157,7 +1167,9 @@ class EveRpg:
                     loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
                     loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
                     loser_modules = ''
+                    cargo_modules = ''
                     loser_modules_array = []
+                    cargo_modules_array = []
                     dropped_mods = []
                     module_value = 0
                     if target[12] is not None:
@@ -1173,6 +1185,19 @@ class EveRpg:
                             loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
                         loser_module_list = '\n'.join(loser_modules_array)
                         loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    if 'module_cargo_bay' in loser_ship_obj:
+                        modules = loser_ship_obj['module_cargo_bay']
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            module_drop = ''
+                            module_value += module_item['isk']
+                            if dropped is True:
+                                dropped_mods.append(module)
+                                module_drop = ' **Module Dropped**'
+                            loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                        cargo_module_list = '\n'.join(cargo_modules_array)
+                        cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
                     xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
                     if target not in attacker_fleet:
@@ -1187,11 +1212,11 @@ class EveRpg:
                     embed.add_field(name="Killmail",
                                     value="**Region** - {}\n\n"
                                           "__**Loser**__\n"
-                                          "**{}** flying a {} was killed.{}\n\n"
+                                          "**{}** flying a {} was killed.{}{}\n\n"
                                           "Total ISK Lost: {} ISK\n\n"
                                           "__**Final Blow**__\n"
                                           "**{}** flying a {}.".format(region_name, loser_name, loser_ship,
-                                                                       loser_modules,
+                                                                       loser_modules, cargo_modules,
                                                                        '{0:,.2f}'.format(float(isk_lost)),
                                                                        winner_name, winner_ship))
                     await winner_user.send(embed=embed)
@@ -1382,7 +1407,9 @@ class EveRpg:
                     loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
                     loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
                     loser_modules = ''
+                    cargo_modules = ''
                     loser_modules_array = []
+                    cargo_modules_array = []
                     dropped_mods = []
                     module_value = 0
                     if target[12] is not None:
@@ -1398,6 +1425,19 @@ class EveRpg:
                             loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
                         loser_module_list = '\n'.join(loser_modules_array)
                         loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    if 'module_cargo_bay' in loser_ship_obj:
+                        modules = loser_ship_obj['module_cargo_bay']
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            module_drop = ''
+                            module_value += module_item['isk']
+                            if dropped is True:
+                                dropped_mods.append(module)
+                                module_drop = ' **Module Dropped**'
+                            loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                        cargo_module_list = '\n'.join(cargo_modules_array)
+                        cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
                     xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
                     if target not in attacker_fleet:
@@ -1416,12 +1456,12 @@ class EveRpg:
                     embed.add_field(name="Killmail",
                                     value="**Region** - {}\n\n"
                                           "__**Loser**__\n"
-                                          "**{}** flying a {} was killed.{}\n\n"
+                                          "**{}** flying a {} was killed.{}{}\n\n"
                                           "Total ISK Lost: {} ISK\n\n"
                                           "__**Final Blow**__\n"
                                           "**{}** flying a {}.\n\n"
                                           "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
-                                                                             loser_modules,
+                                                                             loser_modules, cargo_modules,
                                                                              '{0:,.2f}'.format(float(isk_lost)),
                                                                              winner_name, winner_ship, clean_names))
                     await winner_user.send(embed=embed)
@@ -1688,7 +1728,9 @@ class EveRpg:
                     loser_ship = await game_functions.get_ship_name(int(loser_ship_obj['ship_type']))
                     loser_ship_info = await game_functions.get_ship(int(loser_ship_obj['ship_type']))
                     loser_modules = ''
+                    cargo_modules = ''
                     loser_modules_array = []
+                    cargo_modules_array = []
                     dropped_mods = []
                     module_value = 0
                     if target[12] is not None:
@@ -1704,6 +1746,19 @@ class EveRpg:
                             loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
                         loser_module_list = '\n'.join(loser_modules_array)
                         loser_modules = '\n\n__Modules Lost__\n{}'.format(loser_module_list)
+                    if 'module_cargo_bay' in loser_ship_obj:
+                        modules = loser_ship_obj['module_cargo_bay']
+                        for module in modules:
+                            module_item = await game_functions.get_module(module)
+                            dropped = await self.weighted_choice([(True, 50), (False, 50)])
+                            module_drop = ''
+                            module_value += module_item['isk']
+                            if dropped is True:
+                                dropped_mods.append(module)
+                                module_drop = ' **Module Dropped**'
+                            loser_modules_array.append('{} {}'.format(module_item['name'], module_drop))
+                        cargo_module_list = '\n'.join(cargo_modules_array)
+                        cargo_modules = '\n\n__Cargo Lost__\n{}'.format(cargo_module_list)
                     xp_gained = await self.weighted_choice([(5, 45), (15, 25), (27, 15)])
                     isk_lost = module_value + loser_ship_info['isk']
                     if target not in attacker_fleet:
@@ -1727,7 +1782,7 @@ class EveRpg:
                                           "__**Final Blow**__\n"
                                           "**{}** flying a {}.\n\n"
                                           "__**Other Killers**__\n{}".format(region_name, loser_name, loser_ship,
-                                                                             loser_modules,
+                                                                             loser_modules, cargo_modules,
                                                                              '{0:,.2f}'.format(float(isk_lost)),
                                                                              winner_name, winner_ship, clean_names))
                     await winner_user.send(embed=embed)
