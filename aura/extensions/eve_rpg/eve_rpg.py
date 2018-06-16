@@ -1391,7 +1391,10 @@ class EveRpg:
                                             attacker_fleet.remove(target)
                                             continue
                 else:
-                    merged_fleet.remove(target)
+                    if target in merged_fleet:
+                        merged_fleet.remove(target)
+                    if target in on_field:
+                        on_field.remove(target)
                     killing_blow = attacker
                     other_names = []
                     other_users = []
@@ -1724,7 +1727,10 @@ class EveRpg:
                                             attacker_fleet.remove(target)
                                             continue
                 else:
-                    merged_fleet.remove(target)
+                    if target in merged_fleet:
+                        merged_fleet.remove(target)
+                    if target in on_field:
+                        on_field.remove(target)
                     killing_blow = attacker
                     other_names = []
                     other_users = []
