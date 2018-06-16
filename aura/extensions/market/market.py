@@ -1011,15 +1011,17 @@ class Market:
                 stored_module_array = []
                 owned_module_ids = []
                 module_number = 1
+                embed_count = 1
                 module_count = 0
                 embed = make_embed(icon=ctx.bot.user.avatar)
                 embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                                  text="Aura - EVE Text RPG")
                 for module in module_hangar[player[0][4]]:
-                    if module_number >= 35:
-                        embed.add_field(name="{} Module Hangar".format(region_name),
-                                        value='Maximum Hangar Size Reached')
-                        break
+                    if module_number >= 35 * embed_count:
+                        await ctx.author.send(embed=embed)
+                        embed = make_embed(icon=ctx.bot.user.avatar)
+                        embed.set_footer(icon_url=ctx.bot.user.avatar_url, text="Aura - EVE Text RPG")
+                        embed_count += 1
                     sell_module_order[module_number] = int(module)
                     owned_module_ids.append(module_number)
                     module_info = await game_functions.get_module(int(module))

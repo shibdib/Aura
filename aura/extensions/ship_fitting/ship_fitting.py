@@ -116,15 +116,17 @@ class ShipFitting:
         equip_commands = []
         equip_drones_commands = []
         counter = 0
+        embed_count = 1
         if player[0][13] is not None:
             module_hangar = ast.literal_eval(player[0][13])
             if player[0][4] in module_hangar:
                 stored_modules_array = []
                 for item in module_hangar[player[0][4]]:
-                    if module_number >= 35:
-                        embed.add_field(name="{} Module/Drone Hangar".format(region_name),
-                                        value='Maximum Hangar Size Reached')
-                        break
+                    if module_number >= 35 * embed_count:
+                        await ctx.author.send(embed=embed)
+                        embed = make_embed(icon=ctx.bot.user.avatar)
+                        embed.set_footer(icon_url=ctx.bot.user.avatar_url, text="Aura - EVE Text RPG")
+                        embed_count += 1
                     module = await game_functions.get_module(int(item))
                     if 'no_fit' in module:
                         continue

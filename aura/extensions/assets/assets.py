@@ -40,12 +40,20 @@ class Assets:
             embed = make_embed(icon=ctx.bot.user.avatar)
             embed.set_footer(icon_url=ctx.bot.user.avatar_url,
                              text="Aura - EVE Text RPG")
+            total = 0
+            embed_count = 1
             if player[0][15] is not None:
                 ship_hangar = ast.literal_eval(player[0][15])
                 stored_ships_array = []
                 count = 0
                 for key, ships in ship_hangar.items():
                     for ship in ships:
+                        if total >= 35:
+                            await ctx.author.send(embed=embed)
+                            embed = make_embed(icon=ctx.bot.user.avatar)
+                            embed.set_footer(icon_url=ctx.bot.user.avatar_url, text="Aura - EVE Text RPG")
+                            embed_count += 1
+                        total += 1
                         region_name = await game_functions.get_region(key)
                         ship_name = await game_functions.get_ship_name(int(ship['ship_type']))
                         stored_ships_array.append('{} - {}'.format(ship_name, region_name))
@@ -66,6 +74,12 @@ class Assets:
                 count = 0
                 for key, items in module_hangar.items():
                     for item in items:
+                        if total >= 35:
+                            await ctx.author.send(embed=embed)
+                            embed = make_embed(icon=ctx.bot.user.avatar)
+                            embed.set_footer(icon_url=ctx.bot.user.avatar_url, text="Aura - EVE Text RPG")
+                            embed_count += 1
+                        total += 1
                         region_name = await game_functions.get_region(key)
                         module_name = await game_functions.get_module_name(int(item))
                         stored_modules_array.append('{} - {}'.format(module_name, region_name))
