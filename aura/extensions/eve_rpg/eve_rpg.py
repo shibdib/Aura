@@ -443,7 +443,7 @@ class EveRpg:
             encounter = await weighted_choice(
                 [(True, npc / len(system_ratters)), (False, 100 - npc + 1)])
             if encounter is True:
-                await self.process_pve_combat(ratter, int(float(isk_multi)))
+                await self.process_pve_combat(ratter, isk_multi)
 
     async def process_anomaly_ratting(self):
         sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 7 '''
@@ -645,112 +645,6 @@ class EveRpg:
                             player_id = (?); '''
                 values = (None, mission_runner[2],)
                 await db.execute_sql(sql, values)
-
-    async def process_exploration(self):
-        sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 8 '''
-        explorers = await db.select(sql)
-        if explorers is None or len(explorers) is 0:
-            return
-        for explorer in explorers:
-            region_id = int(explorer[4])
-            region_security = await game_functions.get_region_security(region_id)
-            sql = ''' SELECT * FROM eve_rpg_players WHERE `task` = 8 AND `region` = (?) '''
-            values = (region_id,)
-            system_explorers = await db.select_var(sql, values)
-            isk = random.randint(3000, 7500)
-            sites = 50
-            best_of = 3
-            loot_chance = 2
-            if region_security == 'Low':
-                isk = random.randint(6500, 12500)
-                best_of = 5
-                loot_chance = 4
-            elif region_security == 'Null':
-                isk = random.randint(10500, 20500)
-                best_of = 5
-                loot_chance = 7
-            #  PVE Rolls
-            find_sites = await weighted_choice([(True, sites / len(system_explorers)), (False, 40)])
-            if find_sites is False:
-                continue
-            else:
-                player = self.bot.get_user(explorer[2])
-                embed = make_embed(icon=self.bot.user.avatar)
-                embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                 text="Aura - EVE Text RPG")
-                embed.add_field(name="Site Found",
-                                value="You've located an empty site and begin trying to hack the storage containers in "
-                                      "the area.")
-                await player.send(embed=embed)
-                your_score = 0
-                ai_score = 0
-                last_action = ''
-                win = False
-                for x in range(11):
-                    if your_score >= best_of:
-                        win = True
-                        break
-                    if ai_score >= best_of:
-                        win = False
-                        break
-                    embed = make_embed(icon=self.bot.user.avatar)
-                    embed.set_footer(icon_url=self.bot.user.avatar_url,
-                                     text="Aura - EVE Text RPG")
-                    embed.add_field(name="Hacking",
-                                    value="Someone is countering your hack...\n\n"
-                                          "{}"
-                                          "Your Hack Score: {}\n"
-                                          "Hostile Hack Score: {}\n\n"
-                                          "__Choose an action__\n"
-                                          "**B.** Brute Attack\n"
-                                          "**F.** Firewall\n"
-                                          "**T.** Trojan Attack\n".format(last_action, your_score, ai_score))
-                    await player.send(embed=embed)
-
-                    def check(m):
-                        return m.author == player and m.channel == player.dm_channel
-
-                    msg = await self.bot.wait_for('message', check=check, timeout=120.0)
-                    response = msg.content.lower()
-                    if response != 'b' and response != 'f' and response != 't':
-                        last_action = '**Last Action:** Incorrect Response\n'
-                        ai_score += 1
-                        continue
-                    ai_action = await weighted_choice([('1', 33), ('2', 33), ('3', 33)])
-                    if response == 'b' and ai_action != '2' and ai_action != response:
-                        last_action = '**Last Action:** Brute Attack Successful\n'
-                        your_score += 1
-                        continue
-                    if response == 'b' and ai_action == '2':
-                        last_action = '**Last Action:** Brute Attack Stopped By Firewall\n'
-                        ai_score += 1
-                        continue
-                    if response == 'f' and ai_action != '3' and ai_action != response:
-                        last_action = '**Last Action:** Firewall Successful\n'
-                        your_score += 1
-                        continue
-                    if response == 'f' and ai_action == '3':
-                        last_action = '**Last Action:** Trojan Attack Countered Your Firewall\n'
-                        ai_score += 1
-                        continue
-                    if response == 't' and ai_action != '1' and ai_action != response:
-                        last_action = '**Last Action:** Trojan Attack Successful\n'
-                        your_score += 1
-                        continue
-                    if response == 't' and ai_action == '1':
-                        last_action = '**Last Action:** Brute Attack Overwhelmed Your Trojan Attack Attempt\n'
-                        ai_score += 1
-                        continue
-                if win is True:
-                    xp_gained = await weighted_choice([(2, 35), (3, 15), (0, 15)])
-                    await add_xp(explorer, xp_gained)
-                    await add_isk(explorer, isk)
-                    await update_journal(explorer, isk, 'Exploration')
-                    await player.send(
-                        '**Success** Site succesfully hacked for {} ISK, hunting for a new site.'.format(isk))
-                    await self.pve_loot(explorer, loot_chance)
-                else:
-                    await player.send('**Failure** The AI defeated you, looking for a new site.')
 
     async def process_pve_combat(self, player, isk_multi=1, mission=False):
         region_id = int(player[4])
