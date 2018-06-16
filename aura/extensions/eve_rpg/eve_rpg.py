@@ -117,8 +117,6 @@ class EveRpg:
                 if user is None:
                     await self.remove_bad_user(player[2])
                     continue
-        else:
-            self.user_check_counter += 1
 
     async def process_special_regions(self):
         sql = "SELECT * FROM region_info WHERE `pirate_anomaly` > 0 AND `region_security` != 'High'"
