@@ -935,10 +935,6 @@ class EveRpg:
                         await game_functions.get_combat_attributes(ganker, attacker_ship_id)
                     defender_attack, defender_defense, defender_maneuver, defender_tracking = \
                         await game_functions.get_combat_attributes(target, defender_ship_id)
-                    ganker_weight = (((ganker[8] + 1) * 0.5) + (
-                            attacker_attack - (defender_defense / 2))) * attacker_tracking
-                    target_weight = ((((target[8] + 1) * 0.5) + (
-                            defender_attack - (attacker_defense / 2))) * defender_tracking) - 2
                     attacker_ship_info = await game_functions.get_ship(int(attacker_ship['ship_type']))
                     defender_ship_info = await game_functions.get_ship(int(defender_ship['ship_type']))
                     ganker_hits, target_hits = attacker_ship_info['hit_points'], defender_ship_info['hit_points']
@@ -946,7 +942,7 @@ class EveRpg:
                     success = False
                     concord_response = random.randint(4, 12)
                     concord = True
-                    for x in range(int(ganker_hits + target_hits + 1)):
+                    for x in range(50):
                         turns += 1
                         if turns >= concord_response:
                             success = False
@@ -954,11 +950,29 @@ class EveRpg:
                                 '**PVP** - {} attempted to gank you but Concord arrived in time to prevent it.'.format(
                                     ganker_user.display_name))
                             break
-                        combat = await weighted_choice([(ganker, ganker_weight), (target, target_weight)])
-                        if combat == ganker:
-                            target_hits -= 1
+                        # Figure out min/max damage
+                        transversal = 1
+                        if (defender_maneuver * 0.75) > attacker_tracking + 1:
+                            transversal = (attacker_tracking + 1) / (defender_maneuver * 0.75)
+                        minimum_attacker_damage = (attacker_attack * transversal)
+                        maximum_attacker_damage = attacker_attack
+                        attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
+                        damage = round(
+                            random.triangular(minimum_attacker_damage, maximum_attacker_damage,
+                                              attacker_triangular_medium), 3)
+                        # Determine if ship is already damaged
+                        defense = defender_defense
+                        hit_points = defender_ship_info['hit_points']
+                        # if defense pool exist take damage out of it
+                        if defense > 0:
+                            if defense >= damage:
+                                defense -= damage
+                            else:
+                                damage -= defense
+                                defense = 0
+                                hit_points -= damage
                         else:
-                            ganker_hits -= 1
+                            hit_points -= damage
                         if ganker_hits <= 0:
                             success = False
                             concord = False
@@ -988,7 +1002,7 @@ class EveRpg:
                         embed = make_embed(icon=self.bot.user.avatar)
                         embed.set_footer(icon_url=self.bot.user.avatar_url,
                                          text="Aura - EVE Text RPG")
-                        ship_image = await game_functions.get_ship_image(defender_ship_info['ship_type'])
+                        ship_image = await game_functions.get_ship_image(defender_ship['ship_type'])
                         embed.set_thumbnail(url="{}".format(ship_image))
                         embed.add_field(name="Killmail",
                                         value="**Region** - {}\n\n"
@@ -1008,6 +1022,11 @@ class EveRpg:
                         await ganker_user.send(embed=embed)
                         await target_user.send(embed=embed)
                         await self.send_global(embed, True)
+                        await self.destroy_ship(target)
+                        await add_loss(target)
+                        await add_kill(ganker, dropped_mods)
+                        await add_xp(ganker, 1)
+                        await game_functions.track_player_kills(region_id)
                     target_modules = ''
                     target_modules_array = []
                     dropped_mods = []
@@ -1029,7 +1048,7 @@ class EveRpg:
                     embed = make_embed(icon=self.bot.user.avatar)
                     embed.set_footer(icon_url=self.bot.user.avatar_url,
                                      text="Aura - EVE Text RPG")
-                    ship_image = await game_functions.get_ship_image(attacker_ship_info['ship_type'])
+                    ship_image = await game_functions.get_ship_image(attacker_ship['ship_type'])
                     embed.set_thumbnail(url="{}".format(ship_image))
                     if concord is True:
                         embed.add_field(name="Killmail",
@@ -1064,7 +1083,12 @@ class EveRpg:
                                                                                         target_task))
                     await ganker_user.send(embed=embed)
                     await target_user.send(embed=embed)
+                    await game_functions.track_player_kills(region_id)
                     await self.send_global(embed, True)
+                    await self.destroy_ship(ganker)
+                    await add_loss(ganker)
+                    await add_kill(target, dropped_mods)
+                    await add_xp(target, 1)
 
     async def solo_combat(self, attacker, defender):
         region = attacker[4]
