@@ -1376,6 +1376,14 @@ class EveRpg:
                     attacker_damage_dealt += damage
                 else:
                     defender_damage_dealt += damage
+                attacker_user, target_user = self.bot.get_user(attacker[2]), self.bot.get_user(target[2])
+                attacker_name, target_name = attacker_user.display_name, target_user.display_name
+                self.logger.info(
+                    '{} attacked {} for {} damage. Resulting in {} defense remaining and {} hits.'.format(attacker_name,
+                                                                                                          target_name,
+                                                                                                          damage,
+                                                                                                          defense,
+                                                                                                          hit_points))
                 # if no damage done, continue
                 if damage <= 0:
                     continue
@@ -1713,6 +1721,14 @@ class EveRpg:
                 else:
                     defender_damage_dealt += damage
                 # if no damage done, continue
+                attacker_user, target_user = self.bot.get_user(attacker[2]), self.bot.get_user(target[2])
+                attacker_name, target_name = attacker_user.display_name, target_user.display_name
+                self.logger.info(
+                    '{} attacked {} for {} damage. Resulting in {} defense remaining and {} hits.'.format(attacker_name,
+                                                                                                          target_name,
+                                                                                                          damage,
+                                                                                                          defense,
+                                                                                                          hit_points))
                 if damage <= 0:
                     continue
                 # if target survives, store damage
