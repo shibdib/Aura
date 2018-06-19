@@ -48,7 +48,7 @@ class Assets:
                 count = 0
                 for key, ships in ship_hangar.items():
                     for ship in ships:
-                        if total >= 35:
+                        if total >= 35 * embed_count:
                             await ctx.author.send(embed=embed)
                             embed = make_embed(icon=ctx.bot.user.avatar)
                             embed.set_footer(icon_url=ctx.bot.user.avatar_url, text="Aura - EVE Text RPG")
@@ -68,13 +68,15 @@ class Assets:
                     stored_ships = '\n'.join(stored_ships_array)
                     embed.add_field(name="Ships",
                                     value='{}'.format(stored_ships))
+            total = 0
+            embed_count = 1
             if player[0][13] is not None:
                 module_hangar = ast.literal_eval(player[0][13])
                 stored_modules_array = []
                 count = 0
                 for key, items in module_hangar.items():
                     for item in items:
-                        if total >= 35:
+                        if total >= 35 * embed_count:
                             await ctx.author.send(embed=embed)
                             embed = make_embed(icon=ctx.bot.user.avatar)
                             embed.set_footer(icon_url=ctx.bot.user.avatar_url, text="Aura - EVE Text RPG")
