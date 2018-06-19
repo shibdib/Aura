@@ -622,8 +622,8 @@ class EveRpg:
                 if complete_mission is False:
                     continue
                 xp_gained = await weighted_choice([(1 * mission_details['level'], 35),
-                                                        (3 * mission_details['level'], 15),
-                                                        (0, 15)])
+                                                   (3 * mission_details['level'], 15),
+                                                   (0, 15)])
                 await add_xp(mission_runner, xp_gained)
                 await add_isk(mission_runner, isk)
                 loot_chance = 4 * mission_details['level']
@@ -656,7 +656,6 @@ class EveRpg:
         player_ship_info = await game_functions.get_ship(ship_id)
         player_attack, player_defense, player_maneuver, player_tracking = \
             await game_functions.get_combat_attributes(player, ship_id)
-        base_defense = player_defense
         payout_array = [player]
         if player[16] is not None and player[16] != 0:
             payout_array = []
@@ -715,6 +714,7 @@ class EveRpg:
         player_hits, npc_hits = ship['hit_points'], npc['hit_points']
         round_counter = 1
         for x in range(125):
+            player_defense = await game_functions.manage_regen(player, player_defense)
             npc_damage = round(random.triangular(minimum_npc_damage, maximum_npc_damage, npc_triangular_medium), 3)
             player_damage = round(
                 random.triangular(minimum_player_damage, maximum_player_damage, player_triangular_medium), 3)
@@ -751,7 +751,7 @@ class EveRpg:
                     await add_xp(player, random.randint(2, 10))
                     await add_isk(player, int(float((npc['isk'] * isk_multi))) / len(payout_array))
                     await update_journal(player, int(float((npc['isk'] * isk_multi))) / len(payout_array),
-                                              '{} - {}'.format(player_task, npc['name']))
+                                         '{} - {}'.format(player_task, npc['name']))
                 if officer is True:
                     await self.pve_loot(player, 1, False, True)
                 return
@@ -762,9 +762,6 @@ class EveRpg:
                         '**PVE ESCAPE** - Combat between you and a {}, they nearly killed your {} but you '
                         'managed to warp off.'.format(npc['name'], player_ship_info['name']))
                     return
-            player_defense + (base_defense * 0.10)
-            if player_defense > base_defense:
-                player_defense = base_defense
         if npc_hits > 0 and player_hits > 0:
             await player_user.send(
                 '**PVE DISENGAGE** - Combat between you and a {}, has ended in a draw. You ended the battle '
@@ -1108,6 +1105,18 @@ class EveRpg:
             random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
+            for player in merged_fleet:
+                if player[0] not in damaged_ships:
+                    continue
+                defense = damaged_ships[player[0]]['defense']
+                new_defense = await game_functions.manage_regen(player, defense)
+                if new_defense != defense:
+                    user = self.bot.get_user(player[2])
+                    name = user.display_name
+                    self.logger.info(
+                        '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
+                                                                                           new_defense))
+                damaged_ships[player[0]] = {'defense': new_defense}
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1327,6 +1336,19 @@ class EveRpg:
                             itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
+            # Manage regen
+            for player in merged_fleet:
+                if player[0] not in damaged_ships:
+                    continue
+                defense = damaged_ships[player[0]]['defense']
+                new_defense = await game_functions.manage_regen(player, defense)
+                if new_defense != defense:
+                    user = self.bot.get_user(player[2])
+                    name = user.display_name
+                    self.logger.info(
+                        '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
+                                                                                           new_defense))
+                damaged_ships[player[0]] = {'defense': new_defense}
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 # add chance attack doesn't occur
@@ -1674,6 +1696,19 @@ class EveRpg:
                             itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
+            # Manage regen
+            for player in merged_fleet:
+                if player[0] not in damaged_ships:
+                    continue
+                defense = damaged_ships[player[0]]['defense']
+                new_defense = await game_functions.manage_regen(player, defense)
+                if new_defense != defense:
+                    user = self.bot.get_user(player[2])
+                    name = user.display_name
+                    self.logger.info(
+                        '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
+                                                                                           new_defense))
+                damaged_ships[player[0]] = {'defense': new_defense}
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 # add chance attack doesn't occur

@@ -82,231 +82,231 @@ class Market:
                     if ship['class'] == 1:
                         frigates.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 3:
                         destroyers.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 4:
                         tactical_destroyers.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 2:
                         interceptors.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 5:
                         cruisers.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 6:
                         battlecruisers.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 7:
                         battleships.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 8:
                         assault_cruisers.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 21:
                         mining_frigate.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 22:
                         mining_barges.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
                     elif ship['class'] == 23:
                         exhumers.append(
                             '**{}.** {} *({} HP)* ({}/{}/{}/{}) - *Drone Bay: {}m3* - {} ISK'.format(ship_number,
-                                                                                                        ship[
-                                                                                                            'name'],
-                                                                                                        ship[
-                                                                                                            'hit_points'],
-                                                                                                        ship[
-                                                                                                            'attack'],
-                                                                                                        ship[
-                                                                                                            'defense'],
-                                                                                                        ship[
-                                                                                                            'maneuver'],
-                                                                                                        ship[
-                                                                                                            'tracking'],
-                                                                                                        ship[
-                                                                                                            'drone_bay'],
-                                                                                                        cost))
+                                                                                                     ship[
+                                                                                                         'name'],
+                                                                                                     ship[
+                                                                                                         'hit_points'],
+                                                                                                     ship[
+                                                                                                         'attack'],
+                                                                                                     ship[
+                                                                                                         'defense'],
+                                                                                                     ship[
+                                                                                                         'maneuver'],
+                                                                                                     ship[
+                                                                                                         'tracking'],
+                                                                                                     ship[
+                                                                                                         'drone_bay'],
+                                                                                                     cost))
                         ship_assigned_number[ship_number] = ship['id']
                         accepted_options.append(ship_number)
                         ship_number += 1
@@ -500,6 +500,7 @@ class Market:
             elif content == '2':
                 attack = ['__**Attack**__']
                 defense = ['__**Defense**__']
+                active_defense = ['__**Active Defense**__\n*% Bonus to Defense Regen*']
                 maneuver = ['__**Maneuver**__']
                 tracking = ['__**Tracking**__']
                 mining = ['__**Mining**__']
@@ -529,6 +530,16 @@ class Market:
                                                                                       module['defense'] * 100,
                                                                                       module['maneuver'] * 100,
                                                                                       module['tracking'] * 100, cost))
+                        module_selection_dict[module_number] = module['id']
+                        accepted_modules.append(module_number)
+                        module_number += 1
+                    elif module['class'] == 7:
+                        active_defense.append(
+                            '**{}.** {} ({}%/{}%/{}%/{}%) - {} ISK'.format(module_number, module['name'],
+                                                                           module['attack'] * 100,
+                                                                           module['defense'] * 100,
+                                                                           module['maneuver'] * 100,
+                                                                           module['tracking'] * 100, cost))
                         module_selection_dict[module_number] = module['id']
                         accepted_modules.append(module_number)
                         module_number += 1
@@ -605,7 +616,7 @@ class Market:
                         module_selection_dict[module_number] = module['id']
                         accepted_modules.append(module_number)
                         module_number += 1
-                merged = attack + defense
+                merged = attack + defense + active_defense
                 merged_two = maneuver + tracking
                 merged_three = mining
                 merged_four = other

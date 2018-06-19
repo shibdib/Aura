@@ -450,6 +450,17 @@ modules = {  # Attack
          'maneuver': -0.05,
          'tracking': -0.05, 'image': 'https://image.eveonline.com/Type/11577_64.png', 'isk': 2696168,
          'special': '50% PVP Escape Bonus'},
+    # active tank
+    42: {'id': 42, 'name': 'Shield Booster I', 'class': 7, 'attack': 0, 'defense': 0.05, 'maneuver': 0, 'tracking': 0,
+         'image': 'http://games.chruker.dk/eve_online/graphics/types/64/10836.png', 'isk': 33703, 'special': None},
+    43: {'id': 43, 'name': 'Armor Repairer I', 'class': 7, 'attack': 0, 'defense': 0.075, 'maneuver': -0.05,
+         'tracking': 0, 'image': 'http://games.chruker.dk/eve_online/graphics/types/64/3528.png', 'isk': 56066,
+         'special': None},
+    44: {'id': 44, 'name': 'Shield Booster II', 'class': 7, 'attack': 0, 'defense': 0.1, 'maneuver': 0, 'tracking': 0,
+         'image': 'http://games.chruker.dk/eve_online/graphics/types/64/10850.png', 'isk': 420801, 'special': None},
+    45: {'id': 45, 'name': 'Armor Repairer II', 'class': 7, 'attack': 0, 'defense': 0.15, 'maneuver': -0.075,
+         'tracking': 0,
+         'image': 'http://games.chruker.dk/eve_online/graphics/types/64/3530.png', 'isk': 839375, 'special': None},
     # Light
     101: {'id': 101, 'name': 'Warrior I', 'class': 10, 'attack': 0.75, 'defense': 0, 'maneuver': 0.5, 'tracking': 0.5,
           'image': 'https://image.eveonline.com/Type/2486_64.png', 'isk': 7111, 'special': None, 'size': 5},

@@ -141,6 +141,8 @@ async def get_combat_attributes(player, ship_id, npc=False):
             checked_modules = []
             for item in equipped_modules:
                 module = await get_module(int(item))
+                if module['class'] == 7:
+                    continue
                 checked_modules.append(module['class'])
                 current_count = checked_modules.count(module['class'])
                 efficiency = 1
@@ -170,6 +172,36 @@ async def get_combat_attributes(player, ship_id, npc=False):
         maneuver = int(ship['maneuver'])
         tracking = int(ship['tracking'])
     return int(round(attack)), int(round(defense)), int(round(maneuver)), int(round(tracking))
+
+
+async def manage_regen(player, current_defense):
+    player_ship = ast.literal_eval(player[14])
+    ship_id = player_ship['ship_type']
+    player_attack, player_defense, player_maneuver, player_tracking = \
+        await get_combat_attributes(player, ship_id)
+    regen = player_defense * 0.05
+    if player[12] is not None:
+        equipped_modules = ast.literal_eval(player[12])
+        checked_modules = []
+        for item in equipped_modules:
+            module = await get_module(int(item))
+            if module['class'] != 7:
+                continue
+            checked_modules.append(module['class'])
+            current_count = checked_modules.count(module['class'])
+            efficiency = 1
+            if current_count > 1:
+                if current_count < 5:
+                    efficiency = 1 - (0.5 * (0.45 * (current_count - 1)) ** 2)
+                elif current_count < 10:
+                    efficiency = (100 - (90 + current_count)) / 100
+                else:
+                    efficiency = 0
+            regen = int(float((regen * (module['defense'] * efficiency)) + regen))
+    current_defense + regen
+    if current_defense > player_defense:
+        current_defense = player_defense
+    return current_defense
 
 
 async def get_mission(level):
