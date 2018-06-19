@@ -99,7 +99,7 @@ class ShipFitting:
             clean_equipped_drones = '\n'.join(equipped_drones_array)
         ship_attack, ship_defense, ship_maneuver, ship_tracking = \
             await game_functions.get_combat_attributes(player[0], int(player_ship_obj['ship_type']))
-        ship_regen = await game_functions.manage_regen(player, 0)
+        ship_regen = await game_functions.manage_regen(player[0], 0)
         value = '**{}** {}\n*{}*\n**s.** To save this fit.\n{}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current Regen:** {}\n**Current ' \
                 'Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], custom_name, rename_ship, module_count, ship['slots'],
                                                                   killmarks, insured, ship_attack, ship_defense,
