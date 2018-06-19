@@ -1091,6 +1091,7 @@ class EveRpg:
     async def solo_combat(self, attacker, defender):
         region = attacker[4]
         region_name = await game_functions.get_region(int(region))
+        self.logger.info('Player vs. Player Battle in {}'.format(region_name))
         # Give all participants a combat timer
         attacker_fleet = [attacker]
         defender_fleet = [defender]
@@ -1166,6 +1167,14 @@ class EveRpg:
                 if damage <= 0:
                     continue
                 # if target survives, store damage
+                attacker_user, target_user = self.bot.get_user(attacker[2]), self.bot.get_user(target[2])
+                attacker_name, target_name = attacker_user.display_name, target_user.display_name
+                self.logger.info(
+                    '{} attacked {} for {} damage. Resulting in {} defense remaining and {} hits.'.format(attacker_name,
+                                                                                                          target_name,
+                                                                                                          damage,
+                                                                                                          defense,
+                                                                                                          hit_points))
                 if hit_points > 0:
                     if target[0] in damaged_ships:
                         attackers = list(set(damaged_ships[target[0]]['attackers'].append(attacker[0])))
