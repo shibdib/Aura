@@ -103,7 +103,7 @@ class ShipFitting:
         value = '**{}** {}\n*{}*\n**s.** To save this fit.\n{}/{} Module Slots{}{}\n\n**Current Attack:** {}\n**Current Defense:** {}\n**Current Regen:** {}\n**Current ' \
                 'Maneuver:** {}\n**Current Tracking:** {}'.format(ship['name'], custom_name, rename_ship, module_count, ship['slots'],
                                                                   killmarks, insured, ship_attack, ship_defense,
-                                                                  round(ship_regen, 2),
+                                                                  round(ship_regen, 1),
                                                                   ship_maneuver, ship_tracking)
         if player[0][12] is not None:
             value = '{}\n\n__Equipped Modules__\n{}'.format(value, clean_equipped_modules)

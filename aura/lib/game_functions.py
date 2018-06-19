@@ -180,7 +180,7 @@ async def manage_regen(player, current_defense):
     ship_details = await get_ship(player_ship['ship_type'])
     player_attack, player_defense, player_maneuver, player_tracking = \
         await get_combat_attributes(player, ship_id)
-    regen = player_defense * ship_details['base_regen']
+    regen_rate = ship_details['base_regen']
     if player[12] is not None:
         equipped_modules = ast.literal_eval(player[12])
         checked_modules = []
@@ -198,11 +198,12 @@ async def manage_regen(player, current_defense):
                     efficiency = (100 - (90 + current_count)) / 100
                 else:
                     efficiency = 0
-            regen = (module['defense'] * efficiency) + regen
+            regen_rate = (module['defense'] * efficiency) + regen_rate
+    regen = player_defense * regen_rate
     current_defense = current_defense + regen
     if current_defense > player_defense:
         current_defense = player_defense
-    return round(current_defense, 2)
+    return round(current_defense, 1)
 
 
 async def get_mission(level):
