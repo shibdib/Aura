@@ -1,6 +1,7 @@
 import ast
 import asyncio
 import datetime
+import itertools
 import random
 
 from aura.lib import db
@@ -1322,12 +1323,16 @@ class EveRpg:
             fight_round += 1
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            merged_fleet = attacker_fleet + defender_fleet
+            merged_fleet = [x for x in
+                            itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
             random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
+                # add chance attack doesn't occur
+                if random.random() > 0.8:
+                    continue
                 attacker_ship = ast.literal_eval(attacker[14])
                 attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
                     await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
@@ -1666,12 +1671,16 @@ class EveRpg:
             fight_round += 1
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            merged_fleet = attacker_fleet + defender_fleet
+            merged_fleet = [x for x in
+                            itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
             random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
+                # add chance attack doesn't occur
+                if random.random() > 0.8:
+                    continue
                 attacker_ship = ast.literal_eval(attacker[14])
                 attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
                     await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
