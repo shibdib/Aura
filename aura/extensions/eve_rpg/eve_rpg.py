@@ -1324,11 +1324,11 @@ class EveRpg:
                 entry_count += 1
                 log_array.append(entry)
                 if entry_count >= 4:
-                    log_array = []
-                    entry_count = 0
                     clean_log = '\n'.join(log_array)
                     embed.add_field(name="Combat Log",
                                     value=clean_log)
+                    log_array = []
+                    entry_count = 0
             if len(log_array) > 0:
                 clean_log = '\n'.join(log_array)
                 embed.add_field(name="Combat Log",
@@ -1748,11 +1748,11 @@ class EveRpg:
                 entry_count += 1
                 log_array.append(entry)
                 if entry_count >= 4:
-                    log_array = []
-                    entry_count = 0
                     clean_log = '\n'.join(log_array)
                     embed.add_field(name="Combat Log",
                                     value=clean_log)
+                    log_array = []
+                    entry_count = 0
             if len(log_array) > 0:
                 clean_log = '\n'.join(log_array)
                 embed.add_field(name="Combat Log",
@@ -2159,11 +2159,11 @@ class EveRpg:
                 entry_count += 1
                 log_array.append(entry)
                 if entry_count >= 4:
-                    log_array = []
-                    entry_count = 0
                     clean_log = '\n'.join(log_array)
                     embed.add_field(name="Combat Log",
                                     value=clean_log)
+                    log_array = []
+                    entry_count = 0
             if len(log_array) > 0:
                 clean_log = '\n'.join(log_array)
                 embed.add_field(name="Combat Log",
