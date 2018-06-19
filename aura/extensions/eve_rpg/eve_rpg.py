@@ -1110,6 +1110,9 @@ class EveRpg:
                 if player[0] not in damaged_ships:
                     continue
                 defense = damaged_ships[player[0]]['defense']
+                player_ship = ast.literal_eval(player[14])
+                player_ship_details = await game_functions.get_ship(player_ship['ship_type'])
+                hit_points = player_ship_details['hit_points']
                 new_defense = await game_functions.manage_regen(player, defense)
                 if new_defense != defense:
                     user = self.bot.get_user(player[2])
@@ -1117,7 +1120,7 @@ class EveRpg:
                     self.logger.info(
                         '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
                                                                                            new_defense))
-                damaged_ships[player[0]] = {'defense': new_defense}
+                damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 attacker_ship = ast.literal_eval(attacker[14])
@@ -1350,6 +1353,9 @@ class EveRpg:
                 if player[0] not in damaged_ships:
                     continue
                 defense = damaged_ships[player[0]]['defense']
+                player_ship = ast.literal_eval(player[14])
+                player_ship_details = await game_functions.get_ship(player_ship['ship_type'])
+                hit_points = player_ship_details['hit_points']
                 new_defense = await game_functions.manage_regen(player, defense)
                 if new_defense != defense:
                     user = self.bot.get_user(player[2])
@@ -1357,7 +1363,7 @@ class EveRpg:
                     self.logger.info(
                         '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
                                                                                            new_defense))
-                damaged_ships[player[0]] = {'defense': new_defense}
+                damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 # add chance attack doesn't occur
@@ -1710,6 +1716,9 @@ class EveRpg:
                 if player[0] not in damaged_ships:
                     continue
                 defense = damaged_ships[player[0]]['defense']
+                player_ship = ast.literal_eval(player[14])
+                player_ship_details = await game_functions.get_ship(player_ship['ship_type'])
+                hit_points = player_ship_details['hit_points']
                 new_defense = await game_functions.manage_regen(player, defense)
                 if new_defense != defense:
                     user = self.bot.get_user(player[2])
@@ -1717,7 +1726,7 @@ class EveRpg:
                     self.logger.info(
                         '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
                                                                                            new_defense))
-                damaged_ships[player[0]] = {'defense': new_defense}
+                damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
                 merged_fleet.remove(attacker)
                 # add chance attack doesn't occur
