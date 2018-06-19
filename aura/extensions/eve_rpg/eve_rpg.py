@@ -1156,6 +1156,7 @@ class EveRpg:
                 attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
                 damage = round(
                     random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
+                original_damage = damage
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1173,23 +1174,20 @@ class EveRpg:
                 else:
                     hit_points -= damage
                 # if no damage done, continue
-                if damage <= 0:
-                    continue
-                # if target survives, store damage
                 attacker_user, target_user = self.bot.get_user(attacker[2]), self.bot.get_user(target[2])
                 attacker_name, target_name = attacker_user.display_name, target_user.display_name
                 self.logger.info(
                     '{} attacked {} for {} damage. Resulting in {} defense remaining and {} hits.'.format(attacker_name,
                                                                                                           target_name,
-                                                                                                          damage,
+                                                                                                          original_damage,
                                                                                                           defense,
                                                                                                           hit_points))
                 combat_log[attacker[2]].append(
                     '__*Attack*__ You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
-                        target_name, round(damage, 2), round(defense, 2), hit_points))
+                        target_name, round(original_damage, 2), round(defense, 2), hit_points))
                 combat_log[target[2]].append(
                     '__*Defense*__ You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
-                        attacker_name, round(damage, 2), round(defense, 2), hit_points))
+                        attacker_name, round(original_damage, 2), round(defense, 2), hit_points))
                 if hit_points > 0:
                     if target[0] in damaged_ships:
                         damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense}
@@ -1458,6 +1456,12 @@ class EveRpg:
                 attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
                 damage = round(
                     random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
+                original_damage = damage
+                # log damage done for BR
+                if attacker in attacker_fleet:
+                    attacker_damage_dealt += damage
+                else:
+                    defender_damage_dealt += damage
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1474,25 +1478,21 @@ class EveRpg:
                         hit_points -= damage
                 else:
                     hit_points -= damage
-                # log damage done for BR
-                if attacker in attacker_fleet:
-                    attacker_damage_dealt += damage
-                else:
-                    defender_damage_dealt += damage
+                # if no damage done, continue
                 attacker_user, target_user = self.bot.get_user(attacker[2]), self.bot.get_user(target[2])
                 attacker_name, target_name = attacker_user.display_name, target_user.display_name
                 self.logger.info(
                     '{} attacked {} for {} damage. Resulting in {} defense remaining and {} hits.'.format(attacker_name,
                                                                                                           target_name,
-                                                                                                          damage,
+                                                                                                          original_damage,
                                                                                                           defense,
                                                                                                           hit_points))
                 combat_log[attacker[2]].append(
                     '__*Attack*__ You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
-                        target_name, round(damage, 2), round(defense, 2), hit_points))
+                        target_name, round(original_damage, 2), round(defense, 2), hit_points))
                 combat_log[target[2]].append(
                     '__*Defense*__ You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
-                        attacker_name, round(damage, 2), round(defense, 2), hit_points))
+                        attacker_name, round(original_damage, 2), round(defense, 2), hit_points))
                 # if no damage done, continue
                 if damage <= 0:
                     continue
@@ -1878,6 +1878,12 @@ class EveRpg:
                 attacker_triangular_medium = (minimum_attacker_damage + maximum_attacker_damage) / 4
                 damage = round(
                     random.triangular(minimum_attacker_damage, maximum_attacker_damage, attacker_triangular_medium), 3)
+                original_damage = damage
+                # log damage done for BR
+                if attacker in attacker_fleet:
+                    attacker_damage_dealt += damage
+                else:
+                    defender_damage_dealt += damage
                 # Determine if ship is already damaged
                 defense = target_defense
                 hit_points = target_ship_details['hit_points']
@@ -1894,26 +1900,21 @@ class EveRpg:
                         hit_points -= damage
                 else:
                     hit_points -= damage
-                # log damage done for BR
-                if attacker in attacker_fleet:
-                    attacker_damage_dealt += damage
-                else:
-                    defender_damage_dealt += damage
                 # if no damage done, continue
                 attacker_user, target_user = self.bot.get_user(attacker[2]), self.bot.get_user(target[2])
                 attacker_name, target_name = attacker_user.display_name, target_user.display_name
                 self.logger.info(
                     '{} attacked {} for {} damage. Resulting in {} defense remaining and {} hits.'.format(attacker_name,
                                                                                                           target_name,
-                                                                                                          damage,
+                                                                                                          original_damage,
                                                                                                           defense,
                                                                                                           hit_points))
                 combat_log[attacker[2]].append(
                     '__*Attack*__ You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
-                        target_name, round(damage, 2), round(defense, 2), hit_points))
+                        target_name, round(original_damage, 2), round(defense, 2), hit_points))
                 combat_log[target[2]].append(
                     '__*Defense*__ You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
-                        attacker_name, round(damage, 2), round(defense, 2), hit_points))
+                        attacker_name, round(original_damage, 2), round(defense, 2), hit_points))
                 if damage <= 0:
                     continue
                 # if target survives, store damage
