@@ -1180,12 +1180,9 @@ class EveRpg:
                                                                                                           hit_points))
                 if hit_points > 0:
                     if target[0] in damaged_ships:
-                        attackers = list(set(damaged_ships[target[0]]['attackers'].append(attacker[0])))
-                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
-                                                    'attackers': attackers}
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense}
                     else:
-                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense,
-                                                    'attackers': [attacker[0]]}
+                        damaged_ships[target[0]] = {'hit_points': hit_points, 'defense': defense}
                     # if badly damage target will attempt to flee
                     if defense < target_defense * 0.15:
                         flee = await weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
