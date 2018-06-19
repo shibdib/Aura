@@ -1097,6 +1097,7 @@ class EveRpg:
         await add_combat_timer(attacker)
         await add_combat_timer(defender)
         damaged_ships = {}
+        combat_log = {}
         for x in range(125):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
@@ -1104,7 +1105,10 @@ class EveRpg:
                             itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if y]
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
+            # manage regen/combat log creation
             for player in merged_fleet:
+                if player[2] not in combat_log:
+                    combat_log[player[2]] = []
                 if player[0] not in damaged_ships:
                     continue
                 defense = damaged_ships[player[0]]['defense']
@@ -1118,8 +1122,8 @@ class EveRpg:
                     self.logger.info(
                         '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
                                                                                            new_defense))
-                    user.send(
-                        '**COMBAT LOG** - Your ship has regenerated {} defense points and now has {} defense remaining and {} hit points.'.format(
+                    combat_log[player[2]].append(
+                        'Your ship has regenerated {} defense points and now has {} defense remaining and {} hit points.'.format(
                             round(new_defense - defense, 1), new_defense, hit_points))
                 damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
@@ -1180,11 +1184,11 @@ class EveRpg:
                                                                                                           damage,
                                                                                                           defense,
                                                                                                           hit_points))
-                attacker_user.send(
-                    '**COMBAT LOG** - *Attack* You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
+                combat_log[attacker[2]].append(
+                    '__*Attack*__ You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
                         target_name, damage, defense, hit_points))
-                target_user.send(
-                    '**COMBAT LOG** - *Defense* You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
+                combat_log[target[2]].append(
+                    '__ *Defense*__ You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
                         attacker_name, damage, defense, hit_points))
                 if hit_points > 0:
                     if target[0] in damaged_ships:
@@ -1197,11 +1201,11 @@ class EveRpg:
                         if flee is True:
                             self.logger.info(
                                 '{} has successfully fled the field.'.format(target_name))
-                            target_user.send(
-                                '**COMBAT LOG** - *Flee* You have fled the field. You have {} defense remaining and {} hit points.'.format(
+                            combat_log[target[2]].append(
+                                '__*Flee*__ You have fled the field. You have {} defense remaining and {} hit points.'.format(
                                     defense, hit_points))
-                            attacker_user.send(
-                                '**COMBAT LOG** - *Enemy Fled* {} has disengaged and warped away.'.format(target_name))
+                            combat_log[attacker[2]].append(
+                                '__*Enemy Fled*__ {} has disengaged and warped away.'.format(target_name))
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
                                 continue
@@ -1218,11 +1222,11 @@ class EveRpg:
                                     if escape is True:
                                         self.logger.info(
                                             '{} has successfully fled the field.'.format(target_name))
-                                        target_user.send(
-                                            '**COMBAT LOG** - *Flee* You have cloaked. You have {} defense remaining and {} hit points.'.format(
+                                        combat_log[target[2]].append(
+                                            '__*Flee*__ You have cloaked. You have {} defense remaining and {} hit points.'.format(
                                                 defense, hit_points))
-                                        attacker_user.send(
-                                            '**COMBAT LOG** - *Enemy Fled* {} has cloaked and warped away.'.format(
+                                        combat_log[attacker[2]].append(
+                                            '__*Enemy Fled*__ {} has cloaked and warped away.'.format(
                                                 target_name))
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
@@ -1309,6 +1313,27 @@ class EveRpg:
                     await add_kill(killing_blow, dropped_mods)
                     await add_xp(killing_blow, xp_gained)
                     await self.give_pvp_loot(killing_blow)
+        for key, log in combat_log.items():
+            user = self.bot.get_user(key)
+            entry_count = 0
+            embed = make_embed(icon=self.bot.user.avatar)
+            embed.set_footer(icon_url=self.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            log_array = []
+            for entry in log:
+                entry_count += 1
+                log_array.append(entry)
+                if entry_count >= 4:
+                    log_array = []
+                    entry_count = 0
+                    clean_log = '\n'.join(log_array)
+                    embed.add_field(name="Combat Log",
+                                    value=clean_log)
+            if len(log_array) > 0:
+                clean_log = '\n'.join(log_array)
+                embed.add_field(name="Combat Log",
+                                value=clean_log)
+            await user.send(embed=embed)
 
     async def fleet_versus_fleet(self, fleet_one, fleet_two, region, damaged=None):
         region_name = await game_functions.get_region(int(region))
@@ -1357,6 +1382,7 @@ class EveRpg:
         for fleet_member in merged_fleet:
             await add_combat_timer(fleet_member)
         damaged_ships = {}
+        combat_log = {}
         if damaged is not None:
             damaged_ships = damaged
         flee_array = []
@@ -1369,8 +1395,10 @@ class EveRpg:
                             itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
-            # Manage regen
+            # manage regen/combat log creation
             for player in merged_fleet:
+                if player[2] not in combat_log:
+                    combat_log[player[2]] = []
                 if player[0] not in damaged_ships:
                     continue
                 defense = damaged_ships[player[0]]['defense']
@@ -1384,8 +1412,8 @@ class EveRpg:
                     self.logger.info(
                         '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
                                                                                            new_defense))
-                    user.send(
-                        '**COMBAT LOG** - Your ship has regenerated {} defense points and now has {} defense remaining and {} hit points.'.format(
+                    combat_log[player[2]].append(
+                        'Your ship has regenerated {} defense points and now has {} defense remaining and {} hit points.'.format(
                             round(new_defense - defense, 1), new_defense, hit_points))
                 damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
@@ -1450,11 +1478,11 @@ class EveRpg:
                                                                                                           damage,
                                                                                                           defense,
                                                                                                           hit_points))
-                attacker_user.send(
-                    '**COMBAT LOG** - *Attack* You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
+                combat_log[attacker[2]].append(
+                    '__*Attack*__ You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
                         target_name, damage, defense, hit_points))
-                target_user.send(
-                    '**COMBAT LOG** - *Defense* You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
+                combat_log[target[2]].append(
+                    '__ *Defense*__ You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
                         attacker_name, damage, defense, hit_points))
                 # if no damage done, continue
                 if damage <= 0:
@@ -1474,12 +1502,11 @@ class EveRpg:
                         if flee is True:
                             self.logger.info(
                                 '{} has successfully fled the field.'.format(target_name))
-                            target_user.send(
-                                '**COMBAT LOG** - *Flee* You have fled the field. You have {} defense remaining and {} hit points.'.format(
+                            combat_log[target[2]].append(
+                                '__*Flee*__ You have fled the field. You have {} defense remaining and {} hit points.'.format(
                                     defense, hit_points))
-                            attacker_user.send(
-                                '**COMBAT LOG** - *Enemy Fled* {} has disengaged and warped away.'.format(target_name))
-                            flee_array.append(target[0])
+                            combat_log[attacker[2]].append(
+                                '__*Enemy Fled*__ {} has disengaged and warped away.'.format(target_name))
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
                                 continue
@@ -1496,11 +1523,11 @@ class EveRpg:
                                     if escape is True:
                                         self.logger.info(
                                             '{} has successfully fled the field.'.format(target_name))
-                                        target_user.send(
-                                            '**COMBAT LOG** - *Flee* You have cloaked. You have {} defense remaining and {} hit points.'.format(
+                                        combat_log[target[2]].append(
+                                            '__*Flee*__ You have cloaked. You have {} defense remaining and {} hit points.'.format(
                                                 defense, hit_points))
-                                        attacker_user.send(
-                                            '**COMBAT LOG** - *Enemy Fled* {} has cloaked and warped away.'.format(
+                                        combat_log[attacker[2]].append(
+                                            '__*Enemy Fled*__ {} has cloaked and warped away.'.format(
                                                 target_name))
                                         flee_array.append(target[0])
                                         if target not in attacker_fleet:
@@ -1710,6 +1737,27 @@ class EveRpg:
                 user = self.bot.get_user(fleet_member[2])
                 await user.send(embed=embed)
             await self.send_global(embed, True)
+        for key, log in combat_log.items():
+            user = self.bot.get_user(key)
+            entry_count = 0
+            embed = make_embed(icon=self.bot.user.avatar)
+            embed.set_footer(icon_url=self.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            log_array = []
+            for entry in log:
+                entry_count += 1
+                log_array.append(entry)
+                if entry_count >= 4:
+                    log_array = []
+                    entry_count = 0
+                    clean_log = '\n'.join(log_array)
+                    embed.add_field(name="Combat Log",
+                                    value=clean_log)
+            if len(log_array) > 0:
+                clean_log = '\n'.join(log_array)
+                embed.add_field(name="Combat Log",
+                                value=clean_log)
+            await user.send(embed=embed)
 
     async def fleet_versus_player(self, fleet_one, player, region):
         region_name = await game_functions.get_region(int(region))
@@ -1747,6 +1795,7 @@ class EveRpg:
         for fleet_member in merged_fleet:
             await add_combat_timer(fleet_member)
         damaged_ships = {}
+        combat_log = {}
         flee_array = []
         fight_round = 0
         for x in range(125):
@@ -1757,8 +1806,10 @@ class EveRpg:
                             itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
-            # Manage regen
+            # manage regen/combat log creation
             for player in merged_fleet:
+                if player[2] not in combat_log:
+                    combat_log[player[2]] = []
                 if player[0] not in damaged_ships:
                     continue
                 defense = damaged_ships[player[0]]['defense']
@@ -1772,8 +1823,8 @@ class EveRpg:
                     self.logger.info(
                         '{} regened {} defense. Resulting in {} defense remaining.'.format(name, new_defense - defense,
                                                                                            new_defense))
-                    user.send(
-                        '**COMBAT LOG** - Your ship has regenerated {} defense points and now has {} defense remaining and {} hit points.'.format(
+                    combat_log[player[2]].append(
+                        'Your ship has regenerated {} defense points and now has {} defense remaining and {} hit points.'.format(
                             round(new_defense - defense, 1), new_defense, hit_points))
                 damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
@@ -1839,11 +1890,11 @@ class EveRpg:
                                                                                                           damage,
                                                                                                           defense,
                                                                                                           hit_points))
-                attacker_user.send(
-                    '**COMBAT LOG** - *Attack* You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
+                combat_log[attacker[2]].append(
+                    '__*Attack*__ You attacked {} inflicting {} damage. Your target has {} defense remaining and {} hit points.'.format(
                         target_name, damage, defense, hit_points))
-                target_user.send(
-                    '**COMBAT LOG** - *Defense* You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
+                combat_log[target[2]].append(
+                    '__ *Defense*__ You were attacked by {} and received {} damage. You have {} defense remaining and {} hit points.'.format(
                         attacker_name, damage, defense, hit_points))
                 if damage <= 0:
                     continue
@@ -1862,12 +1913,11 @@ class EveRpg:
                         if flee is True:
                             self.logger.info(
                                 '{} has successfully fled the field.'.format(target_name))
-                            target_user.send(
-                                '**COMBAT LOG** - *Flee* You have fled the field. You have {} defense remaining and {} hit points.'.format(
+                            combat_log[target[2]].append(
+                                '__*Flee*__ You have fled the field. You have {} defense remaining and {} hit points.'.format(
                                     defense, hit_points))
-                            attacker_user.send(
-                                '**COMBAT LOG** - *Enemy Fled* {} has disengaged and warped away.'.format(target_name))
-                            flee_array.append(target[0])
+                            combat_log[attacker[2]].append(
+                                '__*Enemy Fled*__ {} has disengaged and warped away.'.format(target_name))
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
                                 continue
@@ -1884,11 +1934,11 @@ class EveRpg:
                                     if escape is True:
                                         self.logger.info(
                                             '{} has successfully fled the field.'.format(target_name))
-                                        target_user.send(
-                                            '**COMBAT LOG** - *Flee* You have cloaked. You have {} defense remaining and {} hit points.'.format(
+                                        combat_log[target[2]].append(
+                                            '__*Flee*__ You have cloaked. You have {} defense remaining and {} hit points.'.format(
                                                 defense, hit_points))
-                                        attacker_user.send(
-                                            '**COMBAT LOG** - *Enemy Fled* {} has cloaked and warped away.'.format(
+                                        combat_log[attacker[2]].append(
+                                            '__*Enemy Fled*__ {} has cloaked and warped away.'.format(
                                                 target_name))
                                         flee_array.append(target[0])
                                         if target not in attacker_fleet:
@@ -2098,6 +2148,27 @@ class EveRpg:
                 user = self.bot.get_user(fleet_member[2])
                 await user.send(embed=embed)
             await self.send_global(embed, True)
+        for key, log in combat_log.items():
+            user = self.bot.get_user(key)
+            entry_count = 0
+            embed = make_embed(icon=self.bot.user.avatar)
+            embed.set_footer(icon_url=self.bot.user.avatar_url,
+                             text="Aura - EVE Text RPG")
+            log_array = []
+            for entry in log:
+                entry_count += 1
+                log_array.append(entry)
+                if entry_count >= 4:
+                    log_array = []
+                    entry_count = 0
+                    clean_log = '\n'.join(log_array)
+                    embed.add_field(name="Combat Log",
+                                    value=clean_log)
+            if len(log_array) > 0:
+                clean_log = '\n'.join(log_array)
+                embed.add_field(name="Combat Log",
+                                value=clean_log)
+            await user.send(embed=embed)
 
     async def send_global(self, message, embed=False):
         sql = "SELECT * FROM eve_rpg_channels"
