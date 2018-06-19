@@ -1325,7 +1325,6 @@ class EveRpg:
                 break
             merged_fleet = [x for x in
                             itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
-            random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
             for attacker in merged_fleet:
@@ -1673,7 +1672,6 @@ class EveRpg:
                 break
             merged_fleet = [x for x in
                             itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if x]
-            random.shuffle(merged_fleet)
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
             for attacker in merged_fleet:
