@@ -390,7 +390,6 @@ class EveRpg:
                             values = (camper[16],)
                             fleet_two_info = await db.select_var(sql, values)
                             await self.fleet_versus_fleet(fleet_one_info[0], fleet_two_info[0], region_id)
-                        await self.process_travel()
             destination_name = await game_functions.get_region(destination_id)
             sql = ''' UPDATE eve_rpg_players
                     SET region = (?),
@@ -1095,15 +1094,14 @@ class EveRpg:
         # Give all participants a combat timer
         attacker_fleet = [attacker]
         defender_fleet = [defender]
-        merged_fleet = [attacker, defender]
-        for fleet_member in merged_fleet:
-            await add_combat_timer(fleet_member)
+        await add_combat_timer(attacker)
+        await add_combat_timer(defender)
         damaged_ships = {}
         for x in range(125):
             if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
                 break
-            merged_fleet = attacker_fleet + defender_fleet
-            random.shuffle(merged_fleet)
+            merged_fleet = [y for y in
+                            itertools.chain.from_iterable(itertools.zip_longest(attacker_fleet, defender_fleet)) if y]
             on_field = attacker_fleet + defender_fleet
             random.shuffle(on_field)
             for player in merged_fleet:
@@ -1122,7 +1120,8 @@ class EveRpg:
                                                                                            new_defense))
                 damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
-                merged_fleet.remove(attacker)
+                if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
+                    break
                 attacker_ship = ast.literal_eval(attacker[14])
                 attacker_attack, attacker_defense, attacker_maneuver, attacker_tracking = \
                     await game_functions.get_combat_attributes(attacker, attacker_ship['ship_type'])
@@ -1187,6 +1186,8 @@ class EveRpg:
                     if defense < target_defense * 0.15:
                         flee = await weighted_choice([(True, target_maneuver), (False, attacker_tracking)])
                         if flee is True:
+                            self.logger.info(
+                                '{} has successfully fled the field.'.format(target_name))
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
                                 continue
@@ -1201,12 +1202,15 @@ class EveRpg:
                                 if module_item['id'] == 40 or module_item['id'] == 41:
                                     escape = await weighted_choice([(True, 50), (False, 50)])
                                     if escape is True:
+                                        self.logger.info(
+                                            '{} has successfully fled the field.'.format(target_name))
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
                                             continue
                                         else:
                                             attacker_fleet.remove(target)
                                             continue
+                    continue
                 else:
                     killing_blow = attacker
                     winner_user, loser_user = self.bot.get_user(killing_blow[2]), self.bot.get_user(target[2])
@@ -1362,7 +1366,8 @@ class EveRpg:
                                                                                            new_defense))
                 damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
-                merged_fleet.remove(attacker)
+                if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
+                    break
                 # add chance attack doesn't occur
                 if random.random() > 0.8:
                     continue
@@ -1725,7 +1730,8 @@ class EveRpg:
                                                                                            new_defense))
                 damaged_ships[player[0]] = {'defense': new_defense, 'hit_points': hit_points}
             for attacker in merged_fleet:
-                merged_fleet.remove(attacker)
+                if len(attacker_fleet) == 0 or len(defender_fleet) == 0:
+                    break
                 # add chance attack doesn't occur
                 if random.random() > 0.8:
                     continue
