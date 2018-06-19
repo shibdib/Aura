@@ -616,7 +616,7 @@ class Market:
                         module_selection_dict[module_number] = module['id']
                         accepted_modules.append(module_number)
                         module_number += 1
-                merged = attack + defense + active_defense
+                merged = attack + defense
                 merged_two = maneuver + tracking
                 merged_three = mining
                 merged_four = other
@@ -625,6 +625,7 @@ class Market:
                 merged_heavies = heavies
                 merged_utility_drones = mining_drones
                 module_list = '\n'.join(merged)
+                module_list_active = '\n'.join(active_defense)
                 module_list_two = '\n'.join(merged_two)
                 module_list_three = '\n'.join(merged_three)
                 module_list_four = '\n'.join(merged_four)
@@ -640,6 +641,8 @@ class Market:
                                     wallet_balance))
                 embed.add_field(name="Attack and Defense Mods",
                                 value="{}\n".format(module_list))
+                embed.add_field(name="Defense Mods",
+                                value="{}\n".format(module_list_active))
                 embed.add_field(name="Maneuver and Tracking Mods",
                                 value="{}\n".format(module_list_two))
                 embed.add_field(name="Mining Mods",
