@@ -1206,9 +1206,13 @@ class EveRpg:
                                 '__*Enemy Fled*__ {} has disengaged and warped away.'.format(target_name))
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
+                                merged_fleet.remove(target)
+                                on_field.remove(target)
                                 continue
                             else:
                                 attacker_fleet.remove(target)
+                                merged_fleet.remove(target)
+                                on_field.remove(target)
                                 continue
                         # Handle Cloak
                         if target[12] is not None:
@@ -1228,9 +1232,13 @@ class EveRpg:
                                                 target_name))
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
+                                            merged_fleet.remove(target)
+                                            on_field.remove(target)
                                             continue
                                         else:
                                             attacker_fleet.remove(target)
+                                            merged_fleet.remove(target)
+                                            on_field.remove(target)
                                             continue
                     continue
                 else:
@@ -1518,9 +1526,13 @@ class EveRpg:
                                 '__*Enemy Fled*__ {} has disengaged and warped away.'.format(target_name))
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
+                                merged_fleet.remove(target)
+                                on_field.remove(target)
                                 continue
                             else:
                                 attacker_fleet.remove(target)
+                                merged_fleet.remove(target)
+                                on_field.remove(target)
                                 continue
                         # Handle Cloak
                         if target[12] is not None:
@@ -1541,9 +1553,13 @@ class EveRpg:
                                         flee_array.append(target[0])
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
+                                            merged_fleet.remove(target)
+                                            on_field.remove(target)
                                             continue
                                         else:
                                             attacker_fleet.remove(target)
+                                            merged_fleet.remove(target)
+                                            on_field.remove(target)
                                             continue
                 else:
                     if target in merged_fleet:
@@ -1939,9 +1955,13 @@ class EveRpg:
                                 '__*Enemy Fled*__ {} has disengaged and warped away.'.format(target_name))
                             if target not in attacker_fleet:
                                 defender_fleet.remove(target)
+                                merged_fleet.remove(target)
+                                on_field.remove(target)
                                 continue
                             else:
                                 attacker_fleet.remove(target)
+                                merged_fleet.remove(target)
+                                on_field.remove(target)
                                 continue
                         # Handle Cloak
                         if target[12] is not None:
@@ -1962,9 +1982,13 @@ class EveRpg:
                                         flee_array.append(target[0])
                                         if target not in attacker_fleet:
                                             defender_fleet.remove(target)
+                                            merged_fleet.remove(target)
+                                            on_field.remove(target)
                                             continue
                                         else:
                                             attacker_fleet.remove(target)
+                                            merged_fleet.remove(target)
+                                            on_field.remove(target)
                                             continue
                 else:
                     if target in merged_fleet:
