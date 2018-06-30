@@ -661,25 +661,26 @@ class EveRpg:
             sql = ''' SELECT * FROM fleet_info WHERE `fleet_id` = (?) '''
             values = (player[16],)
             fleet_info = await db.select_var(sql, values)
-            fleet_array = ast.literal_eval(fleet_info[0][3])
-            player_attack = 0
-            for member_id in fleet_array:
-                sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
-                values = (int(member_id),)
-                member = await db.select_var(sql, values)
-                if len(member) == 0:
-                    await self.remove_bad_user_id(member_id)
-                    await self.remove_bad_fleet(player[16])
-                    continue
-                if member[0][4] != region_id:
-                    continue
-                if member[0][6] != player[6] and int(player[6]) != 10:
-                    continue
-                payout_array.append(member[0])
-                member_ship = ast.literal_eval(member[0][14])
-                member_attack, member_defense, member_maneuver, member_tracking = \
-                    await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
-                player_attack += member_attack
+            if len(fleet_info) > 0:
+                fleet_array = ast.literal_eval(fleet_info[0][3])
+                player_attack = 0
+                for member_id in fleet_array:
+                    sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
+                    values = (int(member_id),)
+                    member = await db.select_var(sql, values)
+                    if len(member) == 0:
+                        await self.remove_bad_user_id(member_id)
+                        await self.remove_bad_fleet(player[16])
+                        continue
+                    if member[0][4] != region_id:
+                        continue
+                    if member[0][6] != player[6] and int(player[6]) != 10:
+                        continue
+                    payout_array.append(member[0])
+                    member_ship = ast.literal_eval(member[0][14])
+                    member_attack, member_defense, member_maneuver, member_tracking = \
+                        await game_functions.get_combat_attributes(member[0], member_ship['ship_type'])
+                    player_attack += member_attack
         ship = await game_functions.get_ship(ship_id)
         region_security = await game_functions.get_region_security(region_id)
         officer = False
