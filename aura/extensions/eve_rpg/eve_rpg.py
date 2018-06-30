@@ -667,6 +667,9 @@ class EveRpg:
                 sql = ''' SELECT * FROM eve_rpg_players WHERE `id` = (?) '''
                 values = (int(member_id),)
                 member = await db.select_var(sql, values)
+                if len(member) == 0:
+                    await self.remove_bad_user(member_id)
+                    continue
                 if member[0][4] != region_id:
                     continue
                 if member[0][6] != player[6] and int(player[6]) != 10:
