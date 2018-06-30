@@ -668,7 +668,8 @@ class EveRpg:
                 values = (int(member_id),)
                 member = await db.select_var(sql, values)
                 if len(member) == 0:
-                    await self.remove_bad_user(member_id)
+                    await self.remove_bad_user_id(member_id)
+                    await self.remove_bad_fleet(player[16])
                     continue
                 if member[0][4] != region_id:
                     continue
@@ -2246,11 +2247,23 @@ class EveRpg:
         await db.execute_sql(sql, values)
         return self.logger.info('eve_rpg - Bad player removed successfully')
 
+    async def remove_bad_user_id(self, player_id):
+        sql = ''' DELETE FROM eve_rpg_players WHERE `id` = (?) '''
+        values = (player_id,)
+        await db.execute_sql(sql, values)
+        return self.logger.info('eve_rpg - Bad player removed successfully')
+
     async def remove_bad_channel(self, channel_id):
         sql = ''' DELETE FROM eve_rpg_channels WHERE `channel_id` = (?) '''
         values = (channel_id,)
         await db.execute_sql(sql, values)
         return self.logger.info('eve_rpg - Bad Channel removed successfully')
+
+    async def remove_bad_fleet(self, fleet_id):
+        sql = ''' DELETE FROM fleet_info WHERE `fleet_id` = (?) '''
+        values = (fleet_id,)
+        await db.execute_sql(sql, values)
+        return self.logger.info('eve_rpg - Bad fleet removed successfully')
 
     async def destroy_ship(self, player):
         player = await game_functions.refresh_player(player)
