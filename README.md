@@ -1,4 +1,4 @@
-# Aura
+# Aura (NOT CURRENTLY ACTIVE)
 
 An EVE Online Discord Bot Based Text RPG
 
